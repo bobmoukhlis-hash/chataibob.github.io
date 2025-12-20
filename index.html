@@ -6,80 +6,39 @@
   <title>ChatAI Bob PRO 2025 💎</title>
   <style>
     body {
-      margin: 0;
-      height: 100vh;
       background-color: #000;
       color: #00ffee;
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      overflow: hidden;
+      align-items: center;
+      height: 100vh;
       text-align: center;
     }
-    h2 {
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
     .loader {
-      border: 4px solid #222;
+      border: 4px solid #333;
       border-top: 4px solid #00ffee;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    iframe {
-      width: 100%;
-      height: 100vh;
-      border: none;
-      display: none;
-    }
-    .paypal {
-      position: absolute;
-      bottom: 20px;
-      text-align: center;
-      width: 100%;
-      font-size: 1em;
-    }
-    .paypal a {
-      color: #00ffee;
-      text-decoration: none;
-    }
-    .paypal a:hover {
-      text-decoration: underline;
-    }
   </style>
 </head>
 <body>
-  <div id="loading">
-    <h2>🤖 ChatAI Bob PRO si sta avviando...</h2>
-    <div class="loader"></div>
-    <p>Attendi un momento ⏳</p>
-  </div>
-
-  <iframe id="chatFrame" 
-    src="https://bouabid79-chat-ai-bob-pro.hf.space"
-    allow="microphone; camera; clipboard-read; clipboard-write">
-  </iframe>
-
-  <div class="paypal">
-    💎 <a href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
-      Sostieni ChatAI Bob PRO su PayPal
-    </a>
-  </div>
+  <div class="loader"></div>
+  <h2>🤖 ChatAI Bob PRO si sta avviando...</h2>
+  <p>Attendi un momento ⏳</p>
 
   <script>
-    // Mostra la chat dopo 2 secondi
     setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("chatFrame").style.display = "block";
+      window.location.href = "https://bouabid79-chat-ai-bob-pro.hf.space";
     }, 2000);
   </script>
 </body>
