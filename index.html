@@ -23,8 +23,8 @@
       to { opacity: 1; }
     }
     h2 {
-      font-size: 1.5em;
-      margin-bottom: 20px;
+      font-size: 1.6em;
+      margin-bottom: 18px;
       text-align: center;
     }
     .loader {
@@ -34,6 +34,7 @@
       width: 45px;
       height: 45px;
       animation: spin 1s linear infinite;
+      margin-bottom: 15px;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -48,32 +49,4 @@
       font-size: 14px;
     }
     #premium a {
-      color: #00ccff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    #premium a:hover {
-      color: #00ffaa;
-    }
-  </style>
-</head>
-<body>
-  <div id="loading">
-    <h2>🤖 ChatAI Bob PRO si sta avviando...</h2>
-    <div class="loader"></div>
-    <p>Attendi un momento ⏳</p>
-  </div>
-
-  <div id="premium">
-    💎 <a href="https://www.paypal.com/donate?business=TUO_EMAIL_PAYPAL&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
-      Sostienimi su PayPal (Premium automatico)
-    </a>
-  </div>
-
-  <script>
-    setTimeout(() => {
-      window.location.href = "https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO";
-    }, 2000);
-  </script>
-</body>
-</html>
+      color
