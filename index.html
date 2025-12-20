@@ -15,6 +15,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
     h2 {
       font-size: 1.5em;
@@ -33,11 +34,20 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    iframe {
-      width: 100%;
-      height: 100vh;
-      border: none;
-      display: none;
+    #premium {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+    }
+    #premium a {
+      color: #00ccff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #premium a:hover {
+      color: #00ffaa;
     }
   </style>
 </head>
@@ -45,16 +55,20 @@
   <div id="loading">
     <h2>🤖 ChatAI Bob PRO si sta avviando...</h2>
     <div class="loader"></div>
-    <p>Caricamento della chat su Hugging Face ⏳</p>
+    <p>Attendi un momento ⏳</p>
   </div>
 
-  <iframe id="chatFrame" src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO"></iframe>
+  <div id="premium">
+    💎 <a href="https://www.paypal.com/donate?business=TUO_EMAIL_PAYPAL&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
+      Sostienimi su PayPal (Premium automatico)
+    </a>
+  </div>
 
   <script>
+    // Dopo 2 secondi apre la chat ufficiale su Hugging Face
     setTimeout(() => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('chatFrame').style.display = 'block';
-    }, 1500);
+      window.location.href = "https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO";
+    }, 2000);
   </script>
 </body>
 </html>
