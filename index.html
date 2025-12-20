@@ -1,13 +1,62 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatAI Bob</title>
-  <meta http-equiv="refresh" content="0; url=https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO">
-</head>
-<body style="background-color:#000; color:#fff; text-align:center; padding-top:50px;">
-  <h2>Reindirizzamento a ChatAI Bob...</h2>
-  <p>Se non si apre automaticamente, <a href="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO" style="color:lightblue;">clicca qui</a>.</p>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatAI Bob by AI Labs</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: "Segoe UI", sans-serif;
+        overflow: hidden;
+      }
+      iframe {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+      }
+      .exit-btn {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #111;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 6px;
+        padding: 8px 16px;
+        cursor: pointer;
+        z-index: 9999;
+      }
+      .exit-btn:hover {
+        background: #333;
+      }
+      .footer {
+        position: fixed;
+        bottom: 8px;
+        width: 100%;
+        text-align: center;
+        color: #888;
+        font-size: 14px;
+        z-index: 9999;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button class="exit-btn" onclick="window.close()">Esci</button>
+
+    <iframe
+      src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO?embed=true"
+      title="ChatAI Bob"
+      allow="microphone; camera"
+    ></iframe>
+
+    <div class="footer">🤖 ChatAI Bob by AI Labs</div>
+  </body>
 </html>
