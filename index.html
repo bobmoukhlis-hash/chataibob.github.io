@@ -3,79 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatAI Bob PRO</title>
+  <title>ChatAI Bob PRO Premium</title>
   <style>
     body {
       margin: 0;
-      height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
       background-color: #000;
       color: #00ffcc;
-      font-family: Arial, sans-serif;
+      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 1.5s ease;
-      overflow: hidden;
+      height: 100vh;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+
+    h1 {
+      font-size: 2em;
+      color: #00ffcc;
+      margin-bottom: 10px;
     }
-    h2 {
-      font-size: 1.6em;
-      margin-bottom: 18px;
-      text-align: center;
+
+    p {
+      color: #ccc;
+      margin: 6px 0;
+      font-size: 1.1em;
     }
-    .loader {
-      border: 4px solid #222;
-      border-top: 4px solid #00ffcc;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
+
+    .benefits {
+      background: rgba(0, 255, 204, 0.05);
+      border: 1px solid #00ffcc;
+      border-radius: 10px;
+      padding: 15px;
+      width: 85%;
+      max-width: 400px;
+      margin-bottom: 20px;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+
+    .btn {
+      display: inline-block;
+      background-color: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      padding: 14px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.2em;
+      transition: 0.3s;
     }
-    #premium {
+
+    .btn:hover {
+      background-color: #00ffaa;
+      transform: scale(1.05);
+    }
+
+    .footer {
       position: absolute;
-      bottom: 25px;
-      text-align: center;
-      width: 100%;
-      color: #fff;
-      font-size: 14px;
+      bottom: 15px;
+      font-size: 0.9em;
+      color: #888;
     }
-    #premium a {
+
+    .footer a {
       color: #00ccff;
       text-decoration: none;
-      font-weight: bold;
-    }
-    #premium a:hover {
-      color: #00ffaa;
     }
   </style>
 </head>
 <body>
-  <div id="loading">
-    <h2>🤖 ChatAI Bob PRO si sta avviando...</h2>
-    <div class="loader"></div>
-    <p>Attendi un momento ⏳</p>
+  <h1>💎 ChatAI Bob PRO Premium</h1>
+  <p>Ottieni accesso illimitato a:</p>
+
+  <div class="benefits">
+    <p>🗣️ Chat AI avanzata</p>
+    <p>🖼️ Generazione di immagini</p>
+    <p>🎬 Video AI e voce automatica</p>
+    <p>⚡ Nessun limite di messaggi</p>
+    <p>🔒 Supporto Premium 24/7</p>
   </div>
 
-  <div id="premium">
-    💎 <a href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
-      Sostienimi su PayPal (Premium automatico)
-    </a>
-  </div>
+  <a class="btn"
+     href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR&return=https://bobmoukhlis-hash.github.io/"
+     target="_blank">
+    🚀 Sblocca ChatAI Bob PRO
+  </a>
 
-  <script>
-    // Dopo 2 secondi apre la chat ufficiale su Hugging Face
-    setTimeout(() => {
-      window.location.href = "https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO";
-    }, 2000);
-  </script>
+  <div class="footer">
+    <p>Creato con ❤️ da ChatAI Bob Labs</p>
+    <p><a href="https://bobmoukhlis-hash.github.io/">⬅ Torna alla chat</a></p>
+  </div>
 </body>
 </html>
