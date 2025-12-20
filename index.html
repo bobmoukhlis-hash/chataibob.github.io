@@ -8,37 +8,18 @@
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
     background-color: #000;
-    color: #0f0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    height: 100%;
+    overflow: hidden;
   }
-  a {
-    display: inline-block;
-    background-color: #00ff66;
-    color: #000;
-    text-decoration: none;
-    padding: 14px 22px;
-    font-weight: bold;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-  a:hover {
-    background-color: #00cc55;
+  iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
   }
 </style>
 </head>
 <body>
-  <div>
-    <h2>🤖 ChatAI Bob by AI Labs</h2>
-    <p style="color:#ccc">Premi il pulsante per avviare la chat.</p>
-    <a href="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO" target="_blank">
-      🚀 Apri ChatAI Bob
-    </a>
-  </div>
+  <iframe src="https://bouabid79-chat-ai-bob-pro.hf.space" allow="microphone; camera"></iframe>
 </body>
 </html>
