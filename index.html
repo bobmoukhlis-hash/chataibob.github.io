@@ -1,365 +1,97 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ChatAI Bob PRO 2025</title>
   <style>
-    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:#070b12;color:#e8f1ff}
-    .wrap{max-width:980px;margin:0 auto;padding:18px}
-    .card{background:#0b1220;border:1px solid #13223d;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    h1{margin:0 0 8px;font-size:22px}
-    .muted{opacity:.8;font-size:13px}
-    .grid{display:grid;gap:12px}
-    @media (min-width:860px){.grid{grid-template-columns:1.2fr .8fr}}
-    textarea,select,button,input{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid #1a2f55;background:#071022;color:#e8f1ff;padding:12px}
-    textarea{min-height:110px;resize:vertical}
-    button{cursor:pointer;background:linear-gradient(90deg,#00e5ff,#3b82f6);border:0;font-weight:700}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .row > *{flex:1;min-width:150px}
-    .out{white-space:pre-wrap;background:#071022;border:1px solid #1a2f55;border-radius:12px;padding:12px;min-height:140px}
-    .media{display:grid;gap:10px}
-    img,video{width:100%;border-radius:12px;border:1px solid #1a2f55;background:#000}
-    .paypal{display:block;text-align:center;margin-top:12px;text-decoration:none;font-weight:700;color:#00e5ff}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #1a2f55;background:#071022;font-size:12px;opacity:.9}
-    .mini{font-size:12px;opacity:.75}
+    body{
+      margin:0;
+      font-family:system-ui,Arial;
+      background:#070b12;
+      color:#e8f1ff;
+    }
+    .wrap{max-width:800px;margin:auto;padding:16px}
+    .card{
+      background:#0b1220;
+      border:1px solid #13223d;
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:12px;
+    }
+    textarea,button,select{
+      width:100%;
+      border-radius:10px;
+      padding:12px;
+      border:1px solid #1a2f55;
+      background:#071022;
+      color:#fff;
+      box-sizing:border-box;
+    }
+    button{
+      background:linear-gradient(90deg,#00e5ff,#3b82f6);
+      border:0;
+      font-weight:700;
+      margin-top:10px;
+    }
+    .out{
+      white-space:pre-wrap;
+      margin-top:10px;
+      min-height:120px;
+      background:#071022;
+      padding:10px;
+      border-radius:10px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>🤖 ChatAI Bob PRO 2025</h1>
-      <div class="muted">Chat (Groq via Worker), Immagini/GIF (Pollinations), Microfono + Upload Foto + Voce</div>
-      <div style="margin-top:10px" class="pill">GitHub Pages ✅ (senza chiavi nel browser)</div>
-      <div class="mini" style="margin-top:8px">Suggerimento: per microfono/voce usa Chrome. Su alcuni browser mobile può essere limitato.</div>
-    </div>
 
-    <div style="height:12px"></div>
-
-    <div class="grid">
-      <div class="card">
-        <label class="muted">✍️ Scrivi un messaggio</label>
-        <textarea id="prompt" placeholder="es. crea un esempio di codice html oppure descrivi questa foto"></textarea>
-
-        <div style="height:10px"></div>
-
-        <div class="row">
-          <div>
-            <label class="muted">Lingua</label>
-            <select id="lang">
-              <option value="it" selected>it</option>
-              <option value="en">en</option>
-              <option value="fr">fr</option>
-              <option value="es">es</option>
-            </select>
-          </div>
-          <div>
-            <label class="muted">Tipo</label>
-            <select id="tipo">
-              <option value="Chat" selected>Chat</option>
-              <option value="Immagine">Immagine</option>
-              <option value="Video">Video (GIF)</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="row">
-          <button id="micBtn" type="button" style="background:#0b1220;border:1px solid #1a2f55;">🎤 Microfono</button>
-          <input id="photo" type="file" accept="image/*" />
-        </div>
-
-        <div style="height:10px"></div>
-        <img id="photoPreview" alt="" style="display:none" />
-
-        <div style="height:10px"></div>
-        <button id="btn" type="button">🚀 Invia</button>
-
-        <div style="height:10px"></div>
-        <label class="muted">💬 Output</label>
-        <div id="output" class="out"></div>
-
-        <div style="height:10px"></div>
-        <button id="speakBtn" type="button" style="background:#0b1220;border:1px solid #1a2f55;">🔊 Leggi con voce</button>
-
-        <a class="paypal" href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank" rel="noopener">
-          💎 Sostieni ChatAI Bob PRO su PayPal
-        </a>
-
-        <div class="muted" style="margin-top:10px">
-          ✅ Sicurezza: la chiave Groq è nel Cloudflare Worker (Secret). Qui c’è solo l’URL.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="media">
-          <div>
-            <label class="muted">🖼️ Immagine</label>
-            <img id="img" alt="" style="display:none" />
-          </div>
-          <div>
-            <label class="muted">🎥 GIF</label>
-            <img id="gif" alt="" style="display:none" />
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="wrap">
+  <div class="card">
+    <h2>🤖 ChatAI Bob PRO 2025</h2>
+    <p>Groq via Cloudflare Worker – versione stabile</p>
   </div>
 
+  <div class="card">
+    <textarea id="prompt" placeholder="Scrivi un messaggio..."></textarea>
+    <button onclick="send()">🚀 Invia</button>
+    <div id="out" class="out"></div>
+  </div>
+</div>
+
 <script>
-  // ====== CONFIG (già impostato col tuo Worker) ======
+  // 🔴 NON TOCCARE QUESTA RIGA
   const WORKER_BASE = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
+  const CHAT_URL = WORKER_BASE + "/chat";
 
-  const GROQ_CHAT_URL = WORKER_BASE.replace(/\/$/,"") + "/chat";
-  const GROQ_VISION_URL = WORKER_BASE.replace(/\/$/,"") + "/vision";
-
-  function pulisciPrompt(prompt){
-    const correzioni = {
-      "cavolo":"animale divertente",
-      "figo":"personaggio interessante",
-      "strano":"creatura insolita",
-      "bello":"immagine affascinante",
-      "mostro":"creatura fantasy",
-      "foto":"immagine realistica",
-      "video":"clip animata"
-    };
-    let p = (prompt||"").trim();
-    for (const [k,v] of Object.entries(correzioni)){
-      p = p.replace(new RegExp(k, "gi"), v);
+  async function send(){
+    const out = document.getElementById("out");
+    const text = document.getElementById("prompt").value.trim();
+    if(!text){
+      out.textContent = "Scrivi qualcosa.";
+      return;
     }
-    return p.trim();
-  }
 
-  function pollinationsUrl(text){
-    return "https://image.pollinations.ai/prompt/" + encodeURIComponent(text);
-  }
-  function fakeGifUrl(text){
-    return pollinationsUrl((text || "cinematic scene") + " cinematic scene");
-  }
+    out.textContent = "⏳ Attendi...";
 
-  async function safeJson(res){
-    const t = await res.text();
-    try { return JSON.parse(t); } catch { return { _raw: t }; }
-  }
-
-  async function chatGroq(prompt, lang){
-    if(!WORKER_BASE){
-      return "❌ WORKER_BASE non configurato.";
-    }
-    const smart =
-      "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\n" +
-      "Lingua richiesta: " + lang + "\n" +
-      "Utente: " + prompt;
-
-    let res;
     try{
-      res = await fetch(GROQ_CHAT_URL, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{role:"user", content: smart}],
-          temperature: 0.7,
-          max_tokens: 500
+      const r = await fetch(CHAT_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"llama-3.3-70b-versatile",
+          messages:[{role:"user",content:text}],
+          max_tokens:400
         })
       });
-    } catch(e){
-      return "❌ Worker non raggiungibile: " + e;
-    }
 
-    const data = await safeJson(res);
-    if(!res.ok) return "❌ Errore Worker ("+res.status+"): " + (data?.error || data?._raw || JSON.stringify(data));
-    return data.text || "(nessuna risposta)";
-  }
-
-  function fileToBase64DataUrl(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function visionGroq(prompt, image_base64){
-    let res;
-    try{
-      res = await fetch(GROQ_VISION_URL, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          prompt: prompt || "Descrivi l'immagine.",
-          image_base64
-        })
-      });
-    } catch(e){
-      return "❌ Worker Vision non raggiungibile: " + e;
-    }
-
-    const data = await safeJson(res);
-    if(!res.ok) return "❌ Errore Vision ("+res.status+"): " + (data?.error || data?._raw || JSON.stringify(data));
-    return data.text || "(nessuna risposta)";
-  }
-
-  function speak(text, lang){
-    try{
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang || "it-IT";
-      window.speechSynthesis.speak(u);
+      const data = await r.json();
+      out.textContent = data.text || "Nessuna risposta.";
     }catch(e){
-      alert("TTS non disponibile: " + e);
+      out.textContent = "❌ Errore: " + e;
     }
   }
-
-  const promptEl = document.getElementById("prompt");
-  const langEl = document.getElementById("lang");
-  const tipoEl = document.getElementById("tipo");
-  const btn = document.getElementById("btn");
-  const out = document.getElementById("output");
-  const img = document.getElementById("img");
-  const gif = document.getElementById("gif");
-  const speakBtn = document.getElementById("speakBtn");
-
-  const micBtn = document.getElementById("micBtn");
-  const photoInput = document.getElementById("photo");
-  const photoPreview = document.getElementById("photoPreview");
-
-  let lastText = "";
-
-  function uiLangTag(){
-    return langEl.value === "it" ? "it-IT"
-      : langEl.value === "en" ? "en-US"
-      : langEl.value === "fr" ? "fr-FR"
-      : "es-ES";
-  }
-
-  // ===== Microfono (Speech-to-Text) =====
-  let recognizing = false;
-  let recognition = null;
-
-  function setupMic(lang){
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition) return null;
-    const r = new SpeechRecognition();
-    r.continuous = false;
-    r.interimResults = true;
-    r.lang = lang;
-    return r;
-  }
-
-  micBtn.addEventListener("click", () => {
-    const l = uiLangTag();
-
-    if(!recognition) recognition = setupMic(l);
-    if(!recognition){
-      out.textContent = "❌ Microfono non supportato su questo browser.";
-      return;
-    }
-    recognition.lang = l;
-
-    if(recognizing){
-      recognition.stop();
-      recognizing = false;
-      micBtn.textContent = "🎤 Microfono";
-      return;
-    }
-
-    recognizing = true;
-    micBtn.textContent = "⏹ Stop";
-    recognition.start();
-
-    recognition.onresult = (e) => {
-      let transcript = "";
-      for (let i = e.resultIndex; i < e.results.length; i++){
-        transcript += e.results[i][0].transcript;
-      }
-      promptEl.value = transcript.trim();
-    };
-
-    recognition.onend = () => {
-      recognizing = false;
-      micBtn.textContent = "🎤 Microfono";
-    };
-
-    recognition.onerror = () => {
-      recognizing = false;
-      micBtn.textContent = "🎤 Microfono";
-    };
-  });
-
-  // Preview foto
-  photoInput.addEventListener("change", async () => {
-    const f = photoInput.files?.[0];
-    if(!f) return;
-    const dataUrl = await fileToBase64DataUrl(f);
-    photoPreview.src = dataUrl;
-    photoPreview.style.display = "block";
-  });
-
-  // Invio
-  btn.addEventListener("click", async () => {
-    const testo = pulisciPrompt(promptEl.value);
-    const lang = langEl.value;
-    const tipo = tipoEl.value;
-
-    img.style.display="none";
-    gif.style.display="none";
-    out.textContent = "";
-    lastText = "";
-
-    if(!testo && !photoInput.files?.[0]){
-      out.textContent = "⚠️ Scrivi un messaggio oppure carica una foto.";
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = "⏳ Attendi...";
-
-    try{
-      if(tipo === "Immagine"){
-        const url = pollinationsUrl(testo || "creative image");
-        img.src = url;
-        img.style.display = "block";
-        out.textContent = "🖼️ Immagine generata!";
-        lastText = "Immagine generata";
-      } else if(tipo === "Video"){
-        const url = fakeGifUrl(testo || "cinematic scene");
-        gif.src = url;
-        gif.style.display = "block";
-        out.textContent = "🎥 GIF generata (anteprima).";
-        lastText = "GIF generata";
-      } else {
-        const f = photoInput.files?.[0];
-        if(f){
-          const dataUrl = await fileToBase64DataUrl(f);
-          const text = await visionGroq(testo || "Descrivi questa foto.", dataUrl);
-          out.textContent = text;
-          lastText = text;
-        } else {
-          const text = await chatGroq(testo, lang);
-          out.textContent = text;
-          lastText = text;
-        }
-      }
-    } catch(e){
-      out.textContent = "⚠️ Errore: " + e;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "🚀 Invia";
-    }
-  });
-
-  // Leggi con voce
-  speakBtn.addEventListener("click", () => {
-    if(!lastText){
-      out.textContent = out.textContent || "⚠️ Nessun testo da leggere.";
-      return;
-    }
-    speak(lastText, uiLangTag());
-  });
 </script>
+
 </body>
 </html>
