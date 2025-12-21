@@ -120,39 +120,68 @@
     return "https://image.pollinations.ai/prompt/" + encodeURIComponent(text);
   }
 
-  // ✅ "Video" = GIF con 3 frame (semplice): qui facciamo 1 GIF fake usando 1 immagine sola.
-  // Se vuoi una vera GIF multi-frame in JS, serve canvas + encoding (più pesante).
+  // ✅ "Video" = GIF fake: usiamo 1 immagine “cinematic”
   function fakeGifUrl(text){
-    // Trick: aggiungo parole per ottenere una variante "tipo scena"
     return pollinationsUrl(text + " cinematic scene");
   }
 
   // ✅ Groq via PROXY (NON mettere la chiave nel browser!)
-  // Qui devi inserire l’URL del tuo Cloudflare Worker (te lo preparo sotto).
-  https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev= ""; // <-- incolla qui l'url del worker (es: https://groq-proxy.tuo-worker.workers.dev)
+  // 👇 METTI QUI IL TUO WORKER (questa è la forma corretta)
+  const GROQ_PROXY_URL = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
+
+  function normalizeUrl(u){
+    // evita errori strani se manca lo schema o ci sono spazi
+    let s = (u || "").trim();
+    // (opzionale) aggiungi slash finale se vuoi: non è obbligatorio
+    return s;
+  }
+
+  async function safeReadJson(res){
+    const text = await res.text();
+    try { return { json: JSON.parse(text), raw: text }; }
+    catch { return { json: null, raw: text }; }
+  }
 
   async function chatGroq(prompt, lang){
-    if(!GROQ_PROXY_URL){
-      return "❌ PROXY Groq non configurato. Serve un Cloudflare Worker per proteggere la chiave.\nScrivimi 'fammi worker' e te lo do pronto.";
+    const url = normalizeUrl(GROQ_PROXY_URL);
+    if(!url){
+      return "❌ PROXY Groq non configurato.\nInserisci GROQ_PROXY_URL nello script.";
     }
-    const smart = "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\nUtente: " + prompt;
 
-    const res = await fetch(GROQ_PROXY_URL, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{role:"user", content: smart}],
-        temperature: 0.7,
-        max_tokens: 500,
-        lang
-      })
-    });
-    const data = await res.json();
-    if(!res.ok){
-      return "❌ Errore proxy: " + (data.error || JSON.stringify(data));
+    const smart =
+      "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\n" +
+      "Lingua richiesta: " + lang + "\n" +
+      "Utente: " + prompt;
+
+    let res;
+    try{
+      res = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{role:"user", content: smart}],
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+    }catch(e){
+      return "❌ Non riesco a contattare il Worker.\nDettagli: " + e;
     }
-    return data.text || "(nessuna risposta)";
+
+    const { json, raw } = await safeReadJson(res);
+
+    if(!res.ok){
+      return "❌ Errore proxy (" + res.status + "): " + (json?.error || raw || "errore sconosciuto");
+    }
+
+    // supporta sia {text:"..."} che {choices:[...]} se il tuo worker torna la risposta stile OpenAI
+    if(json?.text) return json.text;
+
+    const maybeChoice = json?.choices?.[0]?.message?.content;
+    if(maybeChoice) return maybeChoice;
+
+    return "⚠️ Risposta inattesa dal Worker:\n" + (raw || JSON.stringify(json));
   }
 
   // ✅ Voce browser (no mp3)
@@ -227,7 +256,6 @@
       out.textContent = out.textContent || "⚠️ Nessun testo da leggere.";
       return;
     }
-    // usa lang tipo it-IT / en-US etc. (basta mettere it/en/fr/es)
     const l = langEl.value === "it" ? "it-IT"
             : langEl.value === "en" ? "en-US"
             : langEl.value === "fr" ? "fr-FR"
