@@ -16,8 +16,8 @@
     textarea{min-height:110px;resize:vertical}
     button{cursor:pointer;background:linear-gradient(90deg,#00e5ff,#3b82f6);border:0;font-weight:700}
     button:disabled{opacity:.5;cursor:not-allowed}
-    .row{display:flex;gap:10px}
-    .row > *{flex:1}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1;min-width:150px}
     .out{white-space:pre-wrap;background:#071022;border:1px solid #1a2f55;border-radius:12px;padding:12px;min-height:140px}
     .media{display:grid;gap:10px}
     img,video{width:100%;border-radius:12px;border:1px solid #1a2f55;background:#000}
@@ -32,7 +32,7 @@
       <h1>🤖 ChatAI Bob PRO 2025</h1>
       <div class="muted">Chat (Groq via Worker), Immagini/GIF (Pollinations), Microfono + Upload Foto + Voce</div>
       <div style="margin-top:10px" class="pill">GitHub Pages ✅ (senza chiavi nel browser)</div>
-      <div class="mini" style="margin-top:8px">Suggerimento: per microfono/voce usa Chrome/Edge. Su alcuni browser mobile può essere limitato.</div>
+      <div class="mini" style="margin-top:8px">Suggerimento: per microfono/voce usa Chrome. Su alcuni browser mobile può essere limitato.</div>
     </div>
 
     <div style="height:12px"></div>
@@ -67,7 +67,7 @@
         <div style="height:10px"></div>
 
         <div class="row">
-          <button id="micBtn" style="background:#0b1220;border:1px solid #1a2f55;">🎤 Microfono</button>
+          <button id="micBtn" type="button" style="background:#0b1220;border:1px solid #1a2f55;">🎤 Microfono</button>
           <input id="photo" type="file" accept="image/*" />
         </div>
 
@@ -75,16 +75,16 @@
         <img id="photoPreview" alt="" style="display:none" />
 
         <div style="height:10px"></div>
-        <button id="btn">🚀 Invia</button>
+        <button id="btn" type="button">🚀 Invia</button>
 
         <div style="height:10px"></div>
         <label class="muted">💬 Output</label>
         <div id="output" class="out"></div>
 
         <div style="height:10px"></div>
-        <button id="speakBtn" style="background:#0b1220;border:1px solid #1a2f55;">🔊 Leggi con voce</button>
+        <button id="speakBtn" type="button" style="background:#0b1220;border:1px solid #1a2f55;">🔊 Leggi con voce</button>
 
-        <a class="paypal" href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
+        <a class="paypal" href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank" rel="noopener">
           💎 Sostieni ChatAI Bob PRO su PayPal
         </a>
 
@@ -109,12 +109,11 @@
   </div>
 
 <script>
-  // ====== CONFIG (metti qui il tuo Worker) ======
-  const WORKER_BASE = "PASTE_YOUR_WORKER_URL_HERE"; // es: https://xxxx.workers.dev
+  // ====== CONFIG (già impostato col tuo Worker) ======
+  const WORKER_BASE = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
   const GROQ_CHAT_URL = WORKER_BASE.replace(/\/$/,"") + "/chat";
   const GROQ_VISION_URL = WORKER_BASE.replace(/\/$/,"") + "/vision";
 
-  // --- filtro prompt ---
   function pulisciPrompt(prompt){
     const correzioni = {
       "cavolo":"animale divertente",
@@ -127,18 +126,16 @@
     };
     let p = (prompt||"").trim();
     for (const [k,v] of Object.entries(correzioni)){
-      // replace case-insensitive semplice
       p = p.replace(new RegExp(k, "gi"), v);
     }
     return p.trim();
   }
 
-  // ✅ Pollinations
   function pollinationsUrl(text){
     return "https://image.pollinations.ai/prompt/" + encodeURIComponent(text);
   }
   function fakeGifUrl(text){
-    return pollinationsUrl(text + " cinematic scene");
+    return pollinationsUrl((text || "cinematic scene") + " cinematic scene");
   }
 
   async function safeJson(res){
@@ -147,9 +144,8 @@
   }
 
   async function chatGroq(prompt, lang){
-    if(!WORKER_BASE || WORKER_BASE.includes("PASTE_YOUR_WORKER_URL_HERE")){
-      return "❌ const WORKER_BASE = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
-";
+    if(!WORKER_BASE){
+      return "❌ WORKER_BASE non configurato.";
     }
     const smart =
       "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\n" +
@@ -187,9 +183,6 @@
   }
 
   async function visionGroq(prompt, image_base64){
-    if(!WORKER_BASE || WORKER_BASE.includes("PASTE_YOUR_WORKER_URL_HERE")){
-      return "❌ Inserisci il tuo Worker URL in WORKER_BASE nello script.";
-    }
     let res;
     try{
       res = await fetch(GROQ_VISION_URL, {
@@ -209,7 +202,6 @@
     return data.text || "(nessuna risposta)";
   }
 
-  // ✅ Voce (TTS)
   function speak(text, lang){
     try{
       window.speechSynthesis.cancel();
@@ -221,7 +213,6 @@
     }
   }
 
-  // ====== UI hooks ======
   const promptEl = document.getElementById("prompt");
   const langEl = document.getElementById("lang");
   const tipoEl = document.getElementById("tipo");
@@ -244,7 +235,7 @@
       : "es-ES";
   }
 
-  // ====== Microfono (Speech-to-Text) ======
+  // ===== Microfono (Speech-to-Text) =====
   let recognizing = false;
   let recognition = null;
 
@@ -298,7 +289,7 @@
     };
   });
 
-  // ====== Preview foto ======
+  // Preview foto
   photoInput.addEventListener("change", async () => {
     const f = photoInput.files?.[0];
     if(!f) return;
@@ -307,7 +298,7 @@
     photoPreview.style.display = "block";
   });
 
-  // ====== Invio ======
+  // Invio
   btn.addEventListener("click", async () => {
     const testo = pulisciPrompt(promptEl.value);
     const lang = langEl.value;
@@ -360,7 +351,7 @@
     }
   });
 
-  // ====== Leggi con voce ======
+  // Leggi con voce
   speakBtn.addEventListener("click", () => {
     if(!lastText){
       out.textContent = out.textContent || "⚠️ Nessun testo da leggere.";
