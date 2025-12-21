@@ -148,7 +148,8 @@
 
   async function chatGroq(prompt, lang){
     if(!WORKER_BASE || WORKER_BASE.includes("PASTE_YOUR_WORKER_URL_HERE")){
-      return "❌ Inserisci il tuo Worker URL in WORKER_BASE nello script.";
+      return "❌ const WORKER_BASE = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
+";
     }
     const smart =
       "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\n" +
