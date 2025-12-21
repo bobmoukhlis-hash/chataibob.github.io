@@ -4,24 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob</title>
-<meta name="description" content="ChatAI Bob — Il tuo assistente AI gratuito per chat, immagini e voce.">
-<link rel="icon" href="https://i.imgur.com/pC9ySdn.png">
 <style>
-  * {
+  html, body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-  }
-  html, body {
     height: 100%;
     background-color: #000;
-    color: white;
-    font-family: "Poppins", sans-serif;
     overflow: hidden;
   }
   iframe {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     border: none;
   }
   #exitBtn {
@@ -36,22 +29,18 @@
     font-weight: bold;
     font-size: 15px;
     cursor: pointer;
-    box-shadow: 0 0 10px #00ff88;
-    transition: 0.2s ease;
     z-index: 9999;
-  }
-  #exitBtn:hover {
-    background-color: #00cc6a;
   }
 </style>
 </head>
-
 <body>
+  <!-- Chat integrata da Hugging Face (senza logo visibile) -->
   <iframe 
-    src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO?embed=true" 
+    src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO?embed=true"
     allow="camera; microphone; clipboard-read; clipboard-write">
   </iframe>
 
+  <!-- Pulsante per uscire -->
   <button id="exitBtn" onclick="window.close();">Esci</button>
 </body>
 </html>
