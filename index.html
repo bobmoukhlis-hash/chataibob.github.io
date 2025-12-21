@@ -9,6 +9,7 @@
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
     background-color: #000;
     overflow: hidden;
   }
@@ -34,13 +35,12 @@
 </style>
 </head>
 <body>
-  <!-- Chat integrata da Hugging Face (senza logo visibile) -->
   <iframe 
     src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO?embed=true"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation"
     allow="camera; microphone; clipboard-read; clipboard-write">
   </iframe>
 
-  <!-- Pulsante per uscire -->
   <button id="exitBtn" onclick="window.close();">Esci</button>
 </body>
 </html>
