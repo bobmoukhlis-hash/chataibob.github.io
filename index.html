@@ -19,7 +19,7 @@ body {
   align-items: center;
   color: white;
   text-align: center;
-  background: radial-gradient(circle at center, #000, #000814, #000);
+  background: radial-gradient(circle at bottom, #00111a, #000814, #000);
 }
 
 /* Particelle */
@@ -32,7 +32,7 @@ canvas {
   z-index: -1;
 }
 
-/* Titoli */
+/* Testo */
 h1 {
   font-size: 2.3em;
   background: linear-gradient(90deg, #00ffff, #ff66ff);
@@ -40,9 +40,8 @@ h1 {
   -webkit-text-fill-color: transparent;
   margin: 10px 0;
 }
-
 #typing {
-  font-size: 1.1em;
+  font-size: 1.2em;
   color: #00eaff;
   min-height: 1.5em;
   white-space: nowrap;
@@ -50,11 +49,12 @@ h1 {
   animation: blink 0.8s infinite;
   margin-bottom: 25px;
 }
-@keyframes blink { 50% { border-color: transparent; } }
+@keyframes blink {
+  50% { border-color: transparent; }
+}
 
 /* Pulsanti */
-button, a.button {
-  display: inline-block;
+button {
   background: linear-gradient(90deg, #00bcd4, #2196f3);
   color: white;
   border: none;
@@ -63,15 +63,11 @@ button, a.button {
   border-radius: 30px;
   cursor: pointer;
   margin: 10px;
-  text-decoration: none;
   transition: 0.3s;
 }
-button:hover, a.button:hover {
+button:hover {
   transform: scale(1.08);
   background: linear-gradient(90deg, #00e6ff, #29b6f6);
-}
-a.button.paypal {
-  background: linear-gradient(90deg, #00bfff, #00ffcc);
 }
 
 /* Footer */
@@ -79,28 +75,28 @@ a.button.paypal {
   position: absolute;
   bottom: 15px;
   font-size: 0.9em;
-  opacity: 0.8;
+  opacity: 0.7;
 }
 </style>
 </head>
-
 <body>
-  <canvas id="particles"></canvas>
+<canvas id="particles"></canvas>
 
-  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" width="120" alt="AI Logo">
-  <h1>🤖 ChatAI Bob PRO 2025</h1>
-  <div id="typing"></div>
+<img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" width="120" alt="AI Logo">
+<h1>🤖 ChatAI Bob PRO 2025</h1>
+<div id="typing"></div>
 
-  <a href="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO" class="button">🚀 Apri ChatAI Bob PRO</a>
+<button onclick="window.location.href='https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO'">
+🚀 Apri ChatAI Bob PRO
+</button>
 
-  <a href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR"
-     class="button paypal" target="_blank" rel="noopener noreferrer">
-     💎 Sostieni su PayPal
-  </a>
+<button onclick="window.open('https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR', '_system')">
+💎 Sostieni su PayPal
+</button>
 
-  <div class="footer">
-    © 2025 Bob Moukhlis AI Labs — Powered by Hugging Face 💠
-  </div>
+<div class="footer">
+© 2025 Bob Moukhlis AI Labs — Powered by Hugging Face 💠
+</div>
 
 <script>
 /* Particelle */
@@ -108,7 +104,6 @@ const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
 const particles = [];
 const numParticles = 80;
 
@@ -124,7 +119,7 @@ for (let i = 0; i < numParticles; i++) {
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'rgba(0,255,255,0.5)';
+  ctx.fillStyle = 'rgba(0,255,255,0.6)';
   particles.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -137,8 +132,6 @@ function animateParticles() {
   requestAnimationFrame(animateParticles);
 }
 animateParticles();
-
-/* Resize */
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -151,18 +144,14 @@ const text = [
   "Powered by Hugging Face 💠"
 ];
 let i = 0, j = 0, isDeleting = false, speed = 80;
-
 function typeEffect() {
   const typingDiv = document.getElementById('typing');
   if (!typingDiv) return;
   typingDiv.textContent = text[i].substring(0, j);
-
   if (!isDeleting && j < text[i].length) {
-    j++;
-    setTimeout(typeEffect, speed);
+    j++; setTimeout(typeEffect, speed);
   } else if (isDeleting && j > 0) {
-    j--;
-    setTimeout(typeEffect, speed / 2);
+    j--; setTimeout(typeEffect, speed / 2);
   } else {
     isDeleting = !isDeleting;
     if (!isDeleting) i = (i + 1) % text.length;
