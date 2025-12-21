@@ -1,43 +1,239 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatAI Bob</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background-color: #000;
-    overflow: hidden;
-  }
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  #exitBtn {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    background-color: #00ff88;
-    color: #000;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 15px;
-    cursor: pointer;
-    z-index: 9999;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ChatAI Bob PRO 2025</title>
+  <style>
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:#070b12;color:#e8f1ff}
+    .wrap{max-width:980px;margin:0 auto;padding:18px}
+    .card{background:#0b1220;border:1px solid #13223d;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h1{margin:0 0 8px;font-size:22px}
+    .muted{opacity:.8;font-size:13px}
+    .grid{display:grid;gap:12px}
+    @media (min-width:860px){.grid{grid-template-columns:1.2fr .8fr}}
+    textarea,select,button,input{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid #1a2f55;background:#071022;color:#e8f1ff;padding:12px}
+    textarea{min-height:110px;resize:vertical}
+    button{cursor:pointer;background:linear-gradient(90deg,#00e5ff,#3b82f6);border:0;font-weight:700}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
+    .out{white-space:pre-wrap;background:#071022;border:1px solid #1a2f55;border-radius:12px;padding:12px;min-height:140px}
+    .media{display:grid;gap:10px}
+    img,video{width:100%;border-radius:12px;border:1px solid #1a2f55;background:#000}
+    .paypal{display:block;text-align:center;margin-top:12px;text-decoration:none;font-weight:700;color:#00e5ff}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #1a2f55;background:#071022;font-size:12px;opacity:.9}
+  </style>
 </head>
 <body>
-  <iframe 
-    src="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO?embed=true" 
-    allow="camera; microphone; clipboard-read; clipboard-write">
-  </iframe>
-  <button id="exitBtn" onclick="window.close();">Esci</button>
+  <div class="wrap">
+    <div class="card">
+      <h1>🤖 ChatAI Bob PRO 2025</h1>
+      <div class="muted">Chat (Groq via proxy), Immagini/GIF (Pollinations), Voce (browser TTS) + Donazioni PayPal</div>
+      <div style="margin-top:10px" class="pill">Nota: GitHub Pages non esegue Python. Questa è la versione web corretta.</div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="grid">
+      <div class="card">
+        <label class="muted">✍️ Scrivi un messaggio</label>
+        <textarea id="prompt" placeholder="es. fammi un video realistico di un cane"></textarea>
+
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <div>
+            <label class="muted">Lingua</label>
+            <select id="lang">
+              <option value="it" selected>it</option>
+              <option value="en">en</option>
+              <option value="fr">fr</option>
+              <option value="es">es</option>
+            </select>
+          </div>
+          <div>
+            <label class="muted">Tipo</label>
+            <select id="tipo">
+              <option value="Chat" selected>Chat</option>
+              <option value="Immagine">Immagine</option>
+              <option value="Video">Video (GIF)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+        <button id="btn">🚀 Invia</button>
+
+        <div style="height:10px"></div>
+        <label class="muted">💬 Output</label>
+        <div id="output" class="out"></div>
+
+        <div style="height:10px"></div>
+        <button id="speakBtn" style="background:#0b1220;border:1px solid #1a2f55;">🔊 Leggi con voce</button>
+
+        <a class="paypal" href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR" target="_blank">
+          💎 Sostieni ChatAI Bob PRO su PayPal
+        </a>
+
+        <div class="muted" style="margin-top:10px">
+          ⚠️ Per la chat serve un PROXY (Cloudflare Worker) per non esporre la tua chiave Groq nel browser.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="media">
+          <div>
+            <label class="muted">🖼️ Immagine</label>
+            <img id="img" alt="" style="display:none" />
+          </div>
+          <div>
+            <label class="muted">🎥 GIF</label>
+            <img id="gif" alt="" style="display:none" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --- filtro prompt (uguale al tuo concetto) ---
+  function pulisciPrompt(prompt){
+    const correzioni = {
+      "cavolo":"animale divertente",
+      "figo":"personaggio interessante",
+      "strano":"creatura insolita",
+      "bello":"immagine affascinante",
+      "mostro":"creatura fantasy",
+      "foto":"immagine realistica",
+      "video":"clip animata"
+    };
+    let p = (prompt||"").trim().toLowerCase();
+    for (const [k,v] of Object.entries(correzioni)){
+      p = p.replaceAll(k, v);
+    }
+    return p;
+  }
+
+  // ✅ Pollinations (immagini)
+  function pollinationsUrl(text){
+    return "https://image.pollinations.ai/prompt/" + encodeURIComponent(text);
+  }
+
+  // ✅ "Video" = GIF con 3 frame (semplice): qui facciamo 1 GIF fake usando 1 immagine sola.
+  // Se vuoi una vera GIF multi-frame in JS, serve canvas + encoding (più pesante).
+  function fakeGifUrl(text){
+    // Trick: aggiungo parole per ottenere una variante "tipo scena"
+    return pollinationsUrl(text + " cinematic scene");
+  }
+
+  // ✅ Groq via PROXY (NON mettere la chiave nel browser!)
+  // Qui devi inserire l’URL del tuo Cloudflare Worker (te lo preparo sotto).
+  const GROQ_PROXY_URL = ""; // <-- incolla qui l'url del worker (es: https://groq-proxy.tuo-worker.workers.dev)
+
+  async function chatGroq(prompt, lang){
+    if(!GROQ_PROXY_URL){
+      return "❌ PROXY Groq non configurato. Serve un Cloudflare Worker per proteggere la chiave.\nScrivimi 'fammi worker' e te lo do pronto.";
+    }
+    const smart = "Rispondi in modo breve, pratico e professionale. Non fare domande: dai direttamente la soluzione.\n\nUtente: " + prompt;
+
+    const res = await fetch(GROQ_PROXY_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{role:"user", content: smart}],
+        temperature: 0.7,
+        max_tokens: 500,
+        lang
+      })
+    });
+    const data = await res.json();
+    if(!res.ok){
+      return "❌ Errore proxy: " + (data.error || JSON.stringify(data));
+    }
+    return data.text || "(nessuna risposta)";
+  }
+
+  // ✅ Voce browser (no mp3)
+  function speak(text, lang){
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang || "it-IT";
+      window.speechSynthesis.speak(u);
+    }catch(e){
+      alert("TTS non disponibile: " + e);
+    }
+  }
+
+  const promptEl = document.getElementById("prompt");
+  const langEl = document.getElementById("lang");
+  const tipoEl = document.getElementById("tipo");
+  const btn = document.getElementById("btn");
+  const out = document.getElementById("output");
+  const img = document.getElementById("img");
+  const gif = document.getElementById("gif");
+  const speakBtn = document.getElementById("speakBtn");
+
+  let lastText = "";
+
+  btn.addEventListener("click", async () => {
+    const testo = pulisciPrompt(promptEl.value);
+    const lang = langEl.value;
+    const tipo = tipoEl.value;
+
+    img.style.display="none";
+    gif.style.display="none";
+    out.textContent = "";
+    lastText = "";
+
+    if(!testo){
+      out.textContent = "⚠️ Inserisci un messaggio.";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "⏳ Attendi...";
+
+    try{
+      if(tipo === "Immagine"){
+        const url = pollinationsUrl(testo);
+        img.src = url;
+        img.style.display = "block";
+        out.textContent = "🖼️ Immagine generata!";
+        lastText = "Immagine generata";
+      } else if(tipo === "Video"){
+        const url = fakeGifUrl(testo);
+        gif.src = url;
+        gif.style.display = "block";
+        out.textContent = "🎥 GIF generata (anteprima).";
+        lastText = "GIF generata";
+      } else {
+        const text = await chatGroq(testo, lang);
+        out.textContent = text;
+        lastText = text;
+      }
+    } catch(e){
+      out.textContent = "⚠️ Errore: " + e;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "🚀 Invia";
+    }
+  });
+
+  speakBtn.addEventListener("click", () => {
+    if(!lastText){
+      out.textContent = out.textContent || "⚠️ Nessun testo da leggere.";
+      return;
+    }
+    // usa lang tipo it-IT / en-US etc. (basta mettere it/en/fr/es)
+    const l = langEl.value === "it" ? "it-IT"
+            : langEl.value === "en" ? "en-US"
+            : langEl.value === "fr" ? "fr-FR"
+            : "es-ES";
+    speak(lastText, l);
+  });
+</script>
 </body>
 </html>
