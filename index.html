@@ -19,10 +19,10 @@ body {
   align-items: center;
   color: white;
   text-align: center;
-  background: radial-gradient(circle at bottom, #00111a, #000814, #000);
+  background: radial-gradient(circle at center, #000, #000814, #000);
 }
 
-/* --- Particelle --- */
+/* Particelle */
 canvas {
   position: fixed;
   top: 0;
@@ -32,16 +32,17 @@ canvas {
   z-index: -1;
 }
 
-/* --- Testo --- */
+/* Titoli */
 h1 {
-  font-size: 2.2em;
+  font-size: 2.3em;
   background: linear-gradient(90deg, #00ffff, #ff66ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 10px 0;
 }
+
 #typing {
-  font-size: 1.2em;
+  font-size: 1.1em;
   color: #00eaff;
   min-height: 1.5em;
   white-space: nowrap;
@@ -49,12 +50,11 @@ h1 {
   animation: blink 0.8s infinite;
   margin-bottom: 25px;
 }
-@keyframes blink {
-  50% { border-color: transparent; }
-}
+@keyframes blink { 50% { border-color: transparent; } }
 
-/* --- Pulsanti --- */
-button {
+/* Pulsanti */
+button, a.button {
+  display: inline-block;
   background: linear-gradient(90deg, #00bcd4, #2196f3);
   color: white;
   border: none;
@@ -63,62 +63,47 @@ button {
   border-radius: 30px;
   cursor: pointer;
   margin: 10px;
+  text-decoration: none;
   transition: 0.3s;
 }
-button:hover {
+button:hover, a.button:hover {
   transform: scale(1.08);
   background: linear-gradient(90deg, #00e6ff, #29b6f6);
-}
-
-/* --- Footer --- */
-.footer {
-  position: absolute;
-  bottom: 15px;
-  font-size: 0.9em;
-  opacity: 0.7;
-}
-</style><style>
-body {
-  background-color: #000;
-  color: #fff;
-  font-family: 'Poppins', sans-serif;
-  text-align: center;
-}
-a.button {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 25px;
-  background: linear-gradient(90deg, #00bfff, #8a2be2);
-  color: white;
-  text-decoration: none;
-  margin-top: 15px;
 }
 a.button.paypal {
   background: linear-gradient(90deg, #00bfff, #00ffcc);
 }
+
+/* Footer */
+.footer {
+  position: absolute;
+  bottom: 15px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
 </style>
 </head>
+
 <body>
   <canvas id="particles"></canvas>
 
   <img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" width="120" alt="AI Logo">
   <h1>🤖 ChatAI Bob PRO 2025</h1>
   <div id="typing"></div>
-  
-  <button onclick="window.open('https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO', '_blank')">
-    🚀 Apri ChatAI Bob PRO
-  </button>
-  
-  <button onclick="window.open('https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR', '_blank')">
-    💎 Sostieni su PayPal
-  </button>
+
+  <a href="https://huggingface.co/spaces/Bouabid79/ChatAI-Bob-PRO" class="button">🚀 Apri ChatAI Bob PRO</a>
+
+  <a href="https://www.paypal.com/donate?business=bobmoukhlis@gmail.com&item_name=Supporto+ChatAI+Bob+PRO&currency_code=EUR"
+     class="button paypal" target="_blank" rel="noopener noreferrer">
+     💎 Sostieni su PayPal
+  </a>
 
   <div class="footer">
     © 2025 Bob Moukhlis AI Labs — Powered by Hugging Face 💠
   </div>
 
 <script>
-/* --- Particelle AI Glow --- */
+/* Particelle */
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -139,7 +124,7 @@ for (let i = 0; i < numParticles; i++) {
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'rgba(0,255,255,0.6)';
+  ctx.fillStyle = 'rgba(0,255,255,0.5)';
   particles.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -153,20 +138,25 @@ function animateParticles() {
 }
 animateParticles();
 
+/* Resize */
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 });
 
-/* --- Effetto scrittura automatica --- */
-const text = ["L'assistente AI creativa 🚀", "Chat • Immagini • Video • Voce 🎨", "Powered by Hugging Face 💠"];
+/* Effetto scrittura */
+const text = [
+  "L'assistente AI creativa 🚀",
+  "Chat • Immagini • Video • Voce 🎨",
+  "Powered by Hugging Face 💠"
+];
 let i = 0, j = 0, isDeleting = false, speed = 80;
 
 function typeEffect() {
   const typingDiv = document.getElementById('typing');
   if (!typingDiv) return;
   typingDiv.textContent = text[i].substring(0, j);
-  
+
   if (!isDeleting && j < text[i].length) {
     j++;
     setTimeout(typeEffect, speed);
