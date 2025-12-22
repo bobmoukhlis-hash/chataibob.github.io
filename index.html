@@ -1,83 +1,99 @@
 <script>
   const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
 
-  // ✅ Auto-detect: lingua browser (es: "ar", "fr", "it", "en")
-  function detectLang() {<h2>🇲🇦 ChatAI Bob PRO 2026 — Global</h2>
-<select id="langMode">
-  <option value="auto" selected>AUTO</option>
-  <option value="ar">Arabic</option>
-  <option value="ary">Darija (MA)</option>
-  <option value="fr">Français</option>
-  <option value="it">Italiano</option>
-  <option value="en">English</option>
-</select><!-- 🔝 HEADER PRINCIPALE -->
-<div style="text-align:center;margin-bottom:15px;">
-  <h2 style="margin:0;">
-    🇲🇦 ChatAI Bob PRO 2026 — Global
-  </h2>
-
-  <div style="margin-top:8px;">
-    <select id="langMode"
-      style="padding:6px 10px;border-radius:8px;">
-      <option value="auto" selected>🌍 AUTO</option>
-      <option value="ar">🇸🇦 Arabic</option>
-      <option value="ary">🇲🇦 Darija (MA)</option>
-      <option value="fr">🇫🇷 Français</option>
-      <option value="it">🇮🇹 Italiano</option>
-      <option value="en">🇬🇧 English</option>
-    </select>
-  </div>
-</div><textarea></textarea>
-<input type="file" />
-<button>Invia</button>
+  function detectLang() {
     const l = (navigator.language || "en").toLowerCase();
-    // normalizza: ar-* => ar, fr-* => fr...
     return l.split("-")[0];
   }
 
-  // ✅ Rileva se sembra arabo/darija (semplice ma efficace)
   function looksArabic(text) {
-    return /[\u0600-\u06FF]/.test(text); // range Unicode arabo
+    return /[\u0600-\u06FF]/.test(text);
   }
 
-  // ✅ Prompt “potente” per lingua/dialetto
-  function systemInstruction(userText) {
-    const lang = detectLang();
-    const arabic = looksArabic(userText);
+  function looksDarija(text) {
+    const words = ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"];
+    return words.some(w => text.includes(w));
+  }
 
-    // regole: se scrive in arabo → rispondi in arabo. Se darija → darija.
-    // Se non arabo → lingua browser (o lingua del testo).
+  function systemInstruction(userText) {
+    const langMode = document.getElementById("langMode").value;
+    const arabic = looksArabic(userText);
+    const darija = looksDarija(userText);
+
+    if (langMode !== "auto") {
+      return `Reply ONLY in this language: ${langMode}. Be clear and professional.`;
+    }
+
     return `
 You are ChatAI Bob PRO 2026 (🇲🇦).
 Rules:
-- Reply in the SAME language as the user message.
-- If the user writes in Arabic script, reply in Arabic.
-- If the user uses Moroccan Darija (words like: "شنو", "واش", "بزاف", "دابا", "فين", "عافاك"), reply in Moroccan Darija (Latin or Arabic script matching the user).
-- If user writes Modern Standard Arabic, reply in فصحى.
-- Be short, practical, professional. No questions unless necessary.
-- If the user mixes languages, follow the dominant language.
-User language hint: ${arabic ? "Arabic" : lang}
+- Reply in the SAME language as the user.
+- If Arabic script → reply in Arabic.
+- If Moroccan Darija → reply in Darija.
+- If Modern Standard Arabic → reply in Fusha.
+- Be short, practical, professional.
+Detected: ${darija ? "Darija" : arabic ? "Arabic" : detectLang()}
 `.trim();
   }
 
-  async function groqChatAuto(userText) {
-    const messages = [
-      { role: "system", content: systemInstruction(userText) },
-      { role: "user", content: userText }
-    ];
+  async function sendMessage() {
+    const text = document.getElementById("userText").value;
+    const output = document.getElementById("output");
+    const file = document.getElementById("imageInput").files[0];
 
-    const res = await fetch(GROQ_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages,
-        temperature: 0.6,
-        max_tokens: 600
-      })
+    if (!text && !file) {
+      output.textContent = "⚠️ Scrivi un messaggio o carica una foto.";
+      return;
+    }
+
+    output.textContent = "⏳ Attendi...";
+
+    let messages = [];
+
+    if (file) {
+      const base64 = await toBase64(file);
+      messages = [{
+        role: "user",
+        content: [
+          { type: "text", text: text || "Analizza questa immagine" },
+          { type: "image_url", image_url: { url: base64 } }
+        ]
+      }];
+    } else {
+      messages = [
+        { role: "system", content: systemInstruction(text) },
+        { role: "user", content: text }
+      ];
+    }
+
+    try {
+      const res = await fetch(GROQ_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: file ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
+          messages,
+          max_tokens: 600
+        })
+      });
+
+      const data = await res.json();
+      output.textContent =
+        data.text ||
+        data.choices?.[0]?.message?.content ||
+        JSON.stringify(data, null, 2);
+
+    } catch (e) {
+      output.textContent = "❌ Errore: " + e.message;
+    }
+  }
+
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
     });
-
-    const data = await res.json();
-    return data.text || data.choices?.[0]?.message?.content || JSON.stringify(data);
   }
 </script>
