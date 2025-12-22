@@ -1,99 +1,43 @@
-<script>
-  const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatAI Bob PRO 2026</title>
+</head>
 
-  function detectLang() {
-    const l = (navigator.language || "en").toLowerCase();
-    return l.split("-")[0];
-  }
+<body style="font-family:sans-serif;background:#f5f5f5;padding:10px;">
 
-  function looksArabic(text) {
-    return /[\u0600-\u06FF]/.test(text);
-  }
+  <h2 style="text-align:center;">
+    🇲🇦 ChatAI Bob PRO 2026 — Global
+  </h2>
 
-  function looksDarija(text) {
-    const words = ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"];
-    return words.some(w => text.includes(w));
-  }
+  <div style="text-align:center;margin-bottom:10px;">
+    <select id="langMode">
+      <option value="auto" selected>🌍 AUTO</option>
+      <option value="ar">Arabic</option>
+      <option value="ary">Darija (MA)</option>
+      <option value="fr">Français</option>
+      <option value="it">Italiano</option>
+      <option value="en">English</option>
+    </select>
+  </div>
 
-  function systemInstruction(userText) {
-    const langMode = document.getElementById("langMode").value;
-    const arabic = looksArabic(userText);
-    const darija = looksDarija(userText);
+  <textarea id="userText" placeholder="Scrivi qui..."
+    style="width:100%;height:80px;"></textarea>
 
-    if (langMode !== "auto") {
-      return `Reply ONLY in this language: ${langMode}. Be clear and professional.`;
+  <br><br>
+
+  <button onclick="test()">🚀 Test</button>
+
+  <pre id="out" style="margin-top:15px;"></pre>
+
+  <script>
+    function test(){
+      document.getElementById("out").textContent =
+        "✅ FUNZIONA — HTML OK";
     }
+  </script>
 
-    return `
-You are ChatAI Bob PRO 2026 (🇲🇦).
-Rules:
-- Reply in the SAME language as the user.
-- If Arabic script → reply in Arabic.
-- If Moroccan Darija → reply in Darija.
-- If Modern Standard Arabic → reply in Fusha.
-- Be short, practical, professional.
-Detected: ${darija ? "Darija" : arabic ? "Arabic" : detectLang()}
-`.trim();
-  }
-
-  async function sendMessage() {
-    const text = document.getElementById("userText").value;
-    const output = document.getElementById("output");
-    const file = document.getElementById("imageInput").files[0];
-
-    if (!text && !file) {
-      output.textContent = "⚠️ Scrivi un messaggio o carica una foto.";
-      return;
-    }
-
-    output.textContent = "⏳ Attendi...";
-
-    let messages = [];
-
-    if (file) {
-      const base64 = await toBase64(file);
-      messages = [{
-        role: "user",
-        content: [
-          { type: "text", text: text || "Analizza questa immagine" },
-          { type: "image_url", image_url: { url: base64 } }
-        ]
-      }];
-    } else {
-      messages = [
-        { role: "system", content: systemInstruction(text) },
-        { role: "user", content: text }
-      ];
-    }
-
-    try {
-      const res = await fetch(GROQ_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: file ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
-          messages,
-          max_tokens: 600
-        })
-      });
-
-      const data = await res.json();
-      output.textContent =
-        data.text ||
-        data.choices?.[0]?.message?.content ||
-        JSON.stringify(data, null, 2);
-
-    } catch (e) {
-      output.textContent = "❌ Errore: " + e.message;
-    }
-  }
-
-  function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-  }
-</script>
+</body>
+</html>
