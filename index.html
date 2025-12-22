@@ -1,243 +1,110 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🤖 ChatAI Bob PRO 2025 (No Worker)</title>
-  <style>
-    body{margin:0;font-family:system-ui,Arial;background:#070b12;color:#e8f1ff}
-    .wrap{max-width:980px;margin:0 auto;padding:18px}
-    .card{background:#0b1220;border:1px solid #13223d;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    h1{margin:0 0 8px;font-size:22px}
-    .muted{opacity:.8;font-size:13px}
-    .grid{display:grid;gap:12px}
-    @media (min-width:860px){.grid{grid-template-columns:1.2fr .8fr}}
-    textarea,select,button,input{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid #1a2f55;background:#071022;color:#e8f1ff;padding:12px}
-    textarea{min-height:110px;resize:vertical}
-    button{cursor:pointer;background:linear-gradient(90deg,#00e5ff,#3b82f6);border:0;font-weight:700}
-    button.alt{background:#0b1220;border:1px solid #1a2f55}
-    .row{display:flex;gap:10px}
-    .row > *{flex:1}
-    .out{white-space:pre-wrap;background:#071022;border:1px solid #1a2f55;border-radius:12px;padding:12px;min-height:140px}
-    .media{display:grid;gap:10px}
-    img{width:100%;border-radius:12px;border:1px solid #1a2f55;background:#000}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #1a2f55;background:#071022;font-size:12px;opacity:.9}
-    .ok{color:#7CFFB2}
-    .warn{color:#FFD36E}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🤖 ChatAI Bob PRO 2025</title>
+
+<style>
+body{margin:0;font-family:system-ui,Arial;background:#070b12;color:#e8f1ff}
+.wrap{max-width:900px;margin:auto;padding:18px}
+.card{background:#0b1220;border:1px solid #13223d;border-radius:16px;padding:16px}
+h1{text-align:center}
+textarea,select,button{width:100%;margin:10px 0;padding:12px;border-radius:10px;border:1px solid #1a2f55;background:#071022;color:#e8f1ff}
+button{background:#00c8ff;font-weight:bold}
+.out{background:#071022;border-radius:10px;padding:12px;min-height:120px;white-space:pre-wrap}
+img{width:100%;border-radius:12px;margin-top:10px;display:none}
+.row{display:flex;gap:10px}
+.row button{flex:1}
+.small{font-size:13px;opacity:.7}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>🤖 ChatAI Bob PRO 2025</h1>
-      <div class="muted">Versione 100% GitHub Pages — <b>senza Worker</b> e <b>senza Python</b></div>
-      <div style="margin-top:10px" class="pill ok">✅ Microfono + Voce + Immagini (Pollinations)</div>
-      <div style="margin-top:8px" class="pill warn">⚠️ Chat Groq disattivata (senza backend non è sicuro)</div>
-    </div>
+<div class="wrap">
 
-    <div style="height:12px"></div>
+<div class="card">
+<h1>🤖 ChatAI Bob PRO 2025</h1>
+<p class="small">Versione HTML pura — senza completions, senza API, senza backend</p>
+</div>
 
-    <div class="grid">
-      <div class="card">
-        <label class="muted">✍️ Scrivi un messaggio</label>
-        <textarea id="prompt" placeholder="es. crea un esempio di codice html oppure genera un’immagine di un cane"></textarea>
+<br>
 
-        <div style="height:10px"></div>
+<div class="card">
+<textarea id="prompt" placeholder="Scrivi o usa il microfono…"></textarea>
 
-        <div class="row">
-          <div>
-            <label class="muted">Lingua</label>
-            <select id="lang">
-              <option value="it" selected>it</option>
-              <option value="en">en</option>
-              <option value="fr">fr</option>
-              <option value="es">es</option>
-            </select>
-          </div>
-          <div>
-            <label class="muted">Tipo</label>
-            <select id="tipo">
-              <option value="Demo Chat" selected>Demo Chat (offline)</option>
-              <option value="Immagine">Immagine</option>
-              <option value="Video">Video (GIF fake)</option>
-            </select>
-          </div>
-        </div>
+<select id="mode">
+<option value="chat">Demo Chat</option>
+<option value="img">Immagine AI</option>
+</select>
 
-        <div style="height:10px"></div>
+<div class="row">
+<button onclick="mic()">🎤 Microfono</button>
+<button onclick="run()">🚀 Invia</button>
+</div>
 
-        <div class="row">
-          <button id="micBtn" class="alt">🎤 Microfono</button>
-          <button id="sendBtn">🚀 Invia</button>
-        </div>
+<div class="out" id="out"></div>
+<button onclick="speak()" class="small">🔊 Leggi con voce</button>
 
-        <div style="height:10px"></div>
-        <label class="muted">💬 Output</label>
-        <div id="output" class="out"></div>
+<img id="img">
+</div>
 
-        <div style="height:10px"></div>
-        <button id="speakBtn" class="alt">🔊 Leggi con voce</button>
-
-        <div class="muted" style="margin-top:10px">
-          🔒 Nota: Senza Worker/Server non si può usare Groq in modo sicuro su GitHub Pages (la chiave verrebbe esposta).
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="media">
-          <div>
-            <label class="muted">🖼️ Immagine</label>
-            <img id="img" alt="" style="display:none" />
-          </div>
-          <div>
-            <label class="muted">🎥 GIF</label>
-            <img id="gif" alt="" style="display:none" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
 <script>
-  // prompt helper
-  function cleanPrompt(p){ return (p||"").trim(); }
+let lastText = "";
 
-  // Pollinations
-  function pollinationsUrl(text){
-    return "https://image.pollinations.ai/prompt/" + encodeURIComponent(text);
-  }
-  function fakeGifUrl(text){
-    return pollinationsUrl((text||"cinematic scene") + " cinematic scene");
-  }
+// MICROFONO
+function mic(){
+ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+ if(!SR){ alert("Microfono non supportato"); return; }
+ const r = new SR();
+ r.lang="it-IT";
+ r.onresult=e=>document.getElementById("prompt").value=e.results[0][0].transcript;
+ r.start();
+}
 
-  // TTS
-  function speak(text, lang){
-    try{
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang || "it-IT";
-      window.speechSynthesis.speak(u);
-    }catch(e){
-      alert("TTS non disponibile: " + e);
-    }
-  }
+// DEMO LOGICA (NO AI)
+function demoReply(t){
+ if(t.includes("html")) return "<html>\\n  <body>\\n    <h1>Ciao!</h1>\\n  </body>\\n</html>";
+ if(t.includes("css")) return "body { background:#000; color:#fff }";
+ if(t.includes("js")) return "console.log('Hello world');";
+ return "Demo offline ✅\\n\\nHai scritto:\\n"+t;
+}
 
-  // STT (microfono)
-  let recognizing = false;
-  let recognition = null;
+// IMMAGINI AI (PUBBLICO)
+function imgUrl(t){
+ return "https://image.pollinations.ai/prompt/"+encodeURIComponent(t);
+}
 
-  function uiLangTag(code){
-    return code === "it" ? "it-IT"
-      : code === "en" ? "en-US"
-      : code === "fr" ? "fr-FR"
-      : "es-ES";
-  }
+// INVIA
+function run(){
+ const t = document.getElementById("prompt").value.trim();
+ const mode = document.getElementById("mode").value;
+ const out = document.getElementById("out");
+ const img = document.getElementById("img");
+ img.style.display="none";
 
-  function setupMic(lang){
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SR) return null;
-    const r = new SR();
-    r.continuous = false;
-    r.interimResults = true;
-    r.lang = lang;
-    return r;
-  }
+ if(!t){ out.textContent="Scrivi qualcosa"; return; }
 
-  // UI
-  const promptEl = document.getElementById("prompt");
-  const langEl = document.getElementById("lang");
-  const tipoEl = document.getElementById("tipo");
-  const out = document.getElementById("output");
-  const img = document.getElementById("img");
-  const gif = document.getElementById("gif");
-  const micBtn = document.getElementById("micBtn");
-  const sendBtn = document.getElementById("sendBtn");
-  const speakBtn = document.getElementById("speakBtn");
+ if(mode==="img"){
+   img.src = imgUrl(t);
+   img.style.display="block";
+   out.textContent="🖼️ Immagine generata";
+   lastText="Immagine generata";
+ }else{
+   lastText = demoReply(t);
+   out.textContent = lastText;
+ }
+}
 
-  let lastText = "";
-
-  micBtn.addEventListener("click", () => {
-    const l = uiLangTag(langEl.value);
-    if(!recognition) recognition = setupMic(l);
-    if(!recognition){
-      out.textContent = "❌ Microfono non supportato su questo browser.";
-      return;
-    }
-    recognition.lang = l;
-
-    if(recognizing){
-      recognition.stop();
-      recognizing = false;
-      micBtn.textContent = "🎤 Microfono";
-      return;
-    }
-
-    recognizing = true;
-    micBtn.textContent = "⏹ Stop";
-    recognition.start();
-
-    recognition.onresult = (e) => {
-      let transcript = "";
-      for (let i = e.resultIndex; i < e.results.length; i++){
-        transcript += e.results[i][0].transcript;
-      }
-      promptEl.value = transcript.trim();
-    };
-
-    recognition.onend = () => {
-      recognizing = false;
-      micBtn.textContent = "🎤 Microfono";
-    };
-  });
-
-  function demoChatAnswer(userText){
-    const t = (userText||"").toLowerCase();
-    if(!t) return "⚠️ Scrivi qualcosa.";
-    if(t.includes("html")) return "Ecco un esempio HTML:\n\n<!doctype html>\n<html>\n  <body>\n    <h1>Ciao!</h1>\n  </body>\n</html>";
-    if(t.includes("css")) return "Esempio CSS:\n\nbody { background:#000; color:#fff; }";
-    if(t.includes("js") || t.includes("javascript")) return "Esempio JS:\n\nconsole.log('Ciao dal JavaScript');";
-    return "Demo offline ✅\n\nHai scritto:\n" + userText + "\n\nPer risposte AI vere serve un server/proxy (altrimenti la chiave Groq si vede).";
-  }
-
-  sendBtn.addEventListener("click", () => {
-    const testo = cleanPrompt(promptEl.value);
-    const tipo = tipoEl.value;
-
-    img.style.display="none";
-    gif.style.display="none";
-    out.textContent = "";
-    lastText = "";
-
-    if(tipo === "Immagine"){
-      const url = pollinationsUrl(testo || "cute robot assistant");
-      img.src = url;
-      img.style.display = "block";
-      out.textContent = "🖼️ Immagine generata!";
-      lastText = "Immagine generata";
-      return;
-    }
-
-    if(tipo === "Video"){
-      const url = fakeGifUrl(testo || "cinematic scene");
-      gif.src = url;
-      gif.style.display = "block";
-      out.textContent = "🎥 GIF (fake) generata!";
-      lastText = "GIF generata";
-      return;
-    }
-
-    const ans = demoChatAnswer(testo);
-    out.textContent = ans;
-    lastText = ans;
-  });
-
-  speakBtn.addEventListener("click", () => {
-    if(!lastText){
-      out.textContent = out.textContent || "⚠️ Nessun testo da leggere.";
-      return;
-    }
-    speak(lastText, uiLangTag(langEl.value));
-  });
+// VOCE
+function speak(){
+ if(!lastText) return;
+ const u = new SpeechSynthesisUtterance(lastText);
+ u.lang="it-IT";
+ speechSynthesis.speak(u);
+}
 </script>
 </body>
 </html>
