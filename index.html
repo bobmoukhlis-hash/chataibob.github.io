@@ -16,7 +16,7 @@
       text-align: center;
       margin-top: 10px;
     }
-    select, textarea, button {
+    select, textarea, button, input {
       width: 100%;
       max-width: 600px;
       margin: 8px auto;
@@ -38,7 +38,7 @@
     button:disabled {
       background: #aaa;
     }
-    #output {
+    #output, #imgResult {
       max-width: 600px;
       margin: 15px auto;
       padding: 10px;
@@ -57,153 +57,127 @@
 
 <body>
 
-  <!-- 🔝 HEADER -->
-  <h2>🇲🇦 ChatAI Bob PRO 2026 — Global</h2>
+<h2>🇲🇦 ChatAI Bob PRO 2026 — Global</h2>
+
+<!-- 🖼️ ANALISI IMMAGINE -->
 <input type="file" id="imgInput" accept="image/*">
 <button onclick="analyzeImage()">🖼️ Analizza foto</button>
-<pre id="imgResult"></pre>
-  <!-- 🌍 LINGUA -->
-  <select id="langMode">
-    <option value="auto" selected>🌍 AUTO (consigliato)</option>
-    <option value="ar">🇸🇦 Arabic</option>
-    <option value="ary">🇲🇦 Darija (MA)</option>
-    <option value="fr">🇫🇷 Français</option>
-    <option value="it">🇮🇹 Italiano</option>
-    <option value="en">🇬🇧 English</option>
-  </select>
+<div id="imgResult">📷 Nessuna immagine analizzata.</div>
 
-  <!-- ✍️ INPUT -->
-  <textarea id="userText" placeholder="Scrivi come vuoi… (Darija, Arabo, Italiano, ecc.)"></textarea>
+<hr>
 
-  <!-- 🚀 INVIA -->
-  <button id="sendBtn" onclick="sendMessage()">🚀 Invia</button>
-async function analyzeImage() {
-  const file = document.getElementById("imgInput").files[0];
-  if (!file) {
-    alert("Seleziona una foto");
-    return;
+<!-- 🌍 LINGUA -->
+<select id="langMode">
+  <option value="auto" selected>🌍 AUTO (consigliato)</option>
+  <option value="ar">🇸🇦 Arabic</option>
+  <option value="ary">🇲🇦 Darija</option>
+  <option value="fr">🇫🇷 Français</option>
+  <option value="it">🇮🇹 Italiano</option>
+  <option value="en">🇬🇧 English</option>
+</select>
+
+<!-- ✍️ INPUT -->
+<textarea id="userText" placeholder="Scrivi come vuoi…"></textarea>
+
+<!-- 🚀 INVIA -->
+<button id="sendBtn" onclick="sendMessage()">🚀 Invia</button>
+
+<!-- 💬 OUTPUT -->
+<div id="output">⏳ Pronto.</div>
+
+<footer>
+  © <span id="year"></span> ChatAI Bob PRO
+</footer>
+
+<!-- 🧠 SCRIPT (TUTTO QUI DENTRO) -->
+<script>
+const GROQ_PROXY_URL = "https://groq-proxy-worker.bouabidmoukhlis.workers.dev";
+document.getElementById("year").innerText = new Date().getFullYear();
+
+/* ===== CHAT ===== */
+function looksArabic(t){return /[\u0600-\u06FF]/.test(t);}
+function looksDarija(t){
+  return ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"]
+    .some(w => t.includes(w));
+}
+
+function systemInstruction(text){
+  const mode = document.getElementById("langMode").value;
+  if(mode !== "auto"){
+    return `Reply ONLY in ${mode}.`;
   }
+  if(looksDarija(text)) return "Reply in Moroccan Darija.";
+  if(looksArabic(text)) return "Reply in Arabic.";
+  return "Reply in the same language as the user.";
+}
+
+async function sendMessage(){
+  const text = userText.value.trim();
+  if(!text) return;
+
+  sendBtn.disabled = true;
+  output.textContent = "⏳ Attendi…";
+
+  try{
+    const r = await fetch(GROQ_PROXY_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"llama-3.3-70b-versatile",
+        messages:[
+          {role:"system",content:systemInstruction(text)},
+          {role:"user",content:text}
+        ],
+        max_tokens:600
+      })
+    });
+
+    const d = await r.json();
+    output.textContent = d.choices?.[0]?.message?.content || "Nessuna risposta";
+
+  }catch(e){
+    output.textContent = "❌ Errore: " + e.message;
+  }
+  sendBtn.disabled = false;
+}
+
+/* ===== ANALISI IMMAGINE ===== */
+async function analyzeImage(){
+  const file = imgInput.files[0];
+  if(!file){ alert("Seleziona una foto"); return; }
 
   const base64 = await toBase64(file);
+  imgResult.textContent = "⏳ Analisi in corso…";
 
-  const body = {
-    model: "llama-3.2-90b-vision-preview",
-    messages: [{
-      role: "user",
-      content: [
-        { type: "text", text: "Analizza questa immagine e descrivila in modo chiaro." },
-        { type: "image_url", image_url: { url: base64 } }
-      ]
-    }],
-    max_tokens: 300
-  };
-
-  const r = await fetch(GROQ_PROXY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+  const r = await fetch(GROQ_PROXY_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"llama-3.2-90b-vision-preview",
+      messages:[{
+        role:"user",
+        content:[
+          {type:"text",text:"Analizza questa immagine e descrivila."},
+          {type:"image_url",image_url:{url:base64}}
+        ]
+      }],
+      max_tokens:400
+    })
   });
 
-  const data = await r.json();
-  document.getElementById("imgResult").textContent =
-    data?.choices?.[0]?.message?.content || "Nessuna risposta";
+  const d = await r.json();
+  imgResult.textContent = d.choices?.[0]?.message?.content || "Errore analisi";
 }
 
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+function toBase64(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload=()=>res(r.result);
+    r.onerror=rej;
+    r.readAsDataURL(file);
   });
 }
-  <!-- 💬 OUTPUT -->
-  <div id="output">⏳ Pronto.</div>
-
-  <footer>
-    © <span id="year"></span> ChatAI Bob PRO
-  </footer>
-
-  <!-- 🧠 LOGICA -->
-  <script>
-    const GROQ_PROXY_URL = "https://groq-proxy-worker.bouabidmoukhlis.workers.dev";
-    document.getElementById("year").innerText = new Date().getFullYear();
-
-    function detectLang() {
-      const l = (navigator.language || "en").toLowerCase();
-      return l.split("-")[0];
-    }
-
-    function looksArabic(text) {
-      return /[\u0600-\u06FF]/.test(text);
-    }
-
-    function looksDarija(text) {
-      const words = ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"];
-      return words.some(w => text.includes(w));
-    }
-
-    function systemInstruction(userText) {
-      const mode = document.getElementById("langMode").value;
-      const darija = looksDarija(userText);
-      const arabic = looksArabic(userText);
-
-      if (mode !== "auto") {
-        return `Reply ONLY in this language: ${mode}. Be short, clear and professional.`;
-      }
-
-      return `
-You are ChatAI Bob PRO 2026 (🇲🇦).
-Rules:
-- Reply in the SAME language as the user.
-- If Arabic script → reply in Arabic.
-- If Moroccan Darija → reply in Moroccan Darija.
-- If Modern Standard Arabic → reply in فصحى.
-- Be concise, useful, professional.
-Detected: ${darija ? "Darija" : arabic ? "Arabic" : detectLang()}
-`.trim();
-    }
-
-    async function sendMessage() {
-      const text = document.getElementById("userText").value.trim();
-      const output = document.getElementById("output");
-      const btn = document.getElementById("sendBtn");
-
-      if (!text) {
-        output.textContent = "⚠️ Scrivi un messaggio.";
-        return;
-      }
-
-      btn.disabled = true;
-      output.textContent = "⏳ Attendi…";
-
-      try {
-        const res = await fetch(GROQ_PROXY_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: systemInstruction(text) },
-              { role: "user", content: text }
-            ],
-            max_tokens: 600
-          })
-        });
-
-        const data = await res.json();
-        output.textContent =
-          data.text ||
-          data.choices?.[0]?.message?.content ||
-          JSON.stringify(data, null, 2);
-
-      } catch (e) {
-        output.textContent = "❌ Errore: " + e.message;
-      }
-
-      btn.disabled = false;
-    }
-  </script>
+</script>
 
 </body>
 </html>
