@@ -1,78 +1,83 @@
 <script>
-  // 🔗 URL DEL WORKER (GIUSTO)
   const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
 
-  async function inviaMessaggio() {
-    const testo = document.querySelector("textarea").value;
-    const fileInput = document.querySelector('input[type="file"]');
-    const output = document.getElementById("output");
+  // ✅ Auto-detect: lingua browser (es: "ar", "fr", "it", "en")
+  function detectLang() {<h2>🇲🇦 ChatAI Bob PRO 2026 — Global</h2>
+<select id="langMode">
+  <option value="auto" selected>AUTO</option>
+  <option value="ar">Arabic</option>
+  <option value="ary">Darija (MA)</option>
+  <option value="fr">Français</option>
+  <option value="it">Italiano</option>
+  <option value="en">English</option>
+</select><!-- 🔝 HEADER PRINCIPALE -->
+<div style="text-align:center;margin-bottom:15px;">
+  <h2 style="margin:0;">
+    🇲🇦 ChatAI Bob PRO 2026 — Global
+  </h2>
 
-    output.innerText = "⏳ Attendi...";
-
-    let messages = [];
-
-    // 📝 Testo
-    if (testo && testo.trim() !== "") {
-      messages.push({
-        role: "user",
-        content: testo
-      });
-    }
-
-    // 📷 Immagine (se presente)
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      const base64 = await toBase64(file);
-
-      messages = [{
-        role: "user",
-        content: [
-          { type: "text", text: testo || "Analizza questa immagine" },
-          {
-            type: "image_url",
-            image_url: { url: base64 }
-          }
-        ]
-      }];
-    }
-
-    try {
-      const res = await fetch(GROQ_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: fileInput.files.length > 0
-            ? "llama-3.2-11b-vision-preview"
-            : "llama-3.3-70b-versatile",
-          messages: messages
-        })
-      });
-
-      const data = await res.json();
-
-      output.innerText =
-        data.text ||
-        data.choices?.[0]?.message?.content ||
-        JSON.stringify(data, null, 2);
-
-    } catch (e) {
-      output.innerText = "❌ Errore: " + e.message;
-    }
+  <div style="margin-top:8px;">
+    <select id="langMode"
+      style="padding:6px 10px;border-radius:8px;">
+      <option value="auto" selected>🌍 AUTO</option>
+      <option value="ar">🇸🇦 Arabic</option>
+      <option value="ary">🇲🇦 Darija (MA)</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="it">🇮🇹 Italiano</option>
+      <option value="en">🇬🇧 English</option>
+    </select>
+  </div>
+</div><textarea></textarea>
+<input type="file" />
+<button>Invia</button>
+    const l = (navigator.language || "en").toLowerCase();
+    // normalizza: ar-* => ar, fr-* => fr...
+    return l.split("-")[0];
   }
 
-  // 🔄 Converti file in Base64
-  function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+  // ✅ Rileva se sembra arabo/darija (semplice ma efficace)
+  function looksArabic(text) {
+    return /[\u0600-\u06FF]/.test(text); // range Unicode arabo
+  }
+
+  // ✅ Prompt “potente” per lingua/dialetto
+  function systemInstruction(userText) {
+    const lang = detectLang();
+    const arabic = looksArabic(userText);
+
+    // regole: se scrive in arabo → rispondi in arabo. Se darija → darija.
+    // Se non arabo → lingua browser (o lingua del testo).
+    return `
+You are ChatAI Bob PRO 2026 (🇲🇦).
+Rules:
+- Reply in the SAME language as the user message.
+- If the user writes in Arabic script, reply in Arabic.
+- If the user uses Moroccan Darija (words like: "شنو", "واش", "بزاف", "دابا", "فين", "عافاك"), reply in Moroccan Darija (Latin or Arabic script matching the user).
+- If user writes Modern Standard Arabic, reply in فصحى.
+- Be short, practical, professional. No questions unless necessary.
+- If the user mixes languages, follow the dominant language.
+User language hint: ${arabic ? "Arabic" : lang}
+`.trim();
+  }
+
+  async function groqChatAuto(userText) {
+    const messages = [
+      { role: "system", content: systemInstruction(userText) },
+      { role: "user", content: userText }
+    ];
+
+    const res = await fetch(GROQ_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages,
+        temperature: 0.6,
+        max_tokens: 600
+      })
     });
-  }
-</script><footer style="text-align:center;margin-top:30px;opacity:0.6;">
-  © <span id="year"></span> ChatAI Bob PRO
-</footer>
 
-<script>
-  document.getElementById("year").innerText = new Date().getFullYear();
+    const data = await res.json();
+    return data.text || data.choices?.[0]?.message?.content || JSON.stringify(data);
+  }
 </script>
