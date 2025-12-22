@@ -8,53 +8,63 @@
 <style>
 body{
   margin:0;
-  background:#0b1220;
-  color:#fff;
-  font-family:system-ui, Arial;
+  background:#070b12;
+  font-family:system-ui,Arial;
+  color:#e8f1ff;
 }
-.container{
-  max-width:600px;
-  margin:40px auto;
-  padding:20px;
+.app{
+  max-width:520px;
+  margin:20px auto;
+  padding:16px;
 }
 .card{
-  background:#0f1a33;
+  background:#0b1220;
+  border:1px solid #13223d;
   border-radius:16px;
-  padding:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  padding:16px;
 }
-h1{text-align:center;margin-bottom:10px}
+h1{
+  text-align:center;
+  margin:0 0 10px;
+}
 textarea,select,button{
   width:100%;
+  margin-top:10px;
   padding:14px;
-  margin-top:12px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   font-size:16px;
 }
-textarea{min-height:110px}
+textarea{min-height:90px;}
 button{
-  background:linear-gradient(90deg,#00e5ff,#3b82f6);
-  font-weight:bold;
-  cursor:pointer;
+  background:linear-gradient(90deg,#00e0ff,#3b82f6);
+  color:#000;
+  font-weight:700;
 }
 #out{
-  margin-top:15px;
-  background:#071022;
-  padding:14px;
-  border-radius:10px;
-  white-space:pre-wrap;
+  margin-top:12px;
   min-height:80px;
+  background:#050914;
+  border-radius:12px;
+  padding:12px;
+  white-space:pre-wrap;
+}
+.muted{
+  text-align:center;
+  font-size:13px;
+  opacity:.6;
+  margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
+<div class="app">
   <div class="card">
     <h1>🤖 ChatAI Bob PRO 2025</h1>
+    <div class="muted">Versione GitHub Pages – demo semplice</div>
 
-    <textarea id="msg" placeholder="Scrivi un messaggio..."></textarea>
+    <textarea id="msg" placeholder="Scrivi un messaggio…"></textarea>
 
     <select id="lang">
       <option value="it">Italiano</option>
@@ -68,35 +78,25 @@ button{
 </div>
 
 <script>
-const HF_TOKEN = "hf_INSERISCI_LA_TUA_CHIAVE";
-const MODEL = "HuggingFaceH4/zephyr-7b-beta";
-
-async function send(){
+function send(){
+  const msg = document.getElementById("msg").value.trim();
   const out = document.getElementById("out");
-  out.textContent = "⏳ Attendi...";
-
-  try{
-    const r = await fetch(
-      "https://api-inference.huggingface.co/models/" + MODEL,
-      {
-        method:"POST",
-        headers:{
-          "Authorization":"Bearer " + HF_TOKEN,
-          "Content-Type":"application/json"
-        },
-        body: JSON.stringify({
-          inputs: document.getElementById("msg").value
-        })
-      }
-    );
-
-    const j = await r.json();
-    out.textContent =
-      j[0]?.generated_text || JSON.stringify(j,null,2);
-
-  }catch(e){
-    out.textContent = "❌ Errore di connessione";
+  if(!msg){
+    out.textContent="⚠️ Scrivi qualcosa.";
+    return;
   }
+
+  out.textContent = "🤖 Sto pensando…";
+
+  setTimeout(()=>{
+    out.textContent =
+      "👋 Ciao!\n\n" +
+      "Questa è una versione DEMO di ChatAI Bob.\n" +
+      "Funziona al 100% su GitHub Pages,\n" +
+      "senza backend e senza chiavi.\n\n" +
+      "Messaggio ricevuto:\n" +
+      "➡️ " + msg;
+  },600);
 }
 </script>
 </body>
