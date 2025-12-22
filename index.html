@@ -77,8 +77,59 @@
 <!-- 🧠 SCRIPT (TUTTO QUI DENTRO) -->
 <script>
 const GROQ_PROXY_URL = "https://groq-proxy-worker.bouabidmoukhlis.workers.dev";
-document.getElementById("year").innerText = new Date().getFullYear();
 
+async function analyzeImage() {
+  const input = document.getElementById("imgInput");
+  const result = document.getElementById("imgResult");
+
+  if (!input || !input.files || !input.files[0]) {
+    result.textContent = "❌ Nessun file selezionato.";
+    return;
+  }
+
+  result.textContent = "⏳ Analisi immagine in corso…";
+
+  try {
+    const base64 = await toBase64(input.files[0]);
+
+    const payload = {
+      model: "llama-3.2-90b-vision-preview",
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: "Analizza questa immagine e descrivila in modo chiaro." },
+          { type: "image_url", image_url: { url: base64 } }
+        ]
+      }],
+      max_tokens: 300
+    };
+
+    const r = await fetch(GROQ_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await r.json();
+
+    result.textContent =
+      data?.choices?.[0]?.message?.content ||
+      "❌ Nessuna risposta dal modello.";
+
+  } catch (err) {
+    result.textContent = "❌ Errore: " + err.message;
+  }
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
 /* ===== CHAT ===== */
 function looksArabic(t){return /[\u0600-\u06FF]/.test(t);}
 function looksDarija(t){
@@ -164,10 +215,10 @@ function toBase64(file){
 }
 </script>
 
-</body><script>
-  // TUTTE le funzioni:
+</body>// TUTTE le funzioni:
   // analyzeImage
   // sendMessage
-  // toBase64
+  // toBase64<script>
+
 </script>
 </html>
