@@ -1,163 +1,147 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatAI Bob PRO 2026 — Global</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatAI Bob PRO 2026 — Global</title>
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 12px;
-    }
-    h2 {
-      text-align: center;
-      margin-top: 10px;
-    }
-    select, textarea, button, input {
-      width: 100%;
-      max-width: 600px;
-      margin: 8px auto;
-      display: block;
-      font-size: 16px;
-    }
-    textarea {
-      height: 90px;
-      padding: 10px;
-    }
-    button {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    button:disabled {
-      background: #aaa;
-    }
-    #output, #imgResult {
-      max-width: 600px;
-      margin: 15px auto;
-      padding: 10px;
-      background: white;
-      border-radius: 6px;
-      white-space: pre-wrap;
-    }
-    footer {
-      text-align: center;
-      opacity: 0.6;
-      margin-top: 30px;
-      font-size: 13px;
-    }
-  </style>
+<style>
+body{
+  font-family: system-ui, sans-serif;
+  background:#f4f6f8;
+  margin:0;
+  padding:12px;
+}
+h2{text-align:center;}
+select,textarea,button,input{
+  width:100%;
+  max-width:600px;
+  margin:8px auto;
+  display:block;
+  font-size:16px;
+}
+textarea{height:90px;padding:10px;}
+button{
+  padding:12px;
+  background:#007bff;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+}
+#output,#imgResult{
+  max-width:600px;
+  margin:12px auto;
+  padding:10px;
+  background:#fff;
+  border-radius:6px;
+  white-space:pre-wrap;
+}
+footer{text-align:center;opacity:.6;margin-top:30px;}
+</style>
 </head>
 
 <body>
 
 <h2>🇲🇦 ChatAI Bob PRO 2026 — Global</h2>
 
-<!-- 🖼️ ANALISI IMMAGINE -->
+<!-- 📷 IMAGE -->
 <input type="file" id="imgInput" accept="image/*">
 <button onclick="analyzeImage()">🖼️ Analizza foto</button>
 <div id="imgResult">📷 Nessuna immagine analizzata.</div>
 
-<!-- 🚀 INVIA -->
-<button id="sendBtn" onclick="sendMessage()">🚀 Invia</button>
+<!-- 🌍 LANGUAGE -->
+<select id="langMode">
+<option value="auto">🌍 AUTO (consigliato)</option>
+<option value="it">🇮🇹 Italiano</option>
+<option value="en">🇬🇧 English</option>
+<option value="fr">🇫🇷 Français</option>
+<option value="ar">🇸🇦 Arabic</option>
+<option value="ary">🇲🇦 Darija</option>
+</select>
 
-<!-- 💬 OUTPUT -->
+<!-- 💬 CHAT -->
+<textarea id="userText" placeholder="Scrivi come vuoi…"></textarea>
+<button id="sendBtn" onclick="sendMessage()">🚀 Invia</button>
 <div id="output">⏳ Pronto.</div>
 
-<footer>
-  © <span id="year"></span> ChatAI Bob PRO
-</footer>
+<footer>© 2025 ChatAI Bob PRO</footer>
 
-<!-- 🧠 SCRIPT (TUTTO QUI DENTRO) -->
 <script>
 const GROQ_PROXY_URL = "https://groq-proxy-worker.bouabidmoukhlis.workers.dev";
 
-async function analyzeImage() {
+/* ========= IMAGE ANALYSIS ========= */
+async function analyzeImage(){
   const input = document.getElementById("imgInput");
-  const result = document.getElementById("imgResult");
+  const out = document.getElementById("imgResult");
 
-  if (!input || !input.files || !input.files[0]) {
-    result.textContent = "❌ Nessun file selezionato.";
+  if(!input.files || !input.files[0]){
+    out.textContent = "❌ Nessun file selezionato.";
     return;
   }
 
-  result.textContent = "⏳ Analisi immagine in corso…";
+  out.textContent = "⏳ Analisi in corso…";
 
-  try {
+  try{
     const base64 = await toBase64(input.files[0]);
 
-    const payload = {
-      model: "llama-3.2-90b-vision-preview",
-      messages: [{
-        role: "user",
-        content: [
-          { type: "text", text: "Analizza questa immagine e descrivila in modo chiaro." },
-          { type: "image_url", image_url: { url: base64 } }
-        ]
-      }],
-      max_tokens: 300
-    };
-
-    const r = await fetch(GROQ_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+    const res = await fetch(GROQ_PROXY_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        model:"llama-3.2-90b-vision-preview",
+        messages:[{
+          role:"user",
+          content:[
+            {type:"text", text:"Descrivi questa immagine in modo chiaro."},
+            {type:"image_url", image_url:{url:base64}}
+          ]
+        }],
+        max_tokens:300
+      })
     });
 
-    const data = await r.json();
+    const data = await res.json();
+    out.textContent = data?.choices?.[0]?.message?.content || "❌ Nessuna risposta.";
 
-    result.textContent =
-      data?.choices?.[0]?.message?.content ||
-      "❌ Nessuna risposta dal modello.";
-
-  } catch (err) {
-    result.textContent = "❌ Errore: " + err.message;
+  }catch(e){
+    out.textContent = "❌ Errore: " + e.message;
   }
 }
 
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+function toBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(file);
   });
 }
-</script>
-/* ===== CHAT ===== */
+
+/* ========= CHAT ========= */
 function looksArabic(t){return /[\u0600-\u06FF]/.test(t);}
 function looksDarija(t){
-  return ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"]
-    .some(w => t.includes(w));
+  return ["شنو","واش","بغيت","دابا","فين","هاد","ديال"].some(w=>t.includes(w));
 }
 
 function systemInstruction(text){
-  const mode = document.getElementById("langMode").value;
-  if(mode !== "auto"){
-    return `Reply ONLY in ${mode}.`;
-  }
+  const mode=document.getElementById("langMode").value;
+  if(mode!=="auto") return `Reply ONLY in ${mode}.`;
   if(looksDarija(text)) return "Reply in Moroccan Darija.";
   if(looksArabic(text)) return "Reply in Arabic.";
   return "Reply in the same language as the user.";
 }
 
 async function sendMessage(){
-  const text = userText.value.trim();
-  if(!text) return;
+  const text=document.getElementById("userText").value.trim();
+  const out=document.getElementById("output");
+  if(!text){out.textContent="⚠️ Scrivi qualcosa.";return;}
 
-  sendBtn.disabled = true;
-  output.textContent = "⏳ Attendi…";
+  out.textContent="⏳ Attendi…";
 
   try{
-    const r = await fetch(GROQ_PROXY_URL,{
+    const r=await fetch(GROQ_PROXY_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({
         model:"llama-3.3-70b-versatile",
         messages:[
@@ -168,57 +152,13 @@ async function sendMessage(){
       })
     });
 
-    const d = await r.json();
-    output.textContent = d.choices?.[0]?.message?.content || "Nessuna risposta";
-
+    const d=await r.json();
+    out.textContent=d?.choices?.[0]?.message?.content || "❌ Nessuna risposta.";
   }catch(e){
-    output.textContent = "❌ Errore: " + e.message;
+    out.textContent="❌ Errore: "+e.message;
   }
-  sendBtn.disabled = false;
-}
-
-/* ===== ANALISI IMMAGINE ===== */
-async function analyzeImage(){
-  const file = imgInput.files[0];
-  if(!file){ alert("Seleziona una foto"); return; }
-
-  const base64 = await toBase64(file);
-  imgResult.textContent = "⏳ Analisi in corso…";
-
-  const r = await fetch(GROQ_PROXY_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"llama-3.2-90b-vision-preview",
-      messages:[{
-        role:"user",
-        content:[
-          {type:"text",text:"Analizza questa immagine e descrivila."},
-          {type:"image_url",image_url:{url:base64}}
-        ]
-      }],
-      max_tokens:400
-    })
-  });
-
-  const d = await r.json();
-  imgResult.textContent = d.choices?.[0]?.message?.content || "Errore analisi";
-}
-
-function toBase64(file){
-  return new Promise((res,rej)=>{
-    const r = new FileReader();
-    r.onload=()=>res(r.result);
-    r.onerror=rej;
-    r.readAsDataURL(file);
-  });
 }
 </script>
 
-</body>// TUTTE le funzioni:
-  // analyzeImage
-  // sendMessage
-  // toBase64<script>
-
-</script>
+</body>
 </html>
