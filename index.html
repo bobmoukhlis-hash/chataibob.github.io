@@ -1,110 +1,512 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob PRO 2026</title>
 
 <style>
-body{font-family:system-ui;background:#f4f6f8;margin:0;padding:12px}
-h2{text-align:center}
-textarea,select,button,input{width:100%;max-width:600px;margin:8px auto;display:block;font-size:16px}
-textarea{height:90px;padding:10px}
-button{padding:12px;background:#007bff;color:#fff;border:none;border-radius:6px}
-#output,#imgResult{background:#fff;padding:10px;border-radius:6px;max-width:600px;margin:10px auto;white-space:pre-wrap}
-footer{text-align:center;font-size:13px;opacity:.6;margin-top:20px}
+  :root{
+    --bg:#f4f6f8; --card:#ffffff; --text:#0b1220; --muted:#6b7280;
+    --blue:#007bff; --blue2:#0a66ff; --border:#e5e7eb;
+    --me:#e8f1ff; --ai:#f3f4f6; --danger:#ef4444;
+    --shadow: 0 6px 18px rgba(0,0,0,.06);
+  }
+  [data-theme="dark"]{
+    --bg:#0b0f17; --card:#111827; --text:#e5e7eb; --muted:#9ca3af;
+    --blue:#2b7cff; --blue2:#4f8cff; --border:#1f2937;
+    --me:#0b2a55; --ai:#1f2937; --danger:#f87171;
+    --shadow: 0 10px 24px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:12px; background:var(--bg); color:var(--text);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; padding:10px 12px; border-radius:14px;
+    background:var(--card); box-shadow:var(--shadow); border:1px solid var(--border);
+    position:sticky; top:8px; z-index:10;
+  }
+  .title{
+    font-weight:800; letter-spacing:.2px; font-size:18px; display:flex; align-items:center; gap:8px;
+  }
+  .chip{
+    font-size:12px; padding:4px 8px; border-radius:999px;
+    border:1px solid var(--border); color:var(--muted); background:transparent;
+  }
+  .btn{
+    border:none; border-radius:10px; padding:10px 12px;
+    background:var(--blue); color:#fff; font-weight:700; cursor:pointer;
+  }
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .btn2{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+    background:var(--card); color:var(--text); font-weight:700; cursor:pointer;
+  }
+  .btnDanger{
+    background:var(--danger); color:#fff; border:none;
+  }
+  .row{display:flex; gap:10px; flex-wrap:wrap}
+  .row > *{flex:1}
+  .card{
+    margin-top:12px; padding:12px; border-radius:14px; background:var(--card);
+    border:1px solid var(--border); box-shadow:var(--shadow);
+  }
+  select, textarea, input{
+    width:100%; font-size:16px; padding:10px 12px; border-radius:12px;
+    border:1px solid var(--border); background:transparent; color:var(--text);
+    outline:none;
+  }
+  textarea{min-height:88px; resize:vertical}
+  .muted{color:var(--muted); font-size:13px}
+  .hr{height:1px;background:var(--border);margin:12px 0}
+
+  /* Chat */
+  .chat{
+    display:flex; flex-direction:column; gap:10px;
+    max-height:52vh; overflow:auto; padding-right:4px;
+  }
+  .bubble{
+    max-width:92%;
+    padding:10px 12px; border-radius:14px;
+    border:1px solid var(--border);
+    white-space:pre-wrap; line-height:1.35;
+  }
+  .me{align-self:flex-end; background:var(--me)}
+  .ai{align-self:flex-start; background:var(--ai)}
+  .meta{font-size:12px;color:var(--muted);margin-top:6px}
+  .status{
+    margin-top:8px; padding:10px 12px; border-radius:12px;
+    border:1px dashed var(--border); color:var(--muted); background:transparent;
+    white-space:pre-wrap;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:12px; border:1px solid var(--border);
+    background:transparent; color:var(--text); font-weight:700; cursor:pointer;
+  }
+  .pill[aria-pressed="true"]{border-color:var(--blue2)}
+  .small{font-size:12px; padding:8px 10px}
+  .footer{opacity:.65; text-align:center; padding:16px 0; font-size:13px}
+  .imgPrev{max-width:100%; border-radius:12px; border:1px solid var(--border); margin-top:10px}
 </style>
 </head>
 
 <body>
+<div class="wrap">
 
-<h2>🇲🇦 ChatAI Bob PRO 2026</h2>
+  <div class="topbar">
+    <div class="title">🇲🇦 ChatAI Bob PRO 2026 <span class="chip">Global</span></div>
+    <div class="row" style="justify-content:flex-end; flex:0; gap:8px">
+      <button class="btn2 small" id="themeBtn">🌙 Dark</button>
+      <button class="btn2 small" id="copyBtn">📋 Copia</button>
+      <button class="btn2 small btnDanger" id="clearBtn">🧹 Reset</button>
+    </div>
+  </div>
 
-<input type="file" id="imgInput" accept="image/*">
-<button onclick="analyzeImage()">🖼️ Analizza foto</button>
-<div id="imgResult">📷 Nessuna immagine analizzata.</div>
+  <!-- VISION -->
+  <div class="card">
+    <div class="row">
+      <input type="file" id="imgInput" accept="image/*" />
+      <button class="btn" id="imgBtn">🖼️ Analizza foto</button>
+    </div>
+    <img id="imgPreview" class="imgPrev" style="display:none" />
+    <div id="imgResult" class="status">📷 Nessuna immagine analizzata.</div>
+  </div>
 
-<select id="langMode">
-<option value="auto">🌍 AUTO</option>
-<option value="it">🇮🇹 Italiano</option>
-<option value="ar">🇸🇦 Arabic</option>
-<option value="ary">🇲🇦 Darija</option>
-<option value="fr">🇫🇷 Français</option>
-<option value="en">🇬🇧 English</option>
-</select>
+  <!-- CONTROLS -->
+  <div class="card">
+    <div class="row">
+      <select id="langMode">
+        <option value="auto" selected>🌍 AUTO (consigliato)</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="ar">🇸🇦 Arabic</option>
+        <option value="ary">🇲🇦 Darija</option>
+      </select>
 
-<textarea id="userText" placeholder="Scrivi come vuoi..."></textarea>
-<button onclick="sendMessage()">🚀 Invia</button>
+      <select id="modelMode">
+        <option value="llama-3.3-70b-versatile" selected>⚡ Chat: Llama 3.3 70B</option>
+        <option value="llama-3.2-90b-vision-preview">👁️ Vision: Llama 3.2 90B</option>
+      </select>
+    </div>
 
-<div id="output">⏳ Pronto.</div>
+    <div class="row">
+      <button class="pill" id="micBtn" aria-pressed="false">🎤 Microfono</button>
+      <button class="pill" id="ttsBtn" aria-pressed="false">🔊 Voce</button>
+      <button class="pill" id="stopVoiceBtn">⛔ Stop voce</button>
+    </div>
 
-<footer>© 2025 ChatAI Bob PRO</footer>
+    <div class="muted" id="hint">
+      Microfono: funziona su Chrome/Android (se supportato). Voce: legge le risposte con TTS.
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="card">
+    <div class="chat" id="chat"></div>
+
+    <div class="hr"></div>
+
+    <textarea id="userText" placeholder="Scrivi come vuoi… (Darija, Arabo, Italiano, ecc.)"></textarea>
+
+    <div class="row">
+      <button class="btn" id="sendBtn">🚀 Invia</button>
+      <button class="btn2" id="cancelBtn">🧯 Annulla richiesta</button>
+    </div>
+
+    <div id="status" class="status">⏳ Pronto.</div>
+  </div>
+
+  <div class="footer">© <span id="year"></span> ChatAI Bob PRO</div>
+</div>
 
 <script>
+/* ============================
+   CONFIG
+============================ */
 const GROQ_PROXY_URL = "https://groq-proxy-worker.bouabidmoukhlis.workers.dev";
+document.getElementById("year").textContent = new Date().getFullYear();
 
-function looksArabic(t){return /[\u0600-\u06FF]/.test(t);}
+/* ============================
+   STATE
+============================ */
+let busy = false;
+let abortCtrl = null;
+let ttsEnabled = false;
+let micEnabled = false;
+
+/* ============================
+   THEME
+============================ */
+const themeBtn = document.getElementById("themeBtn");
+const savedTheme = localStorage.getItem("bob_theme") || "light";
+setTheme(savedTheme);
+
+function setTheme(mode){
+  document.documentElement.setAttribute("data-theme", mode === "dark" ? "dark" : "light");
+  localStorage.setItem("bob_theme", mode);
+  themeBtn.textContent = (mode === "dark") ? "☀️ Light" : "🌙 Dark";
+}
+
+themeBtn.addEventListener("click", ()=>{
+  const cur = localStorage.getItem("bob_theme") || "light";
+  setTheme(cur === "dark" ? "light" : "dark");
+});
+
+/* ============================
+   CHAT UI + STORAGE
+============================ */
+const chatEl = document.getElementById("chat");
+const statusEl = document.getElementById("status");
+const userText = document.getElementById("userText");
+
+function loadChat(){
+  const raw = localStorage.getItem("bob_chat");
+  if(!raw) return;
+  try{
+    const arr = JSON.parse(raw);
+    arr.forEach(m => addBubble(m.role, m.text, false));
+    scrollChat();
+  }catch{}
+}
+function saveChat(){
+  const bubbles = [...chatEl.querySelectorAll(".bubble")].map(b=>({
+    role: b.classList.contains("me") ? "user" : "assistant",
+    text: b.querySelector(".content").textContent
+  }));
+  localStorage.setItem("bob_chat", JSON.stringify(bubbles));
+}
+function addBubble(role, text, persist=true){
+  const wrap = document.createElement("div");
+  wrap.className = "bubble " + (role === "user" ? "me" : "ai");
+
+  const content = document.createElement("div");
+  content.className = "content";
+  content.textContent = text;
+
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = role === "user" ? "Tu" : "ChatAI Bob";
+
+  wrap.appendChild(content);
+  wrap.appendChild(meta);
+  chatEl.appendChild(wrap);
+
+  if(persist) saveChat();
+  scrollChat();
+}
+function scrollChat(){
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+loadChat();
+
+/* ============================
+   LANGUAGE DETECTION
+============================ */
+function looksArabic(t){ return /[\u0600-\u06FF]/.test(t); }
 function looksDarija(t){
-return ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"]
-.some(w=>t.includes(w));
+  return ["شنو","واش","بزاف","دابا","فين","عافاك","مزيان","هاد","ديال","بغيت"].some(w=>t.includes(w));
+}
+function systemPrompt(t){
+  const mode = document.getElementById("langMode").value;
+  if(mode !== "auto") return `Reply ONLY in this language: ${mode}. Be short, clear, professional.`;
+
+  if(looksDarija(t)) return "Reply in Moroccan Darija. Be concise and helpful.";
+  if(looksArabic(t)) return "Reply in Arabic (فصحى إذا كان رسمي). Be concise and helpful.";
+  return "Reply in the same language as the user. Be concise, useful, professional.";
 }
 
-function systemPrompt(t){
-const m=document.getElementById("langMode").value;
-if(m!=="auto") return "Reply only in "+m;
-if(looksDarija(t)) return "Reply in Moroccan Darija.";
-if(looksArabic(t)) return "Reply in Arabic.";
-return "Reply in the same language as the user.";
+/* ============================
+   NETWORK (SAFE CALL)
+============================ */
+async function callGroq(payload, timeoutMs=25000){
+  abortCtrl = new AbortController();
+  const timer = setTimeout(()=>abortCtrl.abort("timeout"), timeoutMs);
+
+  const r = await fetch(GROQ_PROXY_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload),
+    signal: abortCtrl.signal
+  }).catch(err=>{
+    clearTimeout(timer);
+    throw err;
+  });
+
+  clearTimeout(timer);
+
+  const d = await r.json().catch(()=> ({}));
+  return d?.choices?.[0]?.message?.content || d?.text || "";
 }
+
+/* ============================
+   TTS
+============================ */
+const ttsBtn = document.getElementById("ttsBtn");
+const stopVoiceBtn = document.getElementById("stopVoiceBtn");
+
+ttsBtn.addEventListener("click", ()=>{
+  ttsEnabled = !ttsEnabled;
+  ttsBtn.setAttribute("aria-pressed", String(ttsEnabled));
+  ttsBtn.textContent = ttsEnabled ? "🔊 Voce: ON" : "🔊 Voce: OFF";
+  if(!ttsEnabled) window.speechSynthesis?.cancel();
+});
+
+stopVoiceBtn.addEventListener("click", ()=>{
+  window.speechSynthesis?.cancel();
+});
+
+function speak(text){
+  if(!ttsEnabled) return;
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.slice(0, 1800));
+  window.speechSynthesis.speak(u);
+}
+
+/* ============================
+   MICROPHONE (SpeechRecognition)
+============================ */
+const micBtn = document.getElementById("micBtn");
+let rec = null;
+
+function initMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.lang = "it-IT";
+  r.interimResults = true;
+  r.continuous = true;
+  return r;
+}
+
+micBtn.addEventListener("click", ()=>{
+  if(!rec) rec = initMic();
+  if(!rec){
+    statusEl.textContent = "❌ Microfono non supportato su questo browser.";
+    return;
+  }
+
+  micEnabled = !micEnabled;
+  micBtn.setAttribute("aria-pressed", String(micEnabled));
+  micBtn.textContent = micEnabled ? "🎤 Microfono: ON" : "🎤 Microfono: OFF";
+
+  if(micEnabled){
+    statusEl.textContent = "🎤 Sto ascoltando… parla ora.";
+    let finalText = "";
+    rec.onresult = (e)=>{
+      let interim = "";
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const t = e.results[i][0].transcript;
+        if(e.results[i].isFinal) finalText += t + " ";
+        else interim += t;
+      }
+      userText.value = (finalText + interim).trim();
+    };
+    rec.onerror = ()=>{ statusEl.textContent = "⚠️ Errore microfono. Prova di nuovo."; };
+    rec.onend = ()=>{
+      if(micEnabled){
+        // riparte automaticamente
+        try{ rec.start(); }catch{}
+      }
+    };
+    try{ rec.start(); }catch{}
+  }else{
+    try{ rec.stop(); }catch{}
+    statusEl.textContent = "⏳ Pronto.";
+  }
+});
+
+/* ============================
+   COPY / CLEAR
+============================ */
+document.getElementById("copyBtn").addEventListener("click", async ()=>{
+  const lastAi = [...chatEl.querySelectorAll(".bubble.ai .content")].pop();
+  const text = lastAi ? lastAi.textContent : "";
+  if(!text){ statusEl.textContent = "⚠️ Nulla da copiare."; return; }
+  try{
+    await navigator.clipboard.writeText(text);
+    statusEl.textContent = "✅ Copiato negli appunti.";
+  }catch{
+    statusEl.textContent = "⚠️ Copia non riuscita (permessi browser).";
+  }
+});
+
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  if(busy) return;
+  chatEl.innerHTML = "";
+  localStorage.removeItem("bob_chat");
+  statusEl.textContent = "🧹 Chat pulita.";
+});
+
+/* ============================
+   CANCEL REQUEST
+============================ */
+document.getElementById("cancelBtn").addEventListener("click", ()=>{
+  if(abortCtrl){
+    abortCtrl.abort("user_cancel");
+    statusEl.textContent = "🧯 Richiesta annullata.";
+  }
+});
+
+/* ============================
+   SEND MESSAGE
+============================ */
+const sendBtn = document.getElementById("sendBtn");
+
+sendBtn.addEventListener("click", sendMessage);
 
 async function sendMessage(){
-const t=userText.value.trim();
-if(!t)return;
-output.textContent="⏳ Attendi...";
-const r=await fetch(GROQ_PROXY_URL,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-model:"llama-3.3-70b-versatile",
-messages:[
-{role:"system",content:systemPrompt(t)},
-{role:"user",content:t}
-],
-max_tokens:500
-})
+  if(busy) return;
+
+  const text = userText.value.trim();
+  if(!text){ statusEl.textContent = "⚠️ Scrivi un messaggio."; return; }
+
+  busy = true;
+  sendBtn.disabled = true;
+
+  addBubble("user", text);
+  userText.value = "";
+  statusEl.textContent = "⏳ Attendi…";
+
+  try{
+    const model = "llama-3.3-70b-versatile";
+    const reply = await callGroq({
+      model,
+      messages:[
+        {role:"system", content: systemPrompt(text)},
+        {role:"user", content: text}
+      ],
+      max_tokens: 650
+    });
+
+    if(!reply){
+      addBubble("assistant", "❌ Nessuna risposta. (Controlla Worker / chiave / rete)");
+      statusEl.textContent = "❌ Nessuna risposta.";
+    }else{
+      addBubble("assistant", reply);
+      statusEl.textContent = "✅ Fatto.";
+      speak(reply);
+    }
+  }catch(e){
+    const msg = (e?.name === "AbortError" || e === "timeout") ? "⏱️ Timeout / Annullato" : (e?.message || String(e));
+    addBubble("assistant", "❌ Errore: " + msg);
+    statusEl.textContent = "❌ Errore: " + msg;
+  }
+
+  busy = false;
+  sendBtn.disabled = false;
+}
+
+/* ============================
+   IMAGE ANALYSIS
+============================ */
+const imgBtn = document.getElementById("imgBtn");
+const imgInput = document.getElementById("imgInput");
+const imgPreview = document.getElementById("imgPreview");
+const imgResult = document.getElementById("imgResult");
+
+imgInput.addEventListener("change", ()=>{
+  const f = imgInput.files?.[0];
+  if(!f){ imgPreview.style.display="none"; return; }
+  const url = URL.createObjectURL(f);
+  imgPreview.src = url;
+  imgPreview.style.display = "block";
 });
-const d=await r.json();
-output.textContent=d.choices?.[0]?.message?.content || "❌ Nessuna risposta";
+
+imgBtn.addEventListener("click", analyzeImage);
+
+async function toBase64(file){
+  return await new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 async function analyzeImage(){
-const f=imgInput.files[0];
-if(!f){imgResult.textContent="❌ Seleziona una foto";return;}
-imgResult.textContent="⏳ Analisi...";
-const b=await new Promise(r=>{
-const fr=new FileReader();
-fr.onload=()=>r(fr.result);
-fr.readAsDataURL(f);
-});
-const r=await fetch(GROQ_PROXY_URL,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-model:"llama-3.2-90b-vision-preview",
-messages:[{
-role:"user",
-content:[
-{type:"text",text:"Analizza questa immagine"},
-{type:"image_url",image_url:{url:b}}
-]
-}],
-max_tokens:300
-})
-});
-const d=await r.json();
-imgResult.textContent=d.choices?.[0]?.message?.content || "❌ Nessuna risposta";
+  if(busy) return;
+
+  const file = imgInput.files?.[0];
+  if(!file){ imgResult.textContent = "❌ Nessun file selezionato."; return; }
+
+  busy = true;
+  imgBtn.disabled = true;
+  imgResult.textContent = "⏳ Analisi immagine...";
+
+  try{
+    const base64 = await toBase64(file);
+
+    const reply = await callGroq({
+      model: "llama-3.2-90b-vision-preview",
+      messages: [{
+        role:"user",
+        content: [
+          { type:"text", text:"Analizza questa immagine e descrivila in modo chiaro e utile." },
+          { type:"image_url", image_url:{ url: base64 } }
+        ]
+      }],
+      max_tokens: 320
+    });
+
+    imgResult.textContent = reply || "❌ Nessuna risposta dall'analisi.";
+    if(reply) speak(reply);
+  }catch(e){
+    const msg = (e?.name === "AbortError" || e === "timeout") ? "⏱️ Timeout / Annullato" : (e?.message || String(e));
+    imgResult.textContent = "❌ Errore analisi: " + msg;
+  }
+
+  busy = false;
+  imgBtn.disabled = false;
 }
 </script>
-
 </body>
 </html>
