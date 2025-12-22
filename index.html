@@ -1,148 +1,78 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatAI Bob PRO 2025</title>
-<style>
-body {
-  background:#0b1220;
-  font-family: Arial, sans-serif;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-}
-.box {
-  max-width:420px;
-  width:100%;
-  padding:20px;
-}
-textarea, select, button, input {
-  width:100%;
-  margin:8px 0;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-}
-button {
-  background:#1da1ff;
-  color:#fff;
-  font-size:16px;
-}
-.out {
-  background:#111a2e;
-  padding:15px;
-  border-radius:10px;
-  min-height:80px;
-}
-img, video {
-  width:100%;
-  border-radius:10px;
-  margin-top:10px;
-}
-</style>
-</head>
+<script>
+  // 🔗 URL DEL WORKER (GIUSTO)
+  const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
 
-<body>
-<div class="box">
+  async function inviaMessaggio() {
+    const testo = document.querySelector("textarea").value;
+    const fileInput = document.querySelector('input[type="file"]');
+    const output = document.getElementById("output");
 
-<h2>🤖 ChatAI Bob PRO 2025</h2>
+    output.innerText = "⏳ Attendi...";
 
-<textarea id="msg" rows="4" placeholder="Scrivi o usa il microfono..."></textarea>
+    let messages = [];
 
-<select id="mode">
-  <option>Chat AI</option>
-  <option>Immagine</option>
-  <option>Video</option>
-  <option>Analisi Foto</option>
-</select>
+    // 📝 Testo
+    if (testo && testo.trim() !== "") {
+      messages.push({
+        role: "user",
+        content: testo
+      });
+    }
 
-<select id="lang">
-  <option value="it">Italiano</option>
-  <option value="en">English</option>
-</select>
+    // 📷 Immagine (se presente)
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const base64 = await toBase64(file);
 
-<button onclick="microfono()">🎤 Microfono</button>
-<button onclick="invia()">🚀 Invia</button>
-<button onclick="pulisci()">🧹 Pulisci</button>
+      messages = [{
+        role: "user",
+        content: [
+          { type: "text", text: testo || "Analizza questa immagine" },
+          {
+            type: "image_url",
+            image_url: { url: base64 }
+          }
+        ]
+      }];
+    }
 
-<input type="file" id="foto" accept="image/*">
+    try {
+      const res = await fetch(GROQ_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: fileInput.files.length > 0
+            ? "llama-3.2-11b-vision-preview"
+            : "llama-3.3-70b-versatile",
+          messages: messages
+        })
+      });
 
-<div class="out" id="out">Pronto.</div>
-<img id="img">
-<video id="vid" controls></video>
+      const data = await res.json();
 
-<button onclick="leggi()">🔊 Leggi</button>
+      output.innerText =
+        data.text ||
+        data.choices?.[0]?.message?.content ||
+        JSON.stringify(data, null, 2);
 
-</div>
+    } catch (e) {
+      output.innerText = "❌ Errore: " + e.message;
+    }
+  }
+
+  // 🔄 Converti file in Base64
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+</script><footer style="text-align:center;margin-top:30px;opacity:0.6;">
+  © <span id="year"></span> ChatAI Bob PRO
+</footer>
 
 <script>
-const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
-
-/* ---------- CHAT / IMMAGINE / VIDEO ---------- */
-async function invia(){
-  const msg = document.getElementById("msg").value;
-  const mode = document.getElementById("mode").value;
-  document.getElementById("out").innerText = "⏳ Attendi...";
-
-  if(mode === "Immagine"){
-    document.getElementById("img").src =
-      "https://image.pollinations.ai/prompt/" + encodeURIComponent(msg);
-    return;
-  }
-
-  if(mode === "Video"){
-    document.getElementById("vid").src =
-      "https://image.pollinations.ai/prompt/" + encodeURIComponent(msg) + "?animate=true";
-    return;
-  }
-
-  if(mode === "Analisi Foto"){
-    const f = document.getElementById("foto").files[0];
-    if(!f){ alert("Seleziona una foto"); return; }
-    document.getElementById("out").innerText =
-      "Analisi foto: " + f.name + " (demo descrizione AI)";
-    return;
-  }
-
-  const r = await fetch(GROQ_PROXY_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"llama-3.3-70b-versatile",
-      messages:[{role:"user",content:msg}]
-    })
-  });
-
-  const t = await r.text();
-  document.getElementById("out").innerText = t;
-}
-
-/* ---------- MICROFONO ---------- */
-function microfono(){
-  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  rec.lang = "it-IT";
-  rec.onresult = e => {
-    document.getElementById("msg").value = e.results[0][0].transcript;
-  };
-  rec.start();
-}
-
-/* ---------- VOCE ---------- */
-function leggi(){
-  const t = document.getElementById("out").innerText;
-  const u = new SpeechSynthesisUtterance(t);
-  u.lang = "it-IT";
-  speechSynthesis.speak(u);
-}
-
-function pulisci(){
-  msg.value="";
-  out.innerText="";
-  img.src="";
-  vid.src="";
-}
+  document.getElementById("year").innerText = new Date().getFullYear();
 </script>
-
-</body>
-</html>
