@@ -4,7 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ChatAI Bob PRO 2025</title>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatAI Bob PRO</title>
+</head>
+<body>
 
+  <h2>ChatAI Bob PRO</h2>
+
+  <input id="msg" placeholder="Scrivi un messaggio">
+  <button onclick="invia()">Invia</button>
+
+  <pre id="out"></pre>
+
+  <!-- ✅ TUTTO IL JS QUI DENTRO -->
+  <script>
+    // 🔗 QUI VA MESSA (OBBLIGATORIO)
+    const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
+
+    async function invia() {
+      const testo = document.getElementById("msg").value;
+
+      const res = await fetch(GROQ_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: testo }]
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById("out").textContent =
+        data.text || JSON.stringify(data, null, 2);
+    }
+  </script>
+
+</body>
+</html>
 <style>
 body{const GROQ_PROXY_URL = "https://shy-poetry-9c52.bouabidmoukhlis.workers.dev";
   margin:0;
