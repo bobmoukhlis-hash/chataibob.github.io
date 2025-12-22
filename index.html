@@ -1,96 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ChatAI Bob PRO 2025</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🤖 ChatAI Bob PRO 2025</title>
+
   <style>
     body{
-      margin:0;
-      font-family:system-ui,Arial;
-      background:#070b12;
-      color:#e8f1ff;
-    }
-    .wrap{max-width:800px;margin:auto;padding:16px}
-    .card{
-      background:#0b1220;
-      border:1px solid #13223d;
-      border-radius:14px;
-      padding:14px;
-      margin-bottom:12px;
-    }
-    textarea,button,select{
-      width:100%;
-      border-radius:10px;
-      padding:12px;
-      border:1px solid #1a2f55;
-      background:#071022;
+      background:#000;
       color:#fff;
-      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+      padding:20px;
+    }
+    h1{ text-align:center; }
+    input, select, button{
+      width:100%;
+      padding:14px;
+      margin:10px 0;
+      font-size:16px;
+      border-radius:8px;
+      border:none;
     }
     button{
-      background:linear-gradient(90deg,#00e5ff,#3b82f6);
-      border:0;
-      font-weight:700;
-      margin-top:10px;
+      background:#00c8ff;
+      font-weight:bold;
     }
-    .out{
+    #out{
+      margin-top:15px;
       white-space:pre-wrap;
-      margin-top:10px;
-      min-height:120px;
-      background:#071022;
-      padding:10px;
-      border-radius:10px;
+      background:#111;
+      padding:12px;
+      border-radius:8px;
+      min-height:80px;
     }
   </style>
 </head>
+
 <body>
 
-<div class="wrap">
-  <div class="card">
-    <h2>🤖 ChatAI Bob PRO 2025</h2>
-    <p>Groq via Cloudflare Worker – versione stabile</p>
-  </div>
+<h1>🤖 ChatAI Bob PRO 2025</h1>
+<p style="text-align:center">Groq via Cloudflare Worker – <b>senza chiavi nel browser</b></p>
 
-  <div class="card">
-    <textarea id="prompt" placeholder="Scrivi un messaggio..."></textarea>
-    <button onclick="send()">🚀 Invia</button>
-    <div id="out" class="out"></div>
-  </div>
-</div>
+<input id="msg" placeholder="Scrivi un messaggio…">
+
+<select id="lang">
+  <option value="it">Italiano</option>
+  <option value="en">English</option>
+</select>
+
+<button onclick="send()">🚀 Invia</button>
+
+<div id="out"></div>
 
 <script>
-  // 🔴 NON TOCCARE QUESTA RIGA
-  const WORKER_BASE = "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev";
-  const CHAT_URL = WORKER_BASE + "/chat";
+const WORKER_URL =
+  "https://groq-proxy-bob--orange-boat-63af.bobmoukhlis.workers.dev/chat";
 
-  async function send(){
-    const out = document.getElementById("out");
-    const text = document.getElementById("prompt").value.trim();
-    if(!text){
-      out.textContent = "Scrivi qualcosa.";
-      return;
-    }
+async function send(){
+  const out = document.getElementById("out");
+  out.textContent = "⏳ Attendi…";
 
-    out.textContent = "⏳ Attendi...";
+  try{
+    const r = await fetch(WORKER_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        messages:[{
+          role:"user",
+          content: document.getElementById("msg").value
+        }]
+      })
+    });
 
-    try{
-      const r = await fetch(CHAT_URL,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model:"llama-3.3-70b-versatile",
-          messages:[{role:"user",content:text}],
-          max_tokens:400
-        })
-      });
+    const j = await r.json();
+    out.textContent = j.text || JSON.stringify(j,null,2);
 
-      const data = await r.json();
-      out.textContent = data.text || "Nessuna risposta.";
-    }catch(e){
-      out.textContent = "❌ Errore: " + e;
-    }
+  }catch(e){
+    out.textContent =
+      "❌ Errore di connessione.\nIl Worker non risponde.";
   }
+}
 </script>
 
 </body>
