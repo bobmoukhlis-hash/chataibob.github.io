@@ -429,7 +429,7 @@ async function sendMessage(){
     })
   });
 
-  const data = await r.json();
+  const data = await r.json();console.log("RISPOSTA WORKER:", data);
   const reply = data.reply;
 
   if (!reply) {
