@@ -1,0 +1,6 @@
+gradio==4.44.0
+gtts
+Pillow
+requests
+deep-translator
+Yuuuu funziona 
