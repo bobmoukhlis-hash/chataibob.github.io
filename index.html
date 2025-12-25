@@ -1,57 +1,262 @@
+from IPython.display import HTML
+
+html_code = '''
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ChatAI Bob PRO</title>
-<style>
-body{font-family:Arial;background:#0f172a;color:#fff;padding:20px}
-.card{background:#020617;padding:15px;border-radius:12px}
-textarea{width:100%;height:90px;border-radius:8px;padding:10px}
-button{padding:10px 16px;margin-top:10px;border-radius:8px;border:0}
-#chat{margin-bottom:10px}
-.msg{margin:6px 0}
-.user{color:#38bdf8}
-.bot{color:#22c55e}
-.note{opacity:.7;font-size:13px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatAI Bob</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #1a1a2e; /* Darker background */
+      color: #e0e0e0; /* Light gray text */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden; /* Prevent body scroll */
+    }
+
+    header {
+      text-align: center;
+      padding: 15px;
+      background: linear-gradient(90deg, #6a0572, #ab3c3c); /* More vibrant gradient */
+      color: #fff;
+      font-weight: bold;
+      font-size: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto; /* Allow main content to scroll if needed */
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 700px;
+      height: 90%;
+      background-color: #2a2a4a; /* Slightly lighter than body */
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); /* Stronger shadow */
+      overflow: hidden;
+    }
+
+    .chat-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background-color: #2a2a4a;
+    }
+
+    #chat-log-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #chat-log-list li {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      max-width: 85%; /* Limit bubble width */
+    }
+
+    #chat-log-list li.user {
+      background: #4a148c; /* Purple for user */
+      color: #fff;
+      margin-left: auto;
+      text-align: right;
+      border-bottom-right-radius: 2px;
+    }
+
+    #chat-log-list li.bot {
+      background: #1a237e; /* Darker blue for bot */
+      color: #fff;
+      margin-right: auto;
+      text-align: left;
+      border-bottom-left-radius: 2px;
+    }
+
+    #chat-log-list li.thinking {
+      background: #3f51b5; /* Indication for thinking */
+      color: #fff;
+      margin-right: auto;
+      text-align: left;
+      font-style: italic;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+      border-top: 1px solid #3a3a5e;
+      background-color: #2a2a4a;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 1px solid #5a5a7e;
+      border-radius: 25px;
+      outline: none;
+      background-color: #3a3a5e;
+      color: #e0e0e0;
+      transition: border-color 0.3s ease;
+    }
+
+    #user-input:focus {
+      border-color: #6a0572;
+    }
+
+    #send-button {
+      background-color: #6a0572; /* Matching header gradient */
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 12px 25px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #send-button:hover {
+      background-color: #ab3c3c; /* Darker on hover */
+      transform: translateY(-1px);
+    }
+
+    #send-button:active {
+      transform: translateY(0);
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      background-color: #1a1a2e;
+      border-top: 1px solid #3a3a5e;
+      color: #a0a0a0;
+    }
+  </style>
 </head>
 <body>
+  <header>🤖 ChatAI Bob</header>
 
-<h2>🤖 ChatAI Bob PRO</h2>
+  <main>
+    <div class="chat-container">
+      <div class="chat-log">
+        <ul id="chat-log-list"></ul>
+      </div>
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Scrivi un messaggio...">
+        <button id="send-button">Invia</button>
+      </div>
+    </div>
+  </main>
 
-<div class="card">
-  <div id="chat"></div>
+  <footer>© 2025 ChatAI Bob</footer>
 
-  <textarea id="text" placeholder="Scrivi qui..."></textarea>
-  <button onclick="send()">🚀 Invia</button>
+  <script>
+    const sendButton = document.getElementById('send-button');
+    const userInput = document.getElementById('user-input');
+    const chatList = document.getElementById('chat-log-list');
 
-  <div class="note">
-    ⚠️ Demo GitHub (la risposta sarà attiva quando lo sposti su AppCreator24)
-  </div>
-</div>
+    // Dummy API key for demonstration. Replace with your actual key if deploying.
+    const GROQ_API_KEY = "gsk_YOUR_GROQ_API_KEY_HERE"; 
 
-<script>
-function send(){
-  const text = document.getElementById("text").value.trim();
-  if(!text) return;
+    function addMessage(text, sender = 'bot', type = 'text') {
+      const li = document.createElement('li');
+      li.textContent = text;
+      li.classList.add(sender);
+      if (type === 'thinking') {
+        li.classList.add('thinking');
+      }
+      chatList.appendChild(li);
+      chatList.scrollTop = chatList.scrollHeight; // Scroll to bottom
+    }
 
-  add("user", text);
-  document.getElementById("text").value = "";
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
 
-  // SIMULAZIONE (GitHub non supporta PHP)
-  setTimeout(()=>{
-    add("bot","⏳ Backend non collegato (GitHub). Funzionerà su AppCreator24.");
-  },600);
-}
+      addMessage(message, 'user');
+      userInput.value = '';
+      userInput.focus(); // Keep focus on input after sending
 
-function add(role,msg){
-  const d=document.createElement("div");
-  d.className="msg "+role;
-  d.textContent=(role==="user"?"🧑 ":"🤖 ")+msg;
-  document.getElementById("chat").appendChild(d);
-}
-</script>
+      const thinkingMessage = addMessage('💭 Sto pensando...', 'bot', 'thinking');
 
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama3-8b-8192", // Example model. You might need to change this.
+            messages: [{ role: "user", content: message }],
+            temperature: 0.7,
+            max_tokens: 300
+          })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(`API error: ${res.status} - ${errorData.message || res.statusText}`);
+        }
+
+        const data = await res.json();
+        // Remove the 'thinking' message after response is received
+        const thinkingElement = chatList.querySelector('li.thinking');
+        if (thinkingElement) {
+          thinkingElement.remove();
+        }
+        addMessage(data.choices[0].message.content.trim(), 'bot');
+
+      } catch (error) {
+        console.error("Error connecting to ChatAI Bob API:", error);
+        // Remove thinking message even on error
+        const thinkingElement = chatList.querySelector('li.thinking');
+        if (thinkingElement) {
+          thinkingElement.remove();
+        }
+        addMessage("⚠️ Errore connessione con ChatAI Bob. Controlla la console per i dettagli.", 'bot');
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Initial message from bot
+    document.addEventListener('DOMContentLoaded', () => {
+      addMessage('Ciao! Sono ChatAI Bob. Come posso aiutarti oggi?', 'bot');
+    });
+  </script>
 </body>
 </html>
+'''
+
+HTML(html_code)
