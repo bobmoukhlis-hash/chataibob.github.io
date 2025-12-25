@@ -1,80 +1,87 @@
-**HTML (index.html)**
-```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat AI</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>Chat AI</h1>
-        </div>
-        <div class="chat-body">
-            <div class="messaggi">
-                <!-- Messaggi della chat verranno visualizzati qui -->
-            </div>
-            <form id="invia-messaggio">
-                <input type="text" id="messaggio" placeholder="Scrivi un messaggio...">
-                <button type="submit">Invia</button>
-            </form>
-        </div>
-    </div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatAI Free</title>
 
-    <script src="script.js"></script>
+<style>
+body {
+  margin: 0;
+  background: #020617;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+#chat {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+#messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+.msg-user { color: #38bdf8; margin-bottom: 6px; }
+.msg-ai { color: #a5f3fc; margin-bottom: 12px; }
+input, button {
+  padding: 12px;
+  border: none;
+  font-size: 16px;
+}
+button {
+  background: #38bdf8;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+<div id="chat">
+  <div id="messages"></div>
+  <input id="msg" placeholder="Scrivi un messaggio..." />
+  <button onclick="send()">Invia</button>
+</div>
+
+<script>
+const GROQ_KEY = "INSERISCI_LA_TUA_GROQ_KEY";
+
+async function send() {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+
+  add("👤 " + text, "msg-user");
+  input.value = "";
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + GROQ_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: text }],
+        temperature: 0.7,
+        max_tokens: 300
+      })
+    });
+
+    const data = await res.json();
+    add("🤖 " + data.choices[0].message.content, "msg-ai");
+  } catch (e) {
+    add("⚠️ Errore di connessione", "msg-ai");
+  }
+}
+
+function add(text, cls) {
+  const div = document.createElement("div");
+  div.className = cls;
+  div.innerText = text;
+  document.getElementById("messages").appendChild(div);
+}
+</script>
 </body>
 </html>
-```
-
-**CSS (style.css)**
-```css
-body {
-    font-family: Arial, sans-serif;
-}
-
-.chat-container {
-    width: 80%;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.chat-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ccc;
-}
-
-.chat-body {
-    padding: 20px;
-}
-
-.messaggi {
-    padding: 10px;
-}
-
-#invia-messaggio {
-    margin-top: 20px;
-}
-
-#messaggio {
-    width: 80%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-}
-
-button[type="submit"] {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px
