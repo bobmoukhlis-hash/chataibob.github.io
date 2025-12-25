@@ -1,11 +1,79 @@
 html
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
- <title>Titolo della pagina</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
- <h1>Benvenuto!</h1>
- <p>Questo è un esempio di pagina web.</p>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Chat AI</h1>
+        </div>
+        <div class="chat-body">
+            <div class="messaggi">
+                <!-- Messaggi della chat verranno visualizzati qui -->
+            </div>
+            <form id="invia-messaggio">
+                <input type="text" id="messaggio" placeholder="Scrivi un messaggio...">
+                <button type="submit">Invia</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
+```
+
+**CSS (style.css)**
+```css
+body {
+    font-family: Arial, sans-serif;
+}
+
+.chat-container {
+    width: 80%;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.chat-body {
+    padding: 20px;
+}
+
+.messaggi {
+    padding: 10px;
+}
+
+#invia-messaggio {
+    margin-top: 20px;
+}
+
+#messaggio {
+    width: 80%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+}
+
+button[type="submit"] {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px
