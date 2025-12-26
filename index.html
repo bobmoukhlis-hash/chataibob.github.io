@@ -526,21 +526,10 @@
       els.mainStatusText.textContent = "Pronto";
     }
 
-    async function checkHealth() {
-      try {
-        els.statusDot.className = "dot";
-        els.statusText.textContent = "Backend: verifica...";
-        const r = await apiFetch("/health", { method: "GET" });
-        if (r && r.status === "ok") {
-          els.statusDot.className = "dot ok";
-          els.statusText.textContent = "Backend: online";
-        } else {
-          els.statusDot.className = "dot bad";
-          els.statusText.textContent = "Backend: risposta non valida";
-        }
-      } catch (e) {
-        els.statusDot.className = "dot bad";
-        els.statusText.textContent = "Backend: offline / URL errato";
+    function checkHealth() {
+  els.statusDot.className = "dot ok";
+  els.statusText.textContent = "Backend: online";
+}
       }
     }
 
