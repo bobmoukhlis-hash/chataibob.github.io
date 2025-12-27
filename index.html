@@ -242,13 +242,13 @@ async function loadMe(){
 
 /* ================= INIT ================= */
 (function(){
-  const saved=localStorage.getItem("API_BASE");
+  const saved = localStorage.getItem("API_BASE");
   if(saved){
-    API_BASE=saved;
-    apiBaseInput.value=saved;
+    API_BASE = saved;
+    apiBaseInput.value = saved;
     checkHealth();
-    loadMe();
     loadProjects();
+    loadMe();
   }
 })();
 </script>
