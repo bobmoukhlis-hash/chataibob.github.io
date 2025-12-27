@@ -1,6 +1,7 @@
-gradio==4.44.0
-gtts
-Pillow
+fastapi
+uvicorn
 requests
+python-multipart
+pillow
+gtts
 deep-translator
-Yuuuu funziona 
