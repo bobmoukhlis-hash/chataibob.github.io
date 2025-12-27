@@ -5,29 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob FREE</title>
 
-<style>.premium-box{
-  border:2px solid gold;
-  padding:14px;
-  border-radius:12px;
-  margin:12px 0;
-  background:#111827;
-}
-
-.premium-btn{
-  display:block;
-  background:gold;
-  color:black;
-  padding:10px;
-  text-align:center;
-  border-radius:10px;
-  font-weight:bold;
-  text-decoration:none;
-}
-
-.small{
-  font-size:12px;
-  opacity:0.8;
-}
+<style>
 body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .top{padding:12px;background:#020617;display:flex;justify-content:space-between}
 .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
@@ -39,6 +17,25 @@ body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .ai{background:#111827}
 textarea,input,button,select{width:100%;margin:6px 0;padding:10px}
 button{background:#38bdf8;border:0;font-weight:bold}
+
+.premium-box{
+  border:2px solid gold;
+  padding:14px;
+  border-radius:12px;
+  margin:12px 0;
+  background:#111827;
+}
+.premium-btn{
+  display:block;
+  background:gold;
+  color:black;
+  padding:10px;
+  text-align:center;
+  border-radius:10px;
+  font-weight:bold;
+  text-decoration:none;
+}
+.small{font-size:12px;opacity:0.8}
 </style>
 </head>
 
@@ -52,22 +49,23 @@ button{background:#38bdf8;border:0;font-weight:bold}
   </div>
 </div>
 
-<div class="chat"><div id="authBox" class="premium-box">
-  <h3>🔐 Accesso</h3>
+<div class="chat">
 
+<!-- LOGIN -->
+<div id="authBox" class="premium-box">
+  <h3>🔐 Accesso</h3>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
-
   <button onclick="signup()">Registrati</button>
   <button onclick="login()">Login</button>
-
   <p class="small" id="authStatus"></p>
 </div>
-  <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
-  <button id="saveApi">Salva backend URL</button>
+
+<input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
+<button id="saveApi">Salva backend URL</button>
 
 <!-- PROGETTI -->
-<input id="projectName" placeholder="Nome progetto (es. Libro)">
+<input id="projectName" placeholder="Nome progetto">
 <select id="projectType">
   <option value="BOOK">📘 Libro</option>
   <option value="COACH">🧠 Coaching</option>
@@ -80,7 +78,7 @@ button{background:#38bdf8;border:0;font-weight:bold}
 <div class="premium-box">
   <h3>💎 Passa a Premium</h3>
   <p>Chat senza limiti, voce, video, immagini, PDF</p>
-  <a href="https://www.paypal.me/bobbob1979" target="_blank" class="btn premium-btn">
+  <a href="https://www.paypal.me/bobbob1979" target="_blank" class="premium-btn">
     💰 Attiva Premium
   </a>
   <p class="small">Dopo il pagamento, Premium viene attivato subito.</p>
@@ -92,17 +90,25 @@ button{background:#38bdf8;border:0;font-weight:bold}
   <pre id="usageText"></pre>
 </div>
 
-<!-- LISTA PROGETTI -->
 <div id="projectList"></div>
 
-<!-- CHAT -->
-  <div id="messages"></div>
+<div id="messages"></div>
+<textarea id="input" placeholder="Scrivi..."></textarea>
+<button id="sendBtn">Invia</button>
 
-  <textarea id="input" placeholder="Scrivi..."></textarea>
-  <button id="sendBtn">Invia</button>
 </div>
 
 <script>
+/* ================= BASE ================= */
+let API_BASE = "";
+let TOKEN = localStorage.getItem("TOKEN") || "";
+
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+const messages = document.getElementById("messages");
+const input = document.getElementById("input");
+const apiBaseInput = document.getElementById("apiBase");
+
 /* ================= CLIENT ID ================= */
 function getClientId(){
   let id = localStorage.getItem("client_id");
@@ -113,31 +119,21 @@ function getClientId(){
   return id;
 }
 
-/* ================= BASE ================= */
-let API_BASE = "";
-const statusDot = document.getElementById("statusDot");
-const statusText = document.getElementById("statusText");
-const messages = document.getElementById("messages");
-const input = document.getElementById("input");
-const apiBaseInput = document.getElementById("apiBase");
-
 /* ================= BACKEND ================= */
 document.getElementById("saveApi").onclick = () => {
   API_BASE = apiBaseInput.value.trim().replace(/\/+$/, "");
   localStorage.setItem("API_BASE", API_BASE);
   checkHealth();
   loadProjects();
+  loadMe();
 };
 
 async function checkHealth(){
-  if(!API_BASE) return;
   try{
     const r = await fetch(API_BASE + "/health");
     const d = await r.json();
-    if(d.status==="ok"){
-      statusDot.className="dot ok";
-      statusText.textContent="Backend: online";
-    } else throw "";
+    statusDot.className = "dot " + (d.status==="ok" ? "ok" : "bad");
+    statusText.textContent = d.status==="ok" ? "Backend: online" : "Backend: offline";
   }catch{
     statusDot.className="dot bad";
     statusText.textContent="Backend: offline";
@@ -150,94 +146,94 @@ function addMessage(role,text){
   div.className="msg "+role;
   div.textContent=text;
   messages.appendChild(div);
-  messages.scrollTop=messages.scrollHeight;
 }
 
-document.getElementById("sendBtn").onclick = async () => {
+document.getElementById("sendBtn").onclick = async ()=>{
   const text=input.value.trim();
-  if(!text)return;
+  if(!text) return;
   addMessage("user",text);
   input.value="";
-  try{
-    const r=await fetch(API_BASE+"/chat",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        message:text,
-        client_id:getClientId()
-      })
-    });
-    const d=await r.json();
-    addMessage("ai",d.text||"Nessuna risposta");
-  }catch{
-    addMessage("ai","❌ Errore connessione");
-  }
+  const r=await fetch(API_BASE+"/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:text,client_id:getClientId()})
+  });
+  const d=await r.json();
+  addMessage("ai",d.text||"Errore");
 };
 
 /* ================= PROGETTI ================= */
 async function loadProjects(){
-  if(!API_BASE) return;
-async function loadProjects(){
-  if(!API_BASE) return;
-
-  const token = localStorage.getItem("token");
-  if(!token){
-    document.getElementById("projectList").innerHTML =
-      "<div class='small'>Devi fare login per usare i progetti</div>";
-    return;
-  }
-
-  const r = await fetch(API_BASE + "/projects/list", {
-    headers: {
-      "Authorization": "Bearer " + token
-    }
+  if(!TOKEN) return;
+  const r = await fetch(API_BASE+"/projects/list",{
+    headers:{Authorization:"Bearer "+TOKEN}
   });
-
   const d = await r.json();
-  const list = document.getElementById("projectList");
-  list.innerHTML = "";
-
-  if(!d.ok || !d.projects){
-    list.innerHTML = "<div class='small'>Nessun progetto</div>";
-    return;
-  }
-
-  d.projects.forEach(p => {
-    const b = document.createElement("button");
-    b.textContent = "📂 " + p.name + " (" + p.type + ")";
-    b.onclick = () => selectProject(p.id, p.name);
+  const list=document.getElementById("projectList");
+  list.innerHTML="";
+  if(!d.ok) return;
+  d.projects.forEach(p=>{
+    const b=document.createElement("button");
+    b.textContent="📂 "+p.name;
     list.appendChild(b);
   });
 }
 
-async function selectProject(id,name){
-  await fetch(API_BASE+"/projects/select",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      client_id:getClientId(),
-      project_id:id
-    })
-  });
-  alert("Progetto attivo: "+name);
-}
-
 document.getElementById("createProject").onclick = async ()=>{
-  const name=document.getElementById("projectName").value.trim();
-  const type=document.getElementById("projectType").value;
-  if(!name) return alert("Inserisci nome");
+  if(!TOKEN) return alert("Devi fare login");
+  const name=projectName.value.trim();
+  if(!name) return;
   await fetch(API_BASE+"/projects/create",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      client_id:getClientId(),
-      name,
-      type
-    })
+    headers:{
+      "Content-Type":"application/json",
+      Authorization:"Bearer "+TOKEN
+    },
+    body:JSON.stringify({name,type:projectType.value})
   });
-  document.getElementById("projectName").value="";
+  projectName.value="";
   loadProjects();
 };
+
+/* ================= AUTH ================= */
+async function signup(){
+  const r=await fetch(API_BASE+"/auth/signup",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:email.value,password:password.value})
+  });
+  const d=await r.json();
+  authStatus.textContent=d.ok?"Registrazione ok":d.error;
+}
+
+async function login(){
+  const r=await fetch(API_BASE+"/auth/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:email.value,password:password.value})
+  });
+  const d=await r.json();
+  if(d.ok){
+    TOKEN=d.token;
+    localStorage.setItem("TOKEN",TOKEN);
+    authStatus.textContent="Login riuscito";
+    loadMe();
+    loadProjects();
+  }else authStatus.textContent=d.error;
+}
+
+async function loadMe(){
+  if(!TOKEN) return;
+  const r=await fetch(API_BASE+"/me",{
+    headers:{Authorization:"Bearer "+TOKEN}
+  });
+  const d=await r.json();
+  if(d.ok){
+    authBox.style.display="none";
+    usageBox.style.display="block";
+    usageText.textContent=JSON.stringify(d.usage,null,2);
+  }
+}
 
 /* ================= INIT ================= */
 (function(){
@@ -246,55 +242,10 @@ document.getElementById("createProject").onclick = async ()=>{
     API_BASE=saved;
     apiBaseInput.value=saved;
     checkHealth();
+    loadMe();
     loadProjects();
   }
 })();
-</script><script>
-let TOKEN = localStorage.getItem("TOKEN") || "";
-
-async function signup(){
-  const r = await fetch(API_BASE+"/auth/signup",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:email.value,
-      password:password.value
-    })
-  });
-  const d = await r.json();
-  authStatus.textContent = d.ok ? "Registrazione ok" : d.error;
-}
-
-async function login(){
-  const r = await fetch(API_BASE+"/auth/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:email.value,
-      password:password.value
-    })
-  });
-  const d = await r.json();
-  if(d.ok){
-    TOKEN = d.token;
-    localStorage.setItem("TOKEN", TOKEN);
-    authStatus.textContent = "Login riuscito";
-    loadMe();
-  } else {
-    authStatus.textContent = d.error;
-  }
-}
-
-async function loadMe(){
-  const r = await fetch(API_BASE+"/me",{
-    headers:{ "Authorization":"Bearer "+TOKEN }
-  });
-  const d = await r.json();
-  if(d.ok){
-    document.getElementById("authBox").style.display="none";
-    showUsage(d);
-  }
-}
 </script>
 
 </body>
