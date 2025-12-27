@@ -226,14 +226,28 @@ document.getElementById("createProject").onclick = async ()=>{
 };
 
 /* ================= AUTH ================= */
-async function signup(){
-  const r=await fetch(API_BASE+"/auth/signup",{
+async function login(){
+  if(!API_BASE){
+    authStatus.textContent = "Salva prima il backend URL";
+    return;
+  }
+
+  const r = await fetch(API_BASE+"/auth/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({email:email.value,password:password.value})
   });
-  const d=await r.json();
-  authStatus.textContent=d.ok?"Registrazione ok":d.error;
+  const d = await r.json();
+
+  if(d.ok){
+    TOKEN = d.token;
+    localStorage.setItem("TOKEN", TOKEN);
+    authStatus.textContent = "Login riuscito";
+    loadMe();
+    loadProjects();
+  } else {
+    authStatus.textContent = d.error;
+  }
 }
 
 async function login(){
