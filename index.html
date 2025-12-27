@@ -159,8 +159,13 @@ document.getElementById("sendBtn").onclick = async ()=>{
     body:JSON.stringify({message:text,client_id:getClientId()})
   });
   const d=await r.json();
-  addMessage("ai",d.text||"Errore");
-};
+  if(d.text){
+  addMessage("ai", d.text);
+} else if(d.detail){
+  addMessage("ai", "❌ " + d.detail);
+} else {
+  addMessage("ai", "❌ Errore sconosciuto");
+}
 
 /* ================= PROGETTI ================= */
 async function loadProjects(){
