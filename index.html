@@ -5,7 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob FREE</title>
 
-<style>
+<style>.premium-box{
+  border:2px solid gold;
+  padding:14px;
+  border-radius:12px;
+  margin:12px 0;
+  background:#111827;
+}
+
+.premium-btn{
+  display:block;
+  background:gold;
+  color:black;
+  padding:10px;
+  text-align:center;
+  border-radius:10px;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+.small{
+  font-size:12px;
+  opacity:0.8;
+}
 body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .top{padding:12px;background:#020617;display:flex;justify-content:space-between}
 .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
@@ -30,7 +52,19 @@ button{background:#38bdf8;border:0;font-weight:bold}
   </div>
 </div>
 
-<div class="chat"><div class="premium-box">
+<div class="chat">
+  <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
+  <button id="saveApi">Salva backend URL</button>
+
+  <!-- 📁 PROGETTI -->
+  <input id="projectName" placeholder="Nome progetto (es. Libro)">
+  <select id="projectType">
+    <option value="BOOK">📘 Libro</option>
+    <option value="COACH">🧠 Coaching</option>
+    <option value="CODER">💻 Codice</option>
+    <option value="GENERAL">✨ Generale</option>
+  </select>
+  <button id="createProject">Crea progetto</button><div class="premium-box">
   <h3>💎 Passa a Premium</h3>
   <p>Chat senza limiti, voce, video, immagini, PDF</p>
 
@@ -44,18 +78,6 @@ button{background:#38bdf8;border:0;font-weight:bold}
     Dopo il pagamento, Premium viene attivato subito.
   </p>
 </div>
-  <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
-  <button id="saveApi">Salva backend URL</button>
-
-  <!-- 📁 PROGETTI -->
-  <input id="projectName" placeholder="Nome progetto (es. Libro)">
-  <select id="projectType">
-    <option value="BOOK">📘 Libro</option>
-    <option value="COACH">🧠 Coaching</option>
-    <option value="CODER">💻 Codice</option>
-    <option value="GENERAL">✨ Generale</option>
-  </select>
-  <button id="createProject">Crea progetto</button>
   <div id="projectList"></div>
 
   <div id="messages"></div>
