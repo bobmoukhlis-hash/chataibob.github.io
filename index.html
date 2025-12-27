@@ -158,7 +158,8 @@ async function checkHealth(){
     const r = await fetch(API_BASE + "/health");
     const d = await r.json();
     statusDot.className = "dot " + (d.status==="ok" ? "ok" : "bad");
-    statusText.textContent = d.status==="ok" ? "Backend: online" : "Backend: offline";
+    statusText.textContent =
+  d.status === "ok" ? "Backend: verificato" : "Backend: non verificato";
   }catch{
     statusDot.className="dot bad";
     statusText.textContent="Backend: offline";
