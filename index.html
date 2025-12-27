@@ -287,14 +287,16 @@ async function loadMe(){
 }
 
 /* ================= INIT ================= */
-(function(){
+((function(){
   const saved = localStorage.getItem("API_BASE");
   if(saved){
     API_BASE = saved;
     apiBaseInput.value = saved;
+  }
+
+  // 👇 FORZA SEMPRE IL CONTROLLO
+  if(API_BASE){
     checkHealth();
-    loadProjects();
-    loadMe();
   }
 })();
 </script>
