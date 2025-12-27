@@ -35,7 +35,28 @@ button{background:#38bdf8;border:0;font-weight:bold}
   font-weight:bold;
   text-decoration:none;
 }
-.small{font-size:12px;opacity:0.8}
+.small {
+  font-size:12px;
+  opacity:0.8;
+}
+
+button,
+input,
+textarea,
+select {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 9999;
+}
+
+.chat,
+.chat * {
+  pointer-events: auto;
+}
+
+body {
+  touch-action: manipulation;
+}
 </style>
 </head>
 
