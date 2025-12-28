@@ -4,14 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob</title>
-
 <style>
 body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .top{position:sticky;top:0;z-index:10;background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
 .badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
 .wrap{max-width:900px;margin:auto;padding:12px}
 .card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
-#messages{height:calc(100vh - 240px);overflow:auto;padding:14px}
+#messages{height:calc(100vh - 290px);overflow:auto;padding:14px}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
 .bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
@@ -22,130 +21,106 @@ textarea{width:100%;min-height:56px;border-radius:14px;background:#0a1020;color:
 button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:pointer}
 .send{background:#38bdf8;color:#001018}
 .ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
-.gold{background:gold;color:#111}
 .small{font-size:12px;opacity:.75}
-
-/* Premium drawer */
-.drawer{position:fixed;top:0;right:0;width:90vw;max-width:420px;height:100%;background:#020617;border-left:1px solid #1f2937;padding:14px;display:none;z-index:99}
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:98}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+input[type="file"]{border:1px dashed #1f2937;padding:10px;border-radius:12px;background:#0a1020;color:#fff}
+input[type="text"]{flex:1;border:1px solid #1f2937;padding:10px;border-radius:12px;background:#0a1020;color:#fff}
 </style>
 </head>
-
 <body>
 
 <div class="top">
   <b>🤖 ChatAI Bob</b>
   <span class="badge"><span id="status">Backend: controllo…</span></span>
-  <button class="gold" id="openPremium">💎 Premium</button>
 </div>
 
 <div class="wrap">
   <div class="card">
     <div id="messages"></div>
+
     <div class="toolbar">
-      <textarea id="input" placeholder="Scrivi testo, foto o video/GIF"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
+      <textarea id="input" placeholder="Scrivi: chat, foto o video/GIF (es: 'foto di un cane 3D', 'video di un uomo che cammina')"></textarea>
+
+      <div class="row">
         <button class="send" id="send">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
-      <div class="small" style="margin-top:6px">
-        AUTO-MODE: “crea una foto…”, “crea un video…”
+
+      <div class="row">
+        <input id="photoFile" type="file" accept="image/*" />
+        <input id="photoQuestion" type="text" placeholder="Domanda sulla foto (es: cosa c’è? che testo vedi? che emozione?)" />
+        <button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
+      </div>
+
+      <div class="small">
+        AUTO-MODE: se scrivi “foto/immagine/image” → genera immagine. Se scrivi “video/gif/animazione” → genera GIF con movimento.
       </div>
     </div>
   </div>
 </div>
 
-<!-- PREMIUM -->
-<div class="mask" id="mask"></div>
-<div class="drawer" id="drawer">
-  <h3>💎 Premium</h3>
-  <button class="ghost" id="closePremium" style="margin-bottom:10px">Chiudi</button>
-
-  <div class="small">Email</div>
-  <input id="email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
-
-  <div class="small" style="margin-top:8px">Password</div>
-  <input id="password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
-
-  <div style="display:flex;gap:6px;margin-top:10px">
-    <button class="ghost" id="signup">Registrati</button>
-    <button class="ghost" id="login">Login</button>
-  </div>
-
-  <div class="small" id="authStatus" style="margin-top:10px"></div>
-</div>
-
 <script>
-/* ===== CONFIG ===== */
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
-let TOKEN = localStorage.getItem("TOKEN") || "";
-
-/* ===== HELPERS ===== */
 const $ = (id) => document.getElementById(id);
 
 const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
-  if (!id) {
+  if(!id){
     id = "web_" + Math.random().toString(36).slice(2);
     localStorage.setItem("CLIENT_ID", id);
   }
   return id;
 })();
 
-/* ===== BACKEND STATUS ===== */
 async function checkBackend(){
   try{
-    const r = await fetch(API + "/health", { cache: "no-store" });
+    const r = await fetch(API + "/health", { cache:"no-store" });
     const d = await r.json();
-    $("status").textContent = (d.status === "ok") ? "Backend: online" : "Backend: offline";
+    $("status").textContent = d.status === "ok" ? "Backend: online" : "Backend: offline";
   }catch{
     $("status").textContent = "Backend: offline";
   }
 }
 
-/* ===== UI ===== */
 function add(role, text){
   const d = document.createElement("div");
   d.className = "msg " + role;
   d.innerHTML = `<div class="bubble"></div>`;
-  d.querySelector(".bubble").textContent = text;
+  d.querySelector(".bubble").textContent = text || "";
   $("messages").appendChild(d);
   $("messages").scrollTop = 999999;
   return d;
 }
 
 function addImg(title, url){
-  if(!url){
-    add("ai","❌ Errore generazione immagine/GIF");
-    return;
-  }
+  if(!url){ add("ai","❌ Nessun contenuto generato"); return; }
   const d = document.createElement("div");
   d.className = "msg ai";
   d.innerHTML = `
     <div class="bubble">
       <b>${title}</b>
-      <div class="media">
-        <img src="${url}" />
-      </div>
+      <div class="media"><img src="${url}" /></div>
     </div>`;
   $("messages").appendChild(d);
   $("messages").scrollTop = 999999;
 }
 
-/* ===== INTENT (UNA SOLA VOLTA) ===== */
 function classifyIntent(t){
-  t = t.toLowerCase().trim();
-
-  // VIDEO solo se chiaramente richiesto
+  t = (t || "").toLowerCase().trim();
   if (/(^|\s)(video|gif|animazione|filmato)(\s|$)/.test(t)) return "video";
-
-  // IMMAGINE
   if (/(^|\s)(foto|immagine|image|picture)(\s|$)/.test(t)) return "image";
-
   return "chat";
 }
 
-/* ===== SEND ===== */
+async function postJson(path, body){
+  const r = await fetch(API + path, {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+  return await r.json();
+}
+
 async function send(){
   const text = $("input").value.trim();
   if(!text) return;
@@ -153,116 +128,75 @@ async function send(){
   $("input").value = "";
   add("user", text);
 
-  const type = classifyIntent(text);
+  const kind = classifyIntent(text);
   const ai = add("ai", "…");
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(TOKEN ? {"Authorization":"Bearer " + TOKEN} : {})
-  };
-
-  const payload =
-    (type === "chat")
-      ? { message: text, client_id: CLIENT_ID }
-      : { prompt: text, client_id: CLIENT_ID };
-
   try{
-    const r = await fetch(API + "/" + type, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload)
-    });
-
-    const d = await r.json();
-    ai.remove();
-
-    if(d.error){
-      add("ai", "❌ " + d.error);
+    if(kind === "chat"){
+      const d = await postJson("/chat", { message:text, client_id: CLIENT_ID });
+      ai.remove();
+      add("ai", d.text || "Errore");
       return;
     }
 
-    if(type === "chat"){
-      add("ai", d.text || "Errore");
-    }else if(type === "image"){
-      addImg("🖼 Foto", d.url);
-    }else{
-      addImg("🎞 GIF", d.url);
+    if(kind === "image"){
+      const d = await postJson("/image", { prompt:text, client_id: CLIENT_ID });
+      ai.remove();
+      if(d.error) add("ai", "❌ " + d.error);
+      else addImg("🖼 Foto", d.url);
+      return;
     }
-  }catch(e){
+
+    const d = await postJson("/video", { prompt:text, client_id: CLIENT_ID });
+    ai.remove();
+    if(d.error) add("ai", "❌ " + d.error);
+    else addImg("🎞 GIF", d.url);
+  }catch{
     ai.remove();
     add("ai","❌ Backend non raggiungibile");
   }
 }
 
-/* ===== PREMIUM DRAWER ===== */
-function openDrawer(){
-  $("drawer").style.display = "block";
-  $("mask").style.display = "block";
-}
-function closeDrawer(){
-  $("drawer").style.display = "none";
-  $("mask").style.display = "none";
-}
-$("openPremium").onclick = openDrawer;
-$("closePremium").onclick = closeDrawer;
-$("mask").onclick = closeDrawer;
+async function analyzePhoto(){
+  const f = $("photoFile").files && $("photoFile").files[0];
+  const q = $("photoQuestion").value.trim();
 
-/* ===== AUTH ===== */
-$("login").onclick = async () => {
+  if(!f){ add("ai","⚠️ Seleziona una foto"); return; }
+
+  add("user", `🔍 Analisi foto: ${f.name}\nDomanda: ${q || "(nessuna)"} `);
+  const ai = add("ai","Analizzo…");
+
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("question", q);
+  fd.append("client_id", CLIENT_ID);
+
   try{
-    const r = await fetch(API + "/auth/login", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        email: $("email").value,
-        password: $("password").value
-      })
-    });
+    const r = await fetch(API + "/analyze_photo", { method:"POST", body: fd });
     const d = await r.json();
-    if(d.ok){
-      localStorage.setItem("TOKEN", d.token);
-      TOKEN = d.token;
-      $("authStatus").textContent = "✅ Login OK";
-    }else{
-      $("authStatus").textContent = "❌ Login fallito";
-    }
+    ai.remove();
+    add("ai", d.text || "Errore analisi");
   }catch{
-    $("authStatus").textContent = "❌ Errore rete";
+    ai.remove();
+    add("ai","❌ Errore rete analisi foto");
   }
-};
+}
 
-$("signup").onclick = async () => {
-  try{
-    await fetch(API + "/auth/signup", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        email: $("email").value,
-        password: $("password").value
-      })
-    });
-    $("authStatus").textContent = "✅ Registrato";
-  }catch{
-    $("authStatus").textContent = "❌ Errore rete";
-  }
-};
-
-/* ===== EVENTS ===== */
 $("send").onclick = send;
-$("clear").onclick = () => {
-  $("messages").innerHTML = "";
-  add("ai","Ciao 👋");
-};
 $("input").onkeydown = (e) => {
   if(e.key === "Enter" && !e.shiftKey){
     e.preventDefault();
     send();
   }
 };
+$("clear").onclick = () => {
+  $("messages").innerHTML = "";
+  add("ai","Ciao 👋");
+};
+$("analyzeBtn").onclick = analyzePhoto;
 
-/* ===== BOOT ===== */
 checkBackend();
-add("ai","Ciao 👋 Scrivi testo, foto o video.");
+add("ai","Ciao 👋 Scrivi chat, foto o video/GIF. Puoi anche caricare una foto e fare una domanda.");
 </script>
 
 </body>
