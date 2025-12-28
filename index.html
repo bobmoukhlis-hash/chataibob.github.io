@@ -7,38 +7,114 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
-.top{position:sticky;top:0;background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
-.badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-.ok{background:#34d399}.bad{background:#fb7185}
+.top{
+  position:sticky;top:0;z-index:10;
+  background:#020617;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #1f2937
+}
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#111827;
+  border:1px solid #1f2937;
+  font-size:12px
+}
 .wrap{max-width:900px;margin:auto;padding:12px}
-.card{background:#0b1220;border:1px solid #1f2937;border-radius:16px}
-#messages{height:calc(100vh - 220px);overflow:auto;padding:14px}
+.card{
+  background:#0b1220;
+  border:1px solid #1f2937;
+  border-radius:16px;
+  overflow:hidden
+}
+#messages{
+  height:calc(100vh - 220px);
+  overflow:auto;
+  padding:14px
+}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
-.bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
+.bubble{
+  max-width:78%;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#111827;
+  border:1px solid #1f2937;
+  white-space:pre-wrap
+}
 .msg.user .bubble{background:#38bdf822}
-.media img{max-width:100%;border-radius:14px;margin-top:8px}
-.toolbar{padding:12px;border-top:1px solid #1f2937}
-textarea{width:100%;min-height:56px;border-radius:14px;background:#0a1020;color:#fff;border:1px solid #1f2937;padding:10px}
-button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:pointer}
+.media img{
+  max-width:100%;
+  border-radius:14px;
+  margin-top:8px
+}
+.toolbar{
+  padding:12px;
+  border-top:1px solid #1f2937
+}
+textarea{
+  width:100%;
+  min-height:56px;
+  border-radius:14px;
+  background:#0a1020;
+  color:#fff;
+  border:1px solid #1f2937;
+  padding:10px
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  font-weight:bold;
+  cursor:pointer
+}
 .send{background:#38bdf8;color:#001018}
-.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
+.ghost{
+  background:transparent;
+  color:#fff;
+  border:1px solid #38bdf8
+}
 .gold{background:gold;color:#111}
 .small{font-size:12px;opacity:.75}
-.drawer{position:fixed;top:0;right:0;width:90vw;max-width:420px;height:100%;background:#020617;border-left:1px solid #1f2937;padding:14px;display:none;z-index:99;overflow:auto}
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:98}
+
+/* Drawer Premium */
+.drawer{
+  position:fixed;
+  top:0;
+  right:0;
+  width:90vw;
+  max-width:420px;
+  height:100%;
+  background:#020617;
+  border-left:1px solid #1f2937;
+  padding:14px;
+  display:none;
+  z-index:99;
+  overflow:auto
+}
+.mask{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  z-index:98
+}
 </style>
 </head>
 
 <body>
 
+<!-- TOP BAR -->
 <div class="top">
   <b>🤖 ChatAI Bob</b>
-  <span class="badge"><span id="dot" class="dot"></span><span id="status">Backend: controllo…</span></span>
+  <span class="badge">Backend: controllo…</span>
   <button class="gold" id="openPremium">💎 Premium</button>
 </div>
 
+<!-- CHAT -->
 <div class="wrap">
   <div class="card">
     <div id="messages"></div>
@@ -56,18 +132,33 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
   </div>
 </div>
 
+<!-- PREMIUM DRAWER -->
 <div class="mask" id="mask"></div>
 <div class="drawer" id="drawer">
   <h3>💎 Premium</h3>
 
+  <!-- CHIUDI -->
+  <button id="closePremium" class="ghost" style="
+    position:absolute;
+    top:12px;
+    right:12px;
+  ">
+    ✖ Chiudi
+  </button>
+
   <div class="small">Backend URL</div>
-  <input id="api" style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
-  <button class="ghost" style="width:100%;margin-top:6px" id="saveApi">Salva & Test</button>
+  <input id="api" value="https://chatai-bob-backend.onrender.com"
+    style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
+
+  <button class="ghost" style="width:100%;margin-top:6px" id="saveApi">
+    Salva & Test
+  </button>
 
   <hr>
 
   <input id="email" placeholder="Email" style="width:100%;margin-bottom:6px">
   <input id="password" type="password" placeholder="Password" style="width:100%">
+
   <div style="display:flex;gap:6px;margin-top:6px">
     <button class="ghost" id="signup">Registrati</button>
     <button class="ghost" id="login">Login</button>
@@ -80,13 +171,7 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
   <a href="https://www.paypal.me/bobbob1979" target="_blank"
      style="display:block;background:gold;color:black;padding:12px;text-align:center;border-radius:12px;font-weight:bold;text-decoration:none">
      💰 Attiva Premium (PayPal)
-  </a><button id="closePremium" class="ghost" style="
-  position:absolute;
-  top:12px;
-  right:12px;
-">
-✖ Chiudi
-  </button>
+  </a>
 
   <div class="small" style="margin-top:6px">
     Dopo il pagamento:
@@ -99,7 +184,6 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
 <script>
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let TOKEN = localStorage.getItem("TOKEN") || "";
-
 const $ = id => document.getElementById(id);
 
 function add(role,text){
@@ -121,9 +205,9 @@ function addImg(title,url){
 
 function classifyIntent(text){
   const t=text.toLowerCase();
-  if(/(video|gif|parla|cartone)/.test(t)) return {k:"video",p:text};
-  if(/(foto|immagine|image)/.test(t)) return {k:"image",p:text};
-  return {k:"chat",p:text};
+  if(/(video|gif|parla|cartone|anim)/.test(t)) return {k:"video"};
+  if(/(foto|immagine|image|picture)/.test(t)) return {k:"image"};
+  return {k:"chat"};
 }
 
 async function send(){
@@ -135,21 +219,24 @@ async function send(){
   const c=classifyIntent(text);
   const ai=add("ai","…");
 
+  const headers={'Content-Type':'application/json'};
+  if(TOKEN) headers.Authorization="Bearer "+TOKEN;
+
   if(c.k==="chat"){
-    const r=await fetch(API+"/chat",{method:"POST",headers:{'Content-Type':'application/json',...(TOKEN&&{Authorization:"Bearer "+TOKEN})},body:JSON.stringify({message:text})});
+    const r=await fetch(API+"/chat",{method:"POST",headers,body:JSON.stringify({message:text})});
     const d=await r.json();
     ai.querySelector(".bubble").textContent=d.text||"Errore";
   }
 
   if(c.k==="image"){
-    const r=await fetch(API+"/image",{method:"POST",headers:{'Content-Type':'application/json',...(TOKEN&&{Authorization:"Bearer "+TOKEN})},body:JSON.stringify({prompt:text})});
+    const r=await fetch(API+"/image",{method:"POST",headers,body:JSON.stringify({prompt:text})});
     const d=await r.json();
     ai.remove();
     addImg("🖼️ Foto generata",d.url);
   }
 
   if(c.k==="video"){
-    const r=await fetch(API+"/video",{method:"POST",headers:{'Content-Type':'application/json',...(TOKEN&&{Authorization:"Bearer "+TOKEN})},body:JSON.stringify({prompt:text})});
+    const r=await fetch(API+"/video",{method:"POST",headers,body:JSON.stringify({prompt:text})});
     const d=await r.json();
     ai.remove();
     addImg("🎞️ GIF generata",d.url);
@@ -157,22 +244,26 @@ async function send(){
 }
 
 $("send").onclick=send;
-$("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋 Scrivi testo, foto o video.");};
 $("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
+$("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋 Scrivi testo, foto o video.");};
 
 $("openPremium").onclick=()=>{$("drawer").style.display="block";$("mask").style.display="block"};
-$("mask").onclick=()=>{$("drawer").style.display="none";$("mask").style.display="none"};
+$("mask").onclick=closeDrawer;
+$("closePremium").onclick=closeDrawer;
 
-$("saveApi").onclick=async()=>{
+function closeDrawer(){
+  $("drawer").style.display="none";
+  $("mask").style.display="none";
+}
+
+$("saveApi").onclick=()=>{
   API=$("api").value.trim();
   localStorage.setItem("API",API);
+  add("ai","✅ Backend salvato");
 };
 
 add("ai","Ciao 👋 Scrivi liberamente: testo, foto o video.");
-$("closePremium").onclick = () => {
-  $("drawer").style.display = "none";
-  $("mask").style.display = "none";
-};</script>$("
+</script>
 
 </body>
 </html>
