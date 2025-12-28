@@ -206,7 +206,11 @@ const $ = id => document.getElementById(id);
 function add(role, text){
   const d=document.createElement("div");
   d.className="msg "+role;
-  d.innerHTML=`<div class="bubble">${text}</div>`;
+  d.innerHTML = `<div class="bubble">${
+  text
+    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+    .replace(/\*(.*?)\*/g, "<li>$1</li>")
+}</div>`;
   $("messages").appendChild(d);
   $("messages").scrollTop=999999;
   return d;
