@@ -186,8 +186,10 @@ button{
 
 <script>
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
-if (TOKEN) headers.Authorization = "Bearer " + TOKEN;
-  const CLIENT_ID = (() => {
+let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
+let TOKEN = localStorage.getItem("TOKEN") || "";
+
+const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
   if (!id) {
     id = "web_" + Math.random().toString(36).slice(2);
