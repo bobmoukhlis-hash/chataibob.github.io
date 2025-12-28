@@ -11,7 +11,7 @@ body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
 .wrap{max-width:900px;margin:auto;padding:12px}
 .card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
-#messages{height:calc(100vh - 220px);overflow:auto;padding:14px}
+#messages{height:calc(100vh - 240px);overflow:auto;padding:14px}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
 .bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
@@ -24,6 +24,10 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
 .ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
 .gold{background:gold;color:#111}
 .small{font-size:12px;opacity:.75}
+
+/* Premium drawer */
+.drawer{position:fixed;top:0;right:0;width:90vw;max-width:420px;height:100%;background:#020617;border-left:1px solid #1f2937;padding:14px;display:none;z-index:99}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:98}
 </style>
 </head>
 
@@ -48,10 +52,31 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
   </div>
 </div>
 
+<!-- PREMIUM -->
+<div class="mask" id="mask"></div>
+<div class="drawer" id="drawer">
+  <h3>💎 Premium</h3>
+  <button class="ghost" id="closePremium">Chiudi</button>
+
+  <div class="small">Email</div>
+  <input id="email" style="width:100%">
+  <div class="small">Password</div>
+  <input id="password" type="password" style="width:100%">
+
+  <div style="display:flex;gap:6px;margin-top:8px">
+    <button class="ghost" id="signup">Registrati</button>
+    <button class="ghost" id="login">Login</button>
+  </div>
+
+  <div class="small" id="authStatus"></div>
+</div>
+
 <script>
+/* ===== CONFIG ===== */
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let TOKEN = localStorage.getItem("TOKEN") || "";
 
+/* ===== CLIENT ===== */
 const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
   if (!id) {
@@ -60,19 +85,18 @@ const CLIENT_ID = (() => {
   }
   return id;
 })();
-
 const $ = id => document.getElementById(id);
 
+/* ===== BACKEND ===== */
 async function checkBackend(){
   try{
     const r = await fetch(API + "/health");
     const d = await r.json();
-    $("status").textContent = d.status === "ok" ? "Backend: online" : "Backend: offline";
-  }catch{
-    $("status").textContent = "Backend: offline";
-  }
+    $("status").textContent = d.status==="ok"?"Backend: online":"Backend: offline";
+  }catch{ $("status").textContent="Backend: offline"; }
 }
 
+/* ===== UI ===== */
 function add(role,text){
   const d=document.createElement("div");
   d.className="msg "+role;
@@ -81,8 +105,8 @@ function add(role,text){
   $("messages").scrollTop=999999;
   return d;
 }
-
 function addImg(title,url){
+  if(!url){ add("ai","❌ Errore generazione"); return; }
   const d=document.createElement("div");
   d.className="msg ai";
   d.innerHTML=`<div class="bubble"><b>${title}</b><div class="media"><img src="${url}"></div></div>`;
@@ -90,6 +114,7 @@ function addImg(title,url){
   $("messages").scrollTop=999999;
 }
 
+/* ===== LOGIC ===== */
 function classifyIntent(t){
   t=t.toLowerCase();
   if(/video|gif|anim/.test(t)) return "video";
@@ -106,29 +131,53 @@ async function send(){
   const type=classifyIntent(text);
   const ai=add("ai","…");
 
-  const headers={
-    "Content-Type":"application/json",
-    ...(TOKEN ? {"Authorization":"Bearer "+TOKEN}: {})
-  };
-
-  const r=await fetch(API+"/"+type,{
-    method:"POST",
-    headers,
-    body:JSON.stringify(type==="chat"?{message:text,client_id:CLIENT_ID}:{prompt:text,client_id:CLIENT_ID})
-  });
-
-  const d=await r.json();
-  ai.remove();
-  type==="chat" ? add("ai",d.text||"Errore") : addImg(type==="image"?"🖼 Foto":"🎞 GIF",d.url);
+  try{
+    const r=await fetch(API+"/"+type,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        ...(TOKEN?{"Authorization":"Bearer "+TOKEN}:{})
+      },
+      body:JSON.stringify(type==="chat"
+        ?{message:text,client_id:CLIENT_ID}
+        :{prompt:text,client_id:CLIENT_ID})
+    });
+    const d=await r.json();
+    ai.remove();
+    if(d.error) add("ai","❌ "+d.error);
+    else type==="chat"
+      ? add("ai",d.text)
+      : addImg(type==="image"?"🖼 Foto":"🎞 GIF",d.url);
+  }catch{
+    ai.remove();
+    add("ai","❌ Backend non raggiungibile");
+  }
 }
 
+/* ===== PREMIUM ===== */
+$("openPremium").onclick=()=>{$("drawer").style.display="block";$("mask").style.display="block";}
+$("closePremium").onclick=$("mask").onclick=()=>{$("drawer").style.display="none";$("mask").style.display="none";}
+
+$("login").onclick=async()=>{
+  const r=await fetch(API+"/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:$("email").value,password:$("password").value})});
+  const d=await r.json();
+  if(d.ok){ localStorage.setItem("TOKEN",d.token); TOKEN=d.token; $("authStatus").textContent="✅ Login OK"; }
+  else $("authStatus").textContent="❌ Login fallito";
+};
+
+$("signup").onclick=async()=>{
+  await fetch(API+"/auth/signup",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:$("email").value,password:$("password").value})});
+  $("authStatus").textContent="✅ Registrato";
+};
+
 $("send").onclick=send;
-$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
 $("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋");};
+$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
 
 checkBackend();
 add("ai","Ciao 👋 Scrivi testo, foto o video.");
 </script>
-
 </body>
 </html>
