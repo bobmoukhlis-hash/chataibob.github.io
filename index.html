@@ -365,6 +365,35 @@ document.addEventListener("DOMContentLoaded", () => {
 function classifyIntent(text){
   const t = (text || "").toLowerCase().trim();
 
+  if(t.startsWith("/foto "))  return { kind:"image", prompt:text.slice(6).trim() };
+  if(t.startsWith("/video ")) return { kind:"video", prompt:text.slice(7).trim() };
+
+  const videoKW = [
+    "video","gif","animazione","animato","cartone","cartoon",
+    "muove","movimento","scene","filmato","clip","short","parla","parlante"
+  ];
+
+  const imageKW = [
+    "foto","immagine","image","picture","disegno",
+    "ritratto","poster","sfondo","wallpaper","sticker"
+  ];
+
+  const wantsCreate = /(crea|genera|fammi|fai|produci|creami|realizza)/.test(t);
+
+  if(wantsCreate && videoKW.some(k => t.includes(k)))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(wantsCreate && imageKW.some(k => t.includes(k)))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  if(videoKW.some(k => t.includes(k)))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(t.split(" ").length <= 6 && !t.endsWith("?"))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  return { kind:"chat", prompt:text };
+}
   // comandi espliciti
   if(t.startsWith("/foto "))  return { kind:"image", prompt:text.slice(6).trim() };
   if(t.startsWith("/video ")) return { kind:"video", prompt:text.slice(7).trim() };
@@ -374,6 +403,14 @@ function classifyIntent(text){
     "muove","movimento","scene","filmato","clip","short"
   ];
 // -------- DECISION BADGE --------
+function addDecisionBadge(kind){
+  const label =
+    kind === "image" ? "🖼️ Riconosciuto: FOTO" :
+    kind === "video" ? "🎞️ Riconosciuto: VIDEO/GIF" :
+    "💬 Riconosciuto: TESTO";
+
+  addMessage("ai", label);
+}// -------- DECISION BADGE --------
 function addDecisionBadge(kind){
   const label =
     kind === "image" ? "🖼️ Riconosciuto: FOTO" :
@@ -557,13 +594,20 @@ function addDecisionBadge(kind){
     }
   }
 
-  // -------- AUTO SEND (single entry) --------
-  async function autoSend(text){
-    const decision = classifyIntent(text);
-    if(decision.kind === "image") return await genImage(decision.prompt || text);
-    if(decision.kind === "video") return await genVideo(decision.prompt || text);
-    return await sendTextChat(text);
-  }
+  // -------- AUTO SEND --------
+async function autoSend(text){
+  const decision = classifyIntent(text);
+
+  addDecisionBadge(decision.kind);
+
+  if(decision.kind === "image")
+    return await genImage(decision.prompt || text);
+
+  if(decision.kind === "video")
+    return await genVideo(decision.prompt || text);
+
+  return await sendTextChat(text);
+}
 
   // -------- Premium Drawer --------
   function openDrawer(){ $("mask").style.display="block"; $("drawer").style.display="block"; }
