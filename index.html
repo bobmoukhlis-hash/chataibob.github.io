@@ -110,7 +110,10 @@ button{
 <!-- TOP BAR -->
 <div class="top">
   <b>🤖 ChatAI Bob</b>
-  <span class="badge">Backend: controllo…</span>
+<span class="badge">
+  <span id="dot" class="dot"></span>
+  <span id="status">Backend: controllo…</span>
+</span>
   <button class="gold" id="openPremium">💎 Premium</button>
 </div>
 
@@ -185,8 +188,22 @@ button{
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let TOKEN = localStorage.getItem("TOKEN") || "";
 const $ = id => document.getElementById(id);
-const $ = id => document.getElementById(id);
-function add(role,text){
+  async function checkBackend(){
+  try{
+    const r = await fetch(API + "/health", { cache: "no-store" });
+    const d = await r.json();
+
+    if(d.status === "ok"){
+      $("status").textContent = "Backend: online";
+      $("dot").className = "dot ok";
+      return;
+    }
+  }catch(e){}
+
+  $("status").textContent = "Backend: offline";
+  $("dot").className = "dot bad";
+}
+function add(role, text){
   const d=document.createElement("div");
   d.className="msg "+role;
   d.innerHTML=`<div class="bubble">${text}</div>`;
@@ -261,7 +278,7 @@ $("saveApi").onclick=()=>{
   localStorage.setItem("API",API);
   add("ai","✅ Backend salvato");
 };
-
+checkBackend();
 add("ai","Ciao 👋 Scrivi liberamente: testo, foto o video.");
 </script>
 
