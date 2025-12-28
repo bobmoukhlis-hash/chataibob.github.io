@@ -186,7 +186,15 @@ button{
 
 <script>
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
-let TOKEN = localStorage.getItem("TOKEN") || "";
+if (TOKEN) headers.Authorization = "Bearer " + TOKEN;
+  const CLIENT_ID = (() => {
+  let id = localStorage.getItem("CLIENT_ID");
+  if (!id) {
+    id = "web_" + Math.random().toString(36).slice(2);
+    localStorage.setItem("CLIENT_ID", id);
+  }
+  return id;
+})();
 const $ = id => document.getElementById(id);
   async function checkBackend(){
   try{
@@ -216,12 +224,18 @@ function add(role, text){
   return d;
 }
 
-function addImg(title,url){
-  const d=document.createElement("div");
-  d.className="msg ai";
-  d.innerHTML=`<div class="bubble"><b>${title}</b><div class="media"><img src="${url}"></div></div>`;
+function addImg(title, url){
+  const d = document.createElement("div");
+  d.className = "msg ai";
+  d.innerHTML = `
+    <div class="bubble">
+      <b>${title}</b>
+      <div class="media">
+        <img src="${url}" style="max-width:100%;border-radius:12px"/>
+      </div>
+    </div>`;
   $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
+  $("messages").scrollTop = 999999;
 }
 
 function classifyIntent(text){
@@ -241,7 +255,7 @@ async function send(){
   const ai=add("ai","…");
 
   const headers={'Content-Type':'application/json'};
-  if(TOKEN) headers.Authorization="Bearer "+TOKEN;
+  let TOKEN = localStorage.getItem("TOKEN") || null;
 if(c.k==="chat"){
   const r = await fetch(API + "/chat", {
   method: "POST",
@@ -254,28 +268,33 @@ if(c.k==="chat"){
   const d = await r.json();
   ai.querySelector(".bubble").textContent = d.text || "Errore";
 }
+if(c.k==="image"){
+  const r = await fetch(API + "/image", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      prompt: text,
+      client_id: CLIENT_ID
+    })
+  });
+  const d = await r.json();
+  ai.remove();
+  addImg("🖼 Foto generata", d.url);
+}
 
-  if(c.k==="image"){
-    const r = await fetch(API + "/image", {
-  method: "POST",
-  headers,
-  body: JSON.stringify({
-    prompt: text,
-    client_id: CLIENT_ID
-  })
-});
-
-  if(c.k==="video"){
-    const r = await fetch(API + "/video", {
-  method: "POST",
-  headers,
-  body: JSON.stringify({
-    prompt: text,
-    client_id: CLIENT_ID
-  })
-});
-    ai.remove();
-    addImg("🎞️ GIF generata",d.url);
+if(c.k==="video"){
+  const r = await fetch(API + "/video", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      prompt: text,
+      client_id: CLIENT_ID
+    })
+  });
+  const d = await r.json();
+  ai.remove();
+  addImg("🎞 GIF generata", d.url);
+}
   }
 }
 
