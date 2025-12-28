@@ -243,31 +243,37 @@ async function send(){
   const headers={'Content-Type':'application/json'};
   if(TOKEN) headers.Authorization="Bearer "+TOKEN;
 if(c.k==="chat"){
-  const r = await fetch(API+"/chat",{
-    method:"POST",
-    headers,
-    body: JSON.stringify({
-      message: text,
-      client_id: "web_" + navigator.userAgent
-    })
-  });
+  const r = await fetch(API + "/chat", {
+  method: "POST",
+  headers,
+  body: JSON.stringify({
+    message: text,
+    client_id: CLIENT_ID
+  })
+});
   const d = await r.json();
   ai.querySelector(".bubble").textContent = d.text || "Errore";
 }
 
   if(c.k==="image"){
-    const r=await fetch(API+"/image",{method:"POST",headers,body: JSON.stringify({
-  prompt: text,
-  client_id: CLIENT_ID
-})
-    const d=await r.json();
-    ai.remove();
-    addImg("🖼️ Foto generata",d.url);
-  }
+    const r = await fetch(API + "/image", {
+  method: "POST",
+  headers,
+  body: JSON.stringify({
+    prompt: text,
+    client_id: CLIENT_ID
+  })
+});
 
   if(c.k==="video"){
-    const r=await fetch(API+"/video",{method:"POST",headers,body:JSON.stringify({prompt:text})});
-    const d=await r.json();
+    const r = await fetch(API + "/video", {
+  method: "POST",
+  headers,
+  body: JSON.stringify({
+    prompt: text,
+    client_id: CLIENT_ID
+  })
+});
     ai.remove();
     addImg("🎞️ GIF generata",d.url);
   }
