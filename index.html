@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob</title>
 
 <style>
@@ -48,6 +48,9 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
         <button class="send" id="send">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
+      <div class="small" style="margin-top:6px">
+        AUTO-MODE: “crea una foto…”, “crea un video…”
+      </div>
     </div>
   </div>
 </div>
@@ -56,19 +59,20 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
 <div class="mask" id="mask"></div>
 <div class="drawer" id="drawer">
   <h3>💎 Premium</h3>
-  <button class="ghost" id="closePremium">Chiudi</button>
+  <button class="ghost" id="closePremium" style="margin-bottom:10px">Chiudi</button>
 
   <div class="small">Email</div>
-  <input id="email" style="width:100%">
-  <div class="small">Password</div>
-  <input id="password" type="password" style="width:100%">
+  <input id="email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
 
-  <div style="display:flex;gap:6px;margin-top:8px">
+  <div class="small" style="margin-top:8px">Password</div>
+  <input id="password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
+
+  <div style="display:flex;gap:6px;margin-top:10px">
     <button class="ghost" id="signup">Registrati</button>
     <button class="ghost" id="login">Login</button>
   </div>
 
-  <div class="small" id="authStatus"></div>
+  <div class="small" id="authStatus" style="margin-top:10px"></div>
 </div>
 
 <script>
@@ -76,7 +80,9 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let TOKEN = localStorage.getItem("TOKEN") || "";
 
-/* ===== CLIENT ===== */
+/* ===== HELPERS ===== */
+const $ = (id) => document.getElementById(id);
+
 const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
   if (!id) {
@@ -85,99 +91,179 @@ const CLIENT_ID = (() => {
   }
   return id;
 })();
-const $ = id => document.getElementById(id);
 
-/* ===== BACKEND ===== */
+/* ===== BACKEND STATUS ===== */
 async function checkBackend(){
   try{
-    const r = await fetch(API + "/health");
+    const r = await fetch(API + "/health", { cache: "no-store" });
     const d = await r.json();
-    $("status").textContent = d.status==="ok"?"Backend: online":"Backend: offline";
-  }catch{ $("status").textContent="Backend: offline"; }
+    $("status").textContent = (d.status === "ok") ? "Backend: online" : "Backend: offline";
+  }catch{
+    $("status").textContent = "Backend: offline";
+  }
 }
 
 /* ===== UI ===== */
-function add(role,text){
-  const d=document.createElement("div");
-  d.className="msg "+role;
-  d.innerHTML=`<div class="bubble">${text}</div>`;
+function add(role, text){
+  const d = document.createElement("div");
+  d.className = "msg " + role;
+  d.innerHTML = `<div class="bubble"></div>`;
+  d.querySelector(".bubble").textContent = text;
   $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
+  $("messages").scrollTop = 999999;
   return d;
 }
-function addImg(title,url){
-  if(!url){ add("ai","❌ Errore generazione"); return; }
-  const d=document.createElement("div");
-  d.className="msg ai";
-  d.innerHTML=`<div class="bubble"><b>${title}</b><div class="media"><img src="${url}"></div></div>`;
+
+function addImg(title, url){
+  if(!url){
+    add("ai","❌ Errore generazione immagine/GIF");
+    return;
+  }
+  const d = document.createElement("div");
+  d.className = "msg ai";
+  d.innerHTML = `
+    <div class="bubble">
+      <b>${title}</b>
+      <div class="media">
+        <img src="${url}" />
+      </div>
+    </div>`;
   $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
+  $("messages").scrollTop = 999999;
 }
 
-/* ===== LOGIC ===== */
+/* ===== INTENT (UNA SOLA VOLTA) ===== */
 function classifyIntent(t){
-  t=t.toLowerCase();
-  if(/video|gif|anim/.test(t)) return "video";
-  if(/foto|immagine|image/.test(t)) return "image";
+  t = t.toLowerCase().trim();
+
+  // VIDEO solo se chiaramente richiesto
+  if (/(^|\s)(video|gif|animazione|filmato)(\s|$)/.test(t)) return "video";
+
+  // IMMAGINE
+  if (/(^|\s)(foto|immagine|image|picture)(\s|$)/.test(t)) return "image";
+
   return "chat";
 }
 
+/* ===== SEND ===== */
 async function send(){
-  const text=$("input").value.trim();
+  const text = $("input").value.trim();
   if(!text) return;
-  $("input").value="";
-  add("user",text);
 
-  const type=classifyIntent(text);
-  const ai=add("ai","…");
+  $("input").value = "";
+  add("user", text);
+
+  const type = classifyIntent(text);
+  const ai = add("ai", "…");
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(TOKEN ? {"Authorization":"Bearer " + TOKEN} : {})
+  };
+
+  const payload =
+    (type === "chat")
+      ? { message: text, client_id: CLIENT_ID }
+      : { prompt: text, client_id: CLIENT_ID };
 
   try{
-    const r=await fetch(API+"/"+type,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        ...(TOKEN?{"Authorization":"Bearer "+TOKEN}:{})
-      },
-      body:JSON.stringify(type==="chat"
-        ?{message:text,client_id:CLIENT_ID}
-        :{prompt:text,client_id:CLIENT_ID})
+    const r = await fetch(API + "/" + type, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload)
     });
-    const d=await r.json();
+
+    const d = await r.json();
     ai.remove();
-    if(d.error) add("ai","❌ "+d.error);
-    else type==="chat"
-      ? add("ai",d.text)
-      : addImg(type==="image"?"🖼 Foto":"🎞 GIF",d.url);
-  }catch{
+
+    if(d.error){
+      add("ai", "❌ " + d.error);
+      return;
+    }
+
+    if(type === "chat"){
+      add("ai", d.text || "Errore");
+    }else if(type === "image"){
+      addImg("🖼 Foto", d.url);
+    }else{
+      addImg("🎞 GIF", d.url);
+    }
+  }catch(e){
     ai.remove();
     add("ai","❌ Backend non raggiungibile");
   }
 }
 
-/* ===== PREMIUM ===== */
-$("openPremium").onclick=()=>{$("drawer").style.display="block";$("mask").style.display="block";}
-$("closePremium").onclick=$("mask").onclick=()=>{$("drawer").style.display="none";$("mask").style.display="none";}
+/* ===== PREMIUM DRAWER ===== */
+function openDrawer(){
+  $("drawer").style.display = "block";
+  $("mask").style.display = "block";
+}
+function closeDrawer(){
+  $("drawer").style.display = "none";
+  $("mask").style.display = "none";
+}
+$("openPremium").onclick = openDrawer;
+$("closePremium").onclick = closeDrawer;
+$("mask").onclick = closeDrawer;
 
-$("login").onclick=async()=>{
-  const r=await fetch(API+"/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:$("email").value,password:$("password").value})});
-  const d=await r.json();
-  if(d.ok){ localStorage.setItem("TOKEN",d.token); TOKEN=d.token; $("authStatus").textContent="✅ Login OK"; }
-  else $("authStatus").textContent="❌ Login fallito";
+/* ===== AUTH ===== */
+$("login").onclick = async () => {
+  try{
+    const r = await fetch(API + "/auth/login", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        email: $("email").value,
+        password: $("password").value
+      })
+    });
+    const d = await r.json();
+    if(d.ok){
+      localStorage.setItem("TOKEN", d.token);
+      TOKEN = d.token;
+      $("authStatus").textContent = "✅ Login OK";
+    }else{
+      $("authStatus").textContent = "❌ Login fallito";
+    }
+  }catch{
+    $("authStatus").textContent = "❌ Errore rete";
+  }
 };
 
-$("signup").onclick=async()=>{
-  await fetch(API+"/auth/signup",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:$("email").value,password:$("password").value})});
-  $("authStatus").textContent="✅ Registrato";
+$("signup").onclick = async () => {
+  try{
+    await fetch(API + "/auth/signup", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        email: $("email").value,
+        password: $("password").value
+      })
+    });
+    $("authStatus").textContent = "✅ Registrato";
+  }catch{
+    $("authStatus").textContent = "❌ Errore rete";
+  }
 };
 
-$("send").onclick=send;
-$("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋");};
-$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
+/* ===== EVENTS ===== */
+$("send").onclick = send;
+$("clear").onclick = () => {
+  $("messages").innerHTML = "";
+  add("ai","Ciao 👋");
+};
+$("input").onkeydown = (e) => {
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+};
 
+/* ===== BOOT ===== */
 checkBackend();
 add("ai","Ciao 👋 Scrivi testo, foto o video.");
 </script>
+
 </body>
 </html>
