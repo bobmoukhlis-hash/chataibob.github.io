@@ -1,117 +1,535 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob FREE</title>
-
 <style>
-body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
-.top{padding:12px;background:#020617;display:flex;justify-content:space-between}
-.dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
-.dot.ok{background:#34d399}
-.dot.bad{background:#fb7185}
-.chat{padding:12px;max-width:720px;margin:auto}
-.msg{margin:8px 0;padding:10px;border-radius:10px;white-space:pre-wrap}
-.user{background:#38bdf822}
-.ai{background:#111827}
-textarea,input,button{width:100%;margin:6px 0;padding:10px}
-button{background:#38bdf8;border:0;font-weight:bold;border-radius:8px}
-#messages{max-height:55vh;overflow-y:auto}
-.small{font-size:12px;opacity:.8}
+  body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
+  .top{padding:12px;background:#020617;display:flex;justify-content:space-between;gap:12px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
+  .dot.ok{background:#34d399}
+  .dot.bad{background:#fb7185}
+  .wrap{max-width:860px;margin:auto;padding:12px}
+  .box{border:1px solid #1f2937;padding:14px;border-radius:14px;margin:12px 0;background:#0b1220}
+  .premium{border:2px solid gold;background:#111827}
+  textarea,input,button,select{width:100%;margin:6px 0;padding:10px;box-sizing:border-box}
+  button{background:#38bdf8;border:0;font-weight:bold;border-radius:10px;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid #38bdf8;color:#e5e7eb}
+  button.danger{background:#fb7185;color:#111827}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .col{flex:1;min-width:220px}
+  .small{font-size:12px;opacity:.85;white-space:pre-wrap}
+  #messages{max-height:52vh;overflow-y:auto;padding-right:4px}
+  .msg{margin:8px 0;padding:10px;border-radius:10px;white-space:pre-wrap;word-break:break-word}
+  .user{background:#38bdf822}
+  .ai{background:#111827}
+  .media{margin-top:8px}
+  .media img{max-width:100%;border-radius:12px;border:1px solid #1f2937}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937}
+  .project-btn{margin:6px 0;text-align:left}
+  .project-btn.active{outline:2px solid #38bdf8}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{width:auto}
 </style>
 </head>
 
 <body>
-
-<div class="top">
-  <div>🤖 ChatAI Bob FREE</div>
-  <div>
-    <span class="dot" id="statusDot"></span>
-    <span id="statusText">Backend: controllo…</span>
+  <div class="top">
+    <div>🤖 ChatAI Bob FREE</div>
+    <div class="row">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Backend: controllo…</span>
+    </div>
   </div>
-</div>
 
-<div class="chat">
+  <div class="wrap">
 
-<input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
-<button id="saveApi">Salva backend URL</button>
-<p class="small" id="netHint"></p>
+    <div class="box">
+      <div class="row">
+        <div class="col">
+          <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com" />
+        </div>
+        <div style="min-width:220px">
+          <button id="saveApi">Salva backend URL</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="pill"><b>Client ID:</b> <span id="clientIdLabel"></span></div>
+        <div class="pill"><b>Stato:</b> <span id="netHint">—</span></div>
+      </div>
+    </div>
 
-<div id="messages"></div>
+    <div class="box premium">
+      <h3 style="margin:0 0 6px 0">💎 Premium (opzionale)</h3>
+      <div class="row">
+        <a href="https://www.paypal.me/bobbob1979" target="_blank"
+           style="flex:1;display:block;background:gold;color:black;padding:10px;text-align:center;border-radius:10px;font-weight:bold;text-decoration:none">
+          💰 Attiva Premium
+        </a>
+        <button id="toggleAuth" class="ghost" style="width:auto">🔐 Login</button>
+        <button id="logoutBtn" class="danger" style="width:auto;display:none">Esci</button>
+      </div>
 
-<textarea id="input" placeholder="Scrivi un messaggio..."></textarea>
-<button id="sendBtn">Invia</button>
+      <div id="authBox" class="box" style="display:none;margin-top:12px">
+        <div class="row">
+          <div class="col"><input id="email" placeholder="Email" /></div>
+          <div class="col"><input id="password" type="password" placeholder="Password" /></div>
+        </div>
+        <div class="row">
+          <button id="signupBtn" style="flex:1">Registrati</button>
+          <button id="loginBtn" style="flex:1">Login</button>
+        </div>
+        <div class="small" id="authStatus"></div>
+      </div>
 
-</div>
+      <div id="usageBox" class="box" style="display:none;margin-top:12px">
+        <h4 style="margin:0 0 8px 0">📊 Utilizzo</h4>
+        <pre id="usageText" style="margin:0;white-space:pre-wrap"></pre>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="row" style="justify-content:space-between">
+        <div class="pill"><b>Progetto (Premium):</b> <span id="activeProjectLabel">Nessuno</span></div>
+        <button id="clearChat" class="danger" style="width:auto">🧹 Pulisci chat</button>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <input id="projectName" placeholder="Nome progetto (Premium)" />
+        </div>
+        <div class="col">
+          <select id="projectType">
+            <option value="BOOK">📘 Libro</option>
+            <option value="COACH">🧠 Coaching</option>
+            <option value="CODER">💻 Codice</option>
+            <option value="GENERAL">✨ Generale</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="createProject" class="ghost" style="flex:1">Crea progetto (Premium)</button>
+        <button id="refreshProjects" class="ghost" style="flex:1">Aggiorna lista</button>
+      </div>
+
+      <div class="small">Nota: i progetti sono Premium. In FREE funziona tutto lo stesso, ma senza progetti server.</div>
+      <div id="projectList"></div>
+    </div>
+
+    <div class="box">
+      <div class="tabs">
+        <button class="tab ghost" id="tabChat">💬 Chat</button>
+        <button class="tab ghost" id="tabImage">🖼️ Immagine</button>
+        <button class="tab ghost" id="tabVideo">🎞️ Video (GIF)</button>
+        <button class="tab ghost" id="tabPdf">📄 PDF</button>
+      </div>
+
+      <div id="panelChat">
+        <div id="messages"></div>
+        <textarea id="input" placeholder="Scrivi... (FREE senza login)"></textarea>
+        <button id="sendBtn">Invia</button>
+      </div>
+
+      <div id="panelImage" style="display:none">
+        <input id="imagePrompt" placeholder="Prompt immagine (es. 'un gatto astronauta')"/>
+        <button id="genImageBtn">Genera immagine</button>
+        <div class="small" id="imageStatus"></div>
+        <div class="media" id="imageOut"></div>
+      </div>
+
+      <div id="panelVideo" style="display:none">
+        <input id="videoPrompt" placeholder="Prompt video/GIF (es. 'tramonto sulla spiaggia')"/>
+        <button id="genVideoBtn">Genera GIF</button>
+        <div class="small" id="videoStatus"></div>
+        <div class="media" id="videoOut"></div>
+      </div>
+
+      <div id="panelPdf" style="display:none">
+        <input id="pdfPrompt" placeholder="Cosa vuoi fare? (es. 'Riassumi e trova date importanti')" />
+        <input id="pdfFile" type="file" accept="application/pdf" />
+        <button id="analyzePdfBtn">Analizza PDF</button>
+        <div class="small" id="pdfStatus"></div>
+        <div class="box" id="pdfOut" style="display:none"></div>
+      </div>
+    </div>
+
+  </div>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
+  let API_BASE = localStorage.getItem("API_BASE") || "";
+  let TOKEN = localStorage.getItem("TOKEN") || "";
+  let activeProjectId = Number(localStorage.getItem("ACTIVE_PROJECT_ID") || 0) || 0;
+  let activeProjectName = localStorage.getItem("ACTIVE_PROJECT_NAME") || "";
 
-let API_BASE=localStorage.getItem("API_BASE")||"";
-const $=id=>document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-$("apiBase").value=API_BASE;
-
-function setStatus(ok,text){
-  $("statusDot").className="dot "+(ok?"ok":"bad");
-  $("statusText").textContent=text;
-}
-
-async function checkHealth(){
-  if(!API_BASE)return;
-  try{
-    const r=await fetch(API_BASE+"/health");
-    const d=await r.json();
-    if(d.status==="ok"){
-      setStatus(true,"Backend: online");
-      $("netHint").textContent="OK: /health → JSON ok";
-    }else throw 0;
-  }catch{
-    setStatus(false,"Backend: offline");
+  function getClientId(){
+    let id = localStorage.getItem("client_id");
+    if(!id){
+      id = "client_" + crypto.randomUUID();
+      localStorage.setItem("client_id", id);
+    }
+    return id;
   }
-}
 
-function addMessage(role,text){
-  const div=document.createElement("div");
-  div.className="msg "+role;
-  div.textContent=text;
-  $("messages").appendChild(div);
-  $("messages").scrollTop=$("messages").scrollHeight;
-}
+  function authHeaders(){
+    return TOKEN ? { Authorization: "Bearer " + TOKEN } : {};
+  }
 
-$("saveApi").onclick=()=>{
-  API_BASE=$("apiBase").value.trim().replace(/\/+$/,"");
-  localStorage.setItem("API_BASE",API_BASE);
-  checkHealth();
-};
+  function setStatus(ok, text){
+    $("statusDot").className = "dot " + (ok ? "ok" : "bad");
+    $("statusText").textContent = text;
+  }
 
-$("sendBtn").onclick=async()=>{
-  const text=$("input").value.trim();
-  if(!text)return;
-  addMessage("user",text);
-  $("input").value="";
+  async function fetchWithTimeout(url, opts={}, timeoutMs=12000){
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try{
+      return await fetch(url, { ...opts, signal: ctrl.signal });
+    } finally {
+      clearTimeout(t);
+    }
+  }
 
-  try{
-    const r=await fetch(API_BASE+"/chat",{
+  async function safeJson(url, opts={}){
+    try{
+      const r = await fetchWithTimeout(url, opts, 12000);
+      const ct = (r.headers.get("content-type") || "").toLowerCase();
+      if(ct.includes("application/json")) return await r.json();
+      const t = await r.text();
+      return { ok: r.ok, text: t };
+    }catch(e){
+      return { ok:false, error: e?.name === "AbortError" ? "Timeout" : "Connessione fallita" };
+    }
+  }
+
+  async function checkHealth(){
+    if(!API_BASE){
+      setStatus(false, "Backend: inserisci URL");
+      $("netHint").textContent = "—";
+      return;
+    }
+    try{
+      const d = await safeJson(API_BASE + "/health", { method:"GET" });
+      if(d && d.status === "ok"){
+        setStatus(true, "Backend: online");
+        $("netHint").textContent = "OK /health";
+      }else{
+        setStatus(false, "Backend: offline");
+        $("netHint").textContent = d?.error || d?.text || "offline";
+      }
+    }catch{
+      setStatus(false, "Backend: offline");
+      $("netHint").textContent = "offline";
+    }
+  }
+
+  function setActiveProjectLabel(){
+    $("activeProjectLabel").textContent = activeProjectId ? (activeProjectName || String(activeProjectId)) : "Nessuno";
+  }
+
+  function addMessage(role, text){
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = text;
+    $("messages").appendChild(div);
+    $("messages").scrollTop = $("messages").scrollHeight;
+    return div;
+  }
+
+  function clearChatUI(){
+    $("messages").innerHTML = "";
+    addMessage("ai", "Ciao 👋 Sono ChatAI Bob. Scrivi qualcosa!");
+  }
+
+  // ---------------------------
+  // Tabs
+  // ---------------------------
+  function showPanel(panelId){
+    ["panelChat","panelImage","panelVideo","panelPdf"].forEach(id => $(id).style.display = (id===panelId) ? "block" : "none");
+  }
+  $("tabChat").onclick = () => showPanel("panelChat");
+  $("tabImage").onclick = () => showPanel("panelImage");
+  $("tabVideo").onclick = () => showPanel("panelVideo");
+  $("tabPdf").onclick = () => showPanel("panelPdf");
+
+  // ---------------------------
+  // Premium: Auth UI
+  // ---------------------------
+  $("toggleAuth").onclick = () => {
+    $("authBox").style.display = $("authBox").style.display === "none" ? "block" : "none";
+  };
+
+  async function loadMe(){
+    if(!TOKEN) return;
+    const d = await safeJson(API_BASE + "/me", { headers: { ...authHeaders() } });
+    if(d && d.ok){
+      $("usageBox").style.display = "block";
+      $("usageText").textContent = JSON.stringify(d, null, 2);
+      $("logoutBtn").style.display = "inline-block";
+      $("authStatus").textContent = "✅ Premium attivo";
+    }else{
+      $("usageBox").style.display = "none";
+    }
+  }
+
+  $("signupBtn").onclick = async () => {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const d = await safeJson(API_BASE + "/auth/signup", {
       method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message:text})
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ email, password })
     });
-    const d=await r.json();
-    addMessage("ai",d.text||"Errore");
-  }catch{
-    addMessage("ai","❌ Errore di connessione");
+    $("authStatus").textContent = d?.ok ? "✅ Registrato. Ora fai login." : ("❌ " + (d?.error || d?.detail || "Errore"));
+  };
+
+  $("loginBtn").onclick = async () => {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const d = await safeJson(API_BASE + "/auth/login", {
+      method:"POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    if(d?.ok && d?.token){
+      TOKEN = d.token;
+      localStorage.setItem("TOKEN", TOKEN);
+      $("authStatus").textContent = "✅ Login ok";
+      $("logoutBtn").style.display = "inline-block";
+      await loadMe();
+      await loadProjects();
+    }else{
+      $("authStatus").textContent = "❌ " + (d?.error || d?.detail || "Errore login");
+    }
+  };
+
+  $("logoutBtn").onclick = async () => {
+    TOKEN = "";
+    localStorage.removeItem("TOKEN");
+    $("authStatus").textContent = "Sei uscito.";
+    $("usageBox").style.display = "none";
+    $("logoutBtn").style.display = "none";
+    activeProjectId = 0;
+    activeProjectName = "";
+    localStorage.removeItem("ACTIVE_PROJECT_ID");
+    localStorage.removeItem("ACTIVE_PROJECT_NAME");
+    setActiveProjectLabel();
+    $("projectList").innerHTML = "";
+  };
+
+  // ---------------------------
+  // Projects (Premium)
+  // ---------------------------
+  async function loadProjects(){
+    if(!TOKEN) {
+      $("projectList").innerHTML = "";
+      return;
+    }
+    const d = await safeJson(API_BASE + "/projects/list", { headers: { ...authHeaders() } });
+    $("projectList").innerHTML = "";
+    if(!d?.ok || !Array.isArray(d.projects)) return;
+
+    d.projects.forEach(p => {
+      const b = document.createElement("button");
+      b.className = "project-btn";
+      b.dataset.pid = String(p.id);
+      b.textContent = "📂 " + p.name + " (" + p.type + ")";
+      b.onclick = () => {
+        activeProjectId = Number(p.id);
+        activeProjectName = p.name;
+        localStorage.setItem("ACTIVE_PROJECT_ID", String(activeProjectId));
+        localStorage.setItem("ACTIVE_PROJECT_NAME", activeProjectName);
+        setActiveProjectLabel();
+        document.querySelectorAll(".project-btn").forEach(x => x.classList.toggle("active", x.dataset.pid === String(activeProjectId)));
+        addMessage("ai", "Progetto selezionato: " + activeProjectName);
+      };
+      $("projectList").appendChild(b);
+    });
+
+    setActiveProjectLabel();
+    document.querySelectorAll(".project-btn").forEach(x => x.classList.toggle("active", x.dataset.pid === String(activeProjectId)));
   }
-};
 
-checkHealth();
+  $("createProject").onclick = async () => {
+    if(!TOKEN){
+      addMessage("ai", "⚠️ I progetti sono Premium. Fai login.");
+      return;
+    }
+    const name = $("projectName").value.trim() || "Progetto";
+    const type = $("projectType").value;
+    const d = await safeJson(API_BASE + "/projects/create", {
+      method:"POST",
+      headers: { "Content-Type":"application/json", ...authHeaders() },
+      body: JSON.stringify({ name, type })
+    });
+    if(d?.ok){
+      addMessage("ai", "✅ Progetto creato.");
+      await loadProjects();
+    }else{
+      addMessage("ai", "❌ Errore creazione progetto.");
+    }
+  };
 
-// messaggio iniziale
-addMessage("ai","Ciao 👋 Sono ChatAI Bob.\nScrivi qualcosa per iniziare!");
+  $("refreshProjects").onclick = loadProjects;
 
+  // ---------------------------
+  // Chat (FREE: no token; Premium: token optional)
+  // ---------------------------
+  $("sendBtn").onclick = async () => {
+    const text = $("input").value.trim();
+    if(!text) return;
+
+    addMessage("user", text);
+    $("input").value = "";
+
+    const body = {
+      message: text,
+      client_id: getClientId(),
+      project_id: TOKEN && activeProjectId ? activeProjectId : null,
+      mic_used: false
+    };
+
+    const d = await safeJson(API_BASE + "/chat", {
+      method:"POST",
+      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
+      body: JSON.stringify(body)
+    });
+
+    const out = d?.text || d?.detail || d?.error || "Errore";
+    addMessage("ai", out);
+  };
+
+  $("input").addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      $("sendBtn").click();
+    }
+  });
+
+  $("clearChat").onclick = clearChatUI;
+
+  // ---------------------------
+  // Image
+  // ---------------------------
+  $("genImageBtn").onclick = async () => {
+    const prompt = $("imagePrompt").value.trim();
+    if(!prompt) return;
+    $("imageStatus").textContent = "Genero…";
+    $("imageOut").innerHTML = "";
+
+    const d = await safeJson(API_BASE + "/image", {
+      method:"POST",
+      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
+      body: JSON.stringify({ prompt, client_id: getClientId() })
+    });
+
+    if(d?.url){
+      const img = document.createElement("img");
+      img.src = d.url;
+      $("imageOut").appendChild(img);
+      $("imageStatus").textContent = "✅ OK";
+    }else{
+      $("imageStatus").textContent = "❌ " + (d?.error || d?.detail || d?.text || "Errore");
+    }
+  };
+
+  // ---------------------------
+  // Video (GIF)
+  // ---------------------------
+  $("genVideoBtn").onclick = async () => {
+    const prompt = $("videoPrompt").value.trim();
+    if(!prompt) return;
+    $("videoStatus").textContent = "Genero… (può impiegare 30-90s)";
+    $("videoOut").innerHTML = "";
+
+    const d = await safeJson(API_BASE + "/video", {
+      method:"POST",
+      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
+      body: JSON.stringify({ prompt, client_id: getClientId() })
+    });
+
+    if(d?.url){
+      const img = document.createElement("img");
+      img.src = d.url;
+      $("videoOut").appendChild(img);
+      $("videoStatus").textContent = "✅ OK";
+    }else{
+      $("videoStatus").textContent = "❌ " + (d?.error || d?.detail || d?.text || "Errore");
+    }
+  };
+
+  // ---------------------------
+  // PDF Analyze
+  // ---------------------------
+  $("analyzePdfBtn").onclick = async () => {
+    const prompt = $("pdfPrompt").value.trim();
+    const file = $("pdfFile").files?.[0];
+    if(!file){
+      $("pdfStatus").textContent = "⚠️ Seleziona un PDF.";
+      return;
+    }
+    if(!prompt){
+      $("pdfStatus").textContent = "⚠️ Scrivi cosa vuoi fare sul PDF.";
+      return;
+    }
+
+    $("pdfStatus").textContent = "Analizzo…";
+    $("pdfOut").style.display = "none";
+    $("pdfOut").textContent = "";
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("prompt", prompt);
+    fd.append("project_id", TOKEN && activeProjectId ? String(activeProjectId) : "");
+    fd.append("client_id", getClientId());
+
+    try{
+      const r = await fetchWithTimeout(API_BASE + "/analyze", {
+        method:"POST",
+        headers: { ...(TOKEN ? authHeaders() : {}) }, // NO Content-Type manuale con FormData
+        body: fd
+      }, 60000);
+
+      const ct = (r.headers.get("content-type") || "").toLowerCase();
+      let d = null;
+      if(ct.includes("application/json")) d = await r.json();
+      else d = { text: await r.text() };
+
+      const out = d?.text || d?.detail || d?.error || "Errore";
+      $("pdfOut").style.display = "block";
+      $("pdfOut").textContent = out;
+      $("pdfStatus").textContent = "✅ OK";
+    }catch(e){
+      $("pdfStatus").textContent = "❌ " + (e?.name === "AbortError" ? "Timeout" : "Errore connessione");
+    }
+  };
+
+  // ---------------------------
+  // Boot
+  // ---------------------------
+  $("apiBase").value = API_BASE;
+  $("clientIdLabel").textContent = getClientId();
+  $("saveApi").onclick = async () => {
+    API_BASE = $("apiBase").value.trim().replace(/\/+$/, "");
+    localStorage.setItem("API_BASE", API_BASE);
+    await checkHealth();
+    if(TOKEN) await loadProjects();
+  };
+
+  clearChatUI();
+  setActiveProjectLabel();
+  checkHealth();
+  if(TOKEN){
+    $("logoutBtn").style.display = "inline-block";
+    loadMe();
+    loadProjects();
+  }
 });
 </script>
-
 </body>
 </html>
