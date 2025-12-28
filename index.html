@@ -7,185 +7,48 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
-.top{
-  position:sticky;top:0;z-index:10;
-  background:#020617;
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid #1f2937
-}
-.badge{
-  padding:6px 10px;
-  border-radius:999px;
-  background:#111827;
-  border:1px solid #1f2937;
-  font-size:12px
-}
+.top{position:sticky;top:0;z-index:10;background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
+.badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
 .wrap{max-width:900px;margin:auto;padding:12px}
-.card{
-  background:#0b1220;
-  border:1px solid #1f2937;
-  border-radius:16px;
-  overflow:hidden
-}
-#messages{
-  height:calc(100vh - 220px);
-  overflow:auto;
-  padding:14px
-}
+.card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
+#messages{height:calc(100vh - 220px);overflow:auto;padding:14px}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
-.bubble{
-  max-width:78%;
-  padding:10px 12px;
-  border-radius:14px;
-  background:#111827;
-  border:1px solid #1f2937;
-  white-space:pre-wrap
-}
+.bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
 .msg.user .bubble{background:#38bdf822}
-.media img{
-  max-width:100%;
-  border-radius:14px;
-  margin-top:8px
-}
-.toolbar{
-  padding:12px;
-  border-top:1px solid #1f2937
-}
-textarea{
-  width:100%;
-  min-height:56px;
-  border-radius:14px;
-  background:#0a1020;
-  color:#fff;
-  border:1px solid #1f2937;
-  padding:10px
-}
-button{
-  padding:10px 14px;
-  border-radius:12px;
-  border:0;
-  font-weight:bold;
-  cursor:pointer
-}
+.media img{max-width:100%;border-radius:14px;margin-top:8px}
+.toolbar{padding:12px;border-top:1px solid #1f2937}
+textarea{width:100%;min-height:56px;border-radius:14px;background:#0a1020;color:#fff;border:1px solid #1f2937;padding:10px}
+button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:pointer}
 .send{background:#38bdf8;color:#001018}
-.ghost{
-  background:transparent;
-  color:#fff;
-  border:1px solid #38bdf8
-}
+.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
 .gold{background:gold;color:#111}
 .small{font-size:12px;opacity:.75}
-
-/* Drawer Premium */
-.drawer{
-  position:fixed;
-  top:0;
-  right:0;
-  width:90vw;
-  max-width:420px;
-  height:100%;
-  background:#020617;
-  border-left:1px solid #1f2937;
-  padding:14px;
-  display:none;
-  z-index:99;
-  overflow:auto
-}
-.mask{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  z-index:98
-}
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
 <div class="top">
   <b>🤖 ChatAI Bob</b>
-<span class="badge">
-  <span id="dot" class="dot"></span>
-  <span id="status">Backend: controllo…</span>
-</span>
+  <span class="badge"><span id="status">Backend: controllo…</span></span>
   <button class="gold" id="openPremium">💎 Premium</button>
 </div>
 
-<!-- CHAT -->
 <div class="wrap">
   <div class="card">
     <div id="messages"></div>
-
     <div class="toolbar">
-      <textarea id="input" placeholder="Scrivi liberamente: testo, foto o video/GIF."></textarea>
+      <textarea id="input" placeholder="Scrivi testo, foto o video/GIF"></textarea>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button class="send" id="send">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
-      </div>
-      <div class="small" style="margin-top:6px">
-        AUTO-MODE attivo: “fammi una foto…”, “crea un video cartoon…”
       </div>
     </div>
   </div>
 </div>
 
-<!-- PREMIUM DRAWER -->
-<div class="mask" id="mask"></div>
-<div class="drawer" id="drawer">
-  <h3>💎 Premium</h3>
-
-  <!-- CHIUDI -->
-  <button id="closePremium" class="ghost" style="
-    position:absolute;
-    top:12px;
-    right:12px;
-  ">
-    ✖ Chiudi
-  </button>
-
-  <div class="small">Backend URL</div>
-  <input id="api" value="https://chatai-bob-backend.onrender.com"
-    style="width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:#fff">
-
-  <button class="ghost" style="width:100%;margin-top:6px" id="saveApi">
-    Salva & Test
-  </button>
-
-  <hr>
-
-  <input id="email" placeholder="Email" style="width:100%;margin-bottom:6px">
-  <input id="password" type="password" placeholder="Password" style="width:100%">
-
-  <div style="display:flex;gap:6px;margin-top:6px">
-    <button class="ghost" id="signup">Registrati</button>
-    <button class="ghost" id="login">Login</button>
-  </div>
-
-  <div class="small" id="authStatus" style="margin-top:8px"></div>
-
-  <hr>
-
-  <a href="https://www.paypal.me/bobbob1979" target="_blank"
-     style="display:block;background:gold;color:black;padding:12px;text-align:center;border-radius:12px;font-weight:bold;text-decoration:none">
-     💰 Attiva Premium (PayPal)
-  </a>
-
-  <div class="small" style="margin-top:6px">
-    Dopo il pagamento:
-    1️⃣ Torna qui  
-    2️⃣ Fai login  
-    3️⃣ Premium attivo
-  </div>
-</div>
-
 <script>
-let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
 let TOKEN = localStorage.getItem("TOKEN") || "";
 
@@ -197,54 +60,41 @@ const CLIENT_ID = (() => {
   }
   return id;
 })();
+
 const $ = id => document.getElementById(id);
-  async function checkBackend(){
+
+async function checkBackend(){
   try{
-    const r = await fetch(API + "/health", { cache: "no-store" });
+    const r = await fetch(API + "/health");
     const d = await r.json();
-
-    if(d.status === "ok"){
-      $("status").textContent = "Backend: online";
-      $("dot").className = "dot ok";
-      return;
-    }
-  }catch(e){}
-
-  $("status").textContent = "Backend: offline";
-  $("dot").className = "dot bad";
+    $("status").textContent = d.status === "ok" ? "Backend: online" : "Backend: offline";
+  }catch{
+    $("status").textContent = "Backend: offline";
+  }
 }
-function add(role, text){
+
+function add(role,text){
   const d=document.createElement("div");
   d.className="msg "+role;
-  d.innerHTML = `<div class="bubble">${
-  text
-    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-    .replace(/\*(.*?)\*/g, "<li>$1</li>")
-}</div>`;
+  d.innerHTML=`<div class="bubble">${text}</div>`;
   $("messages").appendChild(d);
   $("messages").scrollTop=999999;
   return d;
 }
 
-function addImg(title, url){
-  const d = document.createElement("div");
-  d.className = "msg ai";
-  d.innerHTML = `
-    <div class="bubble">
-      <b>${title}</b>
-      <div class="media">
-        <img src="${url}" style="max-width:100%;border-radius:12px"/>
-      </div>
-    </div>`;
+function addImg(title,url){
+  const d=document.createElement("div");
+  d.className="msg ai";
+  d.innerHTML=`<div class="bubble"><b>${title}</b><div class="media"><img src="${url}"></div></div>`;
   $("messages").appendChild(d);
-  $("messages").scrollTop = 999999;
+  $("messages").scrollTop=999999;
 }
 
-function classifyIntent(text){
-  const t=text.toLowerCase();
-  if(/(video|gif|parla|cartone|anim)/.test(t)) return {k:"video"};
-  if(/(foto|immagine|image|picture)/.test(t)) return {k:"image"};
-  return {k:"chat"};
+function classifyIntent(t){
+  t=t.toLowerCase();
+  if(/video|gif|anim/.test(t)) return "video";
+  if(/foto|immagine|image/.test(t)) return "image";
+  return "chat";
 }
 
 async function send(){
@@ -253,73 +103,31 @@ async function send(){
   $("input").value="";
   add("user",text);
 
-  const c=classifyIntent(text);
+  const type=classifyIntent(text);
   const ai=add("ai","…");
 
-  const headers={'Content-Type':'application/json'};
-  let TOKEN = localStorage.getItem("TOKEN") || null;
-if(c.k==="chat"){
-  const r = await fetch(API + "/chat", {
-  method: "POST",
-  headers,
-  body: JSON.stringify({
-    message: text,
-    client_id: CLIENT_ID
-  })
-});
-  const d = await r.json();
-  ai.querySelector(".bubble").textContent = d.text || "Errore";
-}
-if(c.k==="image"){
-  const r = await fetch(API + "/image", {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      prompt: text,
-      client_id: CLIENT_ID
-    })
-  });
-  const d = await r.json();
-  ai.remove();
-  addImg("🖼 Foto generata", d.url);
-}
+  const headers={
+    "Content-Type":"application/json",
+    ...(TOKEN ? {"Authorization":"Bearer "+TOKEN}: {})
+  };
 
-if(c.k==="video"){
-  const r = await fetch(API + "/video", {
-    method: "POST",
+  const r=await fetch(API+"/"+type,{
+    method:"POST",
     headers,
-    body: JSON.stringify({
-      prompt: text,
-      client_id: CLIENT_ID
-    })
+    body:JSON.stringify(type==="chat"?{message:text,client_id:CLIENT_ID}:{prompt:text,client_id:CLIENT_ID})
   });
-  const d = await r.json();
+
+  const d=await r.json();
   ai.remove();
-  addImg("🎞 GIF generata", d.url);
-}
-  }
+  type==="chat" ? add("ai",d.text||"Errore") : addImg(type==="image"?"🖼 Foto":"🎞 GIF",d.url);
 }
 
 $("send").onclick=send;
 $("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
-$("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋 Scrivi testo, foto o video.");};
+$("clear").onclick=()=>{$("messages").innerHTML="";add("ai","Ciao 👋");};
 
-$("openPremium").onclick=()=>{$("drawer").style.display="block";$("mask").style.display="block"};
-$("mask").onclick=closeDrawer;
-$("closePremium").onclick=closeDrawer;
-
-function closeDrawer(){
-  $("drawer").style.display="none";
-  $("mask").style.display="none";
-}
-
-$("saveApi").onclick=()=>{
-  API=$("api").value.trim();
-  localStorage.setItem("API",API);
-  add("ai","✅ Backend salvato");
-};
 checkBackend();
-add("ai","Ciao 👋 Scrivi liberamente: testo, foto o video.");
+add("ai","Ciao 👋 Scrivi testo, foto o video.");
 </script>
 
 </body>
