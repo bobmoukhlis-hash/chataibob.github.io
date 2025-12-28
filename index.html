@@ -256,7 +256,10 @@ if(c.k==="chat"){
 }
 
   if(c.k==="image"){
-    const r=await fetch(API+"/image",{method:"POST",headers,body:JSON.stringify({prompt:text})});
+    const r=await fetch(API+"/image",{method:"POST",headers,body: JSON.stringify({
+  prompt: text,
+  client_id: CLIENT_ID
+})
     const d=await r.json();
     ai.remove();
     addImg("🖼️ Foto generata",d.url);
