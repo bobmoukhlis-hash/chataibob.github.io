@@ -11,12 +11,13 @@ body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
 .dot.ok{background:#34d399}
 .dot.bad{background:#fb7185}
-.chat{padding:12px}
-.msg{margin:8px 0;padding:10px;border-radius:10px}
+.chat{padding:12px;max-width:720px;margin:auto}
+.msg{margin:8px 0;padding:10px;border-radius:10px;white-space:pre-wrap}
 .user{background:#38bdf822}
 .ai{background:#111827}
 textarea,input,button,select{width:100%;margin:6px 0;padding:10px}
-button{background:#38bdf8;border:0;font-weight:bold}
+button{background:#38bdf8;border:0;font-weight:bold;border-radius:8px}
+textarea{min-height:70px}
 
 .premium-box{
   border:2px solid gold;
@@ -37,13 +38,7 @@ button{background:#38bdf8;border:0;font-weight:bold}
 }
 .small{font-size:12px;opacity:.8}
 
-button,input,textarea,select{
-  pointer-events:auto!important;
-  position:relative;
-  z-index:10;
-}
-#messages{pointer-events:none}
-body{touch-action:manipulation}
+#messages{max-height:50vh;overflow-y:auto}
 </style>
 </head>
 
@@ -104,16 +99,10 @@ body{touch-action:manipulation}
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-let API_BASE="";
+let API_BASE=localStorage.getItem("API_BASE")||"";
 let TOKEN=localStorage.getItem("TOKEN")||"";
 
-const statusDot=statusText=null;
-const messages=document.getElementById("messages");
-const input=document.getElementById("input");
-const apiBaseInput=document.getElementById("apiBase");
-
-const statusDotEl=document.getElementById("statusDot");
-const statusTextEl=document.getElementById("statusText");
+const $=id=>document.getElementById(id);
 
 function getClientId(){
   let id=localStorage.getItem("client_id");
@@ -124,25 +113,12 @@ function getClientId(){
   return id;
 }
 
-document.getElementById("saveApi").onclick=()=>{
-  API_BASE=apiBaseInput.value.trim().replace(/\/+$/,"");
-  localStorage.setItem("API_BASE",API_BASE);
-  checkHealth();
-  loadMe();
-  loadProjects();
-};
-
-async function checkHealth(){
+async function safeFetch(url,opts={}){
   try{
-    const r=await fetch(API_BASE+"/health");
-    const d=await r.json();
-    if(d.status==="ok"){
-      statusDotEl.className="dot ok";
-      statusTextEl.textContent="Backend: verificato";
-    }else throw 0;
-  }catch{
-    statusDotEl.className="dot bad";
-    statusTextEl.textContent="Backend: offline";
+    const r=await fetch(url,opts);
+    return await r.json();
+  }catch(e){
+    return {ok:false,error:"Connessione fallita"};
   }
 }
 
@@ -150,70 +126,120 @@ function addMessage(role,text){
   const div=document.createElement("div");
   div.className="msg "+role;
   div.textContent=text;
-  messages.appendChild(div);
+  $("messages").appendChild(div);
+  $("messages").scrollTop=$("messages").scrollHeight;
 }
 
-document.getElementById("sendBtn").onclick=async()=>{
-  const text=input.value.trim();
+async function checkHealth(){
+  if(!API_BASE)return;
+  const d=await safeFetch(API_BASE+"/health");
+  if(d.status==="ok"){
+    $("statusDot").className="dot ok";
+    $("statusText").textContent="Backend: verificato";
+  }else{
+    $("statusDot").className="dot bad";
+    $("statusText").textContent="Backend: offline";
+  }
+}
+
+$("saveApi").onclick=()=>{
+  API_BASE=$("apiBase").value.trim().replace(/\/+$/,"");
+  localStorage.setItem("API_BASE",API_BASE);
+  checkHealth();
+  loadMe();
+  loadProjects();
+};
+
+$("sendBtn").onclick=async()=>{
+  const text=$("input").value.trim();
   if(!text)return;
   addMessage("user",text);
-  input.value="";
-  const r=await fetch(API_BASE+"/chat",{
+  $("input").value="";
+  const d=await safeFetch(API_BASE+"/chat",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{
+      "Content-Type":"application/json",
+      ...(TOKEN&&{Authorization:"Bearer "+TOKEN})
+    },
     body:JSON.stringify({message:text,client_id:getClientId()})
   });
-  const d=await r.json();
   addMessage("ai",d.text||d.detail||"Errore");
 };
 
-document.getElementById("loginBtn").onclick=async()=>{
-  const r=await fetch(API_BASE+"/auth/login",{
+$("loginBtn").onclick=async()=>{
+  const d=await safeFetch(API_BASE+"/auth/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:email.value,password:password.value})
+    body:JSON.stringify({
+      email:$("email").value,
+      password:$("password").value
+    })
   });
-  const d=await r.json();
   if(d.ok){
     TOKEN=d.token;
     localStorage.setItem("TOKEN",TOKEN);
-    authStatus.textContent="Login riuscito";
+    $("authStatus").textContent="Login riuscito";
     loadMe();
     loadProjects();
-  }else authStatus.textContent=d.error;
+  }else $("authStatus").textContent=d.error||"Errore";
+};
+
+$("signupBtn").onclick=async()=>{
+  const d=await safeFetch(API_BASE+"/auth/signup",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:$("email").value,
+      password:$("password").value
+    })
+  });
+  $("authStatus").textContent=d.ok?"Registrazione ok":"Errore";
 };
 
 async function loadMe(){
   if(!TOKEN)return;
-  const r=await fetch(API_BASE+"/me",{headers:{Authorization:"Bearer "+TOKEN}});
-  const d=await r.json();
+  const d=await safeFetch(API_BASE+"/me",{
+    headers:{Authorization:"Bearer "+TOKEN}
+  });
   if(d.ok){
-    authBox.style.display="none";
-    usageBox.style.display="block";
-    usageText.textContent=JSON.stringify(d.usage,null,2);
+    $("authBox").style.display="none";
+    $("usageBox").style.display="block";
+    $("usageText").textContent=JSON.stringify(d.usage,null,2);
   }
 }
 
 async function loadProjects(){
   if(!TOKEN)return;
-  const r=await fetch(API_BASE+"/projects/list",{headers:{Authorization:"Bearer "+TOKEN}});
-  const d=await r.json();
-  projectList.innerHTML="";
+  const d=await safeFetch(API_BASE+"/projects/list",{
+    headers:{Authorization:"Bearer "+TOKEN}
+  });
+  $("projectList").innerHTML="";
   if(!d.ok)return;
   d.projects.forEach(p=>{
     const b=document.createElement("button");
     b.textContent="📂 "+p.name;
-    projectList.appendChild(b);
+    $("projectList").appendChild(b);
   });
 }
 
-const saved=localStorage.getItem("API_BASE");
-if(saved){
-  API_BASE=saved;
-  apiBaseInput.value=saved;
-  checkHealth();
-}
+$("createProject").onclick=async()=>{
+  const d=await safeFetch(API_BASE+"/projects/create",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      Authorization:"Bearer "+TOKEN
+    },
+    body:JSON.stringify({
+      name:$("projectName").value,
+      type:$("projectType").value
+    })
+  });
+  if(d.ok)loadProjects();
+};
 
+$("apiBase").value=API_BASE;
+checkHealth();
+loadMe();
 });
 </script>
 
