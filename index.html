@@ -1,754 +1,212 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob</title>
+
 <style>
-  :root{
-    --bg:#0b0f1a; --panel:#0b1220; --panel2:#111827; --border:#1f2937;
-    --text:#e5e7eb; --muted:rgba(229,231,235,.75);
-    --brand:#38bdf8; --danger:#fb7185; --ok:#34d399; --gold:gold;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-  .top{
-    position:sticky;top:0;z-index:50;
-    padding:12px;background:#020617;border-bottom:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between;gap:12px
-  }
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
-  .dot.ok{background:var(--ok)}
-  .dot.bad{background:var(--danger)}
-  .pill{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:7px 10px;border-radius:999px;
-    background:var(--panel2);border:1px solid var(--border)
-  }
-  .wrap{max-width:940px;margin:auto;padding:12px}
-  .card{border:1px solid var(--border);background:var(--panel);border-radius:16px}
-  #messages{height:calc(100vh - 220px);overflow-y:auto;padding:14px}
-  .msg{margin:10px 0;display:flex;gap:10px}
-  .bubble{
-    max-width:78%;
-    padding:10px 12px;border-radius:14px;
-    white-space:pre-wrap;word-break:break-word;
-    border:1px solid var(--border);
-    background:var(--panel2)
-  }
-  .msg.user{justify-content:flex-end}
-  .msg.user .bubble{background:#38bdf822}
-  .media{margin-top:10px}
-  .media img{max-width:100%;border-radius:14px;border:1px solid var(--border)}
-  .toolbar{padding:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-  textarea{
-    width:100%;min-height:54px;max-height:220px;resize:vertical;
-    padding:12px;border-radius:14px;border:1px solid var(--border);
-    background:#0a1020;color:var(--text)
-  }
-  input,button,select{
-    padding:10px 12px;border-radius:12px;border:1px solid var(--border);
-    background:#0a1020;color:var(--text)
-  }
-  button{cursor:pointer;background:var(--brand);border:0;color:#001018;font-weight:bold}
-  button.ghost{background:transparent;border:1px solid var(--brand);color:var(--text)}
-  button.danger{background:var(--danger);color:#111827}
-  button.gold{background:var(--gold);color:#111827}
-  .small{font-size:12px;color:var(--muted);white-space:pre-wrap}
-  .actions{display:flex;gap:8px;flex-wrap:wrap}
-  .chipbar{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{
-    padding:8px 10px;border-radius:999px;border:1px solid var(--border);
-    background:var(--panel2);cursor:pointer;user-select:none
-  }
-  .chip.active{outline:2px solid var(--brand)}
-  .drawerMask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:80}
-  .drawer{
-    position:fixed;top:0;right:0;height:100%;width:min(430px,92vw);
-    background:#020617;border-left:1px solid var(--border);
-    padding:14px;display:none;z-index:90;overflow:auto
-  }
-  .sep{height:1px;background:var(--border);margin:12px 0}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .inlineBox{
-    border:1px solid var(--border);background:#0a1020;border-radius:14px;
-    padding:10px;display:none
-  }
-  .fileRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .fileRow input[type="file"]{flex:1;background:transparent;border:1px dashed var(--border)}
+body{
+  margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb
+}
+.top{
+  position:sticky;top:0;z-index:10;
+  padding:12px;background:#020617;
+  display:flex;justify-content:space-between;align-items:center
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
+.dot.ok{background:#34d399}
+.dot.bad{background:#fb7185}
+.pill{
+  padding:6px 10px;border-radius:999px;
+  background:#111827;border:1px solid #1f2937;
+  font-size:12px
+}
+.wrap{max-width:900px;margin:auto;padding:12px}
+#messages{height:60vh;overflow:auto;padding:10px}
+.msg{margin:10px 0}
+.bubble{
+  background:#111827;border:1px solid #1f2937;
+  border-radius:14px;padding:10px;white-space:pre-wrap
+}
+.msg.user .bubble{background:#38bdf822}
+textarea{
+  width:100%;min-height:60px;
+  background:#020617;color:#e5e7eb;
+  border:1px solid #1f2937;border-radius:12px;padding:10px
+}
+button{
+  background:#38bdf8;border:0;
+  padding:10px 14px;border-radius:12px;
+  font-weight:bold;cursor:pointer
+}
+button.ghost{
+  background:transparent;border:1px solid #38bdf8;color:#e5e7eb
+}
+.media img{max-width:100%;border-radius:14px;margin-top:8px}
 </style>
 </head>
 
 <body>
-  <div class="top">
-    <div class="row">
-      <div style="font-weight:bold">🤖 ChatAI Bob</div>
-      <span class="pill"><span class="dot" id="statusDot"></span><span id="statusText">Backend: controllo…</span></span>
-      <span class="pill"><b id="planBadge">FREE</b><span class="small" id="planText">AUTO-MODE</span></span>
-    </div>
-    <div class="row">
-      <button class="gold" id="openPremium">💎 Premium</button>
-    </div>
+
+<div class="top">
+  <div>🤖 ChatAI Bob</div>
+  <div class="pill">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Backend: controllo…</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="messages"></div>
+
+  <textarea id="input"
+    placeholder="Scrivi normalmente: la chat capisce testo, foto o video/GIF."></textarea>
+
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button id="sendBtn">Invia</button>
+    <button class="ghost" id="saveApi">Salva backend URL</button>
   </div>
 
-  <div class="wrap">
-    <div class="card">
-      <div id="messages"></div>
-
-      <div class="toolbar">
-        <div class="row" style="justify-content:space-between">
-          <div class="row">
-            <span class="pill"><span class="small">Client:</span><span id="clientIdLabel"></span></span>
-            <span class="pill"><span class="small">Backend:</span><span id="netHint">—</span></span>
-          </div>
-          <div class="row">
-            <button class="ghost" id="backendBtn" style="width:auto">⚙️ Backend</button>
-            <button class="danger" id="clearChatBtn" style="width:auto">🧹 Pulisci</button>
-          </div>
-        </div>
-
-        <!-- MAX STYLE BOOST -->
-        <div class="chipbar" id="styleChips"></div>
-        <div class="chipbar" id="motionChips"></div>
-        <div class="small" id="boostHint"></div>
-
-        <textarea id="input" placeholder="Scrivi normalmente: la chat capisce se vuoi testo, foto o video/GIF."></textarea>
-
-        <div class="actions">
-          <button id="sendBtn" style="width:auto">Invia</button>
-          <button class="ghost" id="pdfBtn" style="width:auto">📄 PDF</button>
-        </div>
-
-        <!-- Inline PDF only (needs file) -->
-        <div class="inlineBox" id="pdfBox">
-          <div class="row" style="justify-content:space-between">
-            <b>📄 Analizza PDF</b>
-            <button class="ghost" id="closePdf" style="width:auto">Chiudi</button>
-          </div>
-          <input id="pdfPrompt" placeholder="Cosa vuoi fare? (es: riassumi + punti chiave + date)" />
-          <div class="fileRow">
-            <input id="pdfFile" type="file" accept="application/pdf" />
-            <button id="doPdf" style="width:auto">Analizza</button>
-          </div>
-        </div>
-
-        <div class="small">
-          AUTO-MODE: scrivi “fammi una foto di…”, “crea un video/cartone di…”, “genera una GIF…”.
-          (Il testo normale resta chat.)
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Premium Drawer -->
-  <div class="drawerMask" id="mask"></div>
-  <div class="drawer" id="drawer">
-    <div class="row" style="justify-content:space-between">
-      <h3 style="margin:0">💎 Premium</h3>
-      <button class="ghost" id="closePremium" style="width:auto">✖</button>
-    </div>
-
-    <div class="sep"></div>
-
-    <div class="card" style="padding:12px">
-      <div class="small">Backend URL</div>
-      <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com" />
-      <button id="saveApi" style="width:100%">Salva e testa</button>
-      <div class="small" id="backendDebug" style="margin-top:6px"></div>
-    </div>
-
-    <div class="sep"></div>
-
-    <div class="card" style="padding:12px">
-      <div class="row" style="justify-content:space-between">
-        <div>
-          <div style="font-weight:bold">Accesso Premium</div>
-          <div class="small">Login solo se hai Premium</div>
-        </div>
-        <button id="logoutBtn" class="danger" style="width:auto;display:none">Esci</button>
-      </div>
-
-      <div class="two" style="margin-top:10px">
-        <input id="email" placeholder="Email" />
-        <input id="password" type="password" placeholder="Password" />
-      </div>
-
-      <div class="two" style="margin-top:10px">
-        <button id="signupBtn">Registrati</button>
-        <button id="loginBtn">Login</button>
-      </div>
-
-      <div class="small" id="authStatus" style="margin-top:10px"></div>
-
-      <div id="usageBox" class="card" style="padding:12px;margin-top:12px;display:none;background:#0b1220">
-        <div style="font-weight:bold">📊 Utilizzo</div>
-        <pre id="usageText" style="margin:8px 0 0 0;white-space:pre-wrap"></pre>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="card" style="padding:12px;background:#0b1220">
-        <div style="font-weight:bold;margin-bottom:6px">Pagamento</div>
-        <a href="https://www.paypal.me/bobbob1979" target="_blank"
-           style="display:block;background:gold;color:black;padding:10px;text-align:center;border-radius:12px;font-weight:bold;text-decoration:none">
-          💰 Attiva Premium
-        </a>
-        <div class="small" style="margin-top:8px">
-          Dopo pagamento: fai login (poi possiamo automatizzare con webhook).
-        </div>
-      </div>
-    </div>
-  </div>
+  <input id="apiBase"
+    style="margin-top:10px"
+    placeholder="https://chatai-bob-backend.onrender.com">
+</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  let API_BASE = localStorage.getItem("API_BASE") || "https://chatai-bob-backend.onrender.com";
-  let TOKEN = localStorage.getItem("TOKEN") || "";
+const API_DEFAULT = "https://chatai-bob-backend.onrender.com";
+let API_BASE = localStorage.getItem("API_BASE") || API_DEFAULT;
 
-  const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  const STYLE_PRESETS = [
-    { key:"cartoon3d", label:"3D Cartoon", prompt:"3D cartoon, pixar-like, high quality, soft global illumination, detailed, clean lines, vibrant, cinematic lighting" },
-    { key:"anime", label:"Anime", prompt:"anime style, high quality, sharp, detailed, cinematic composition, dynamic lighting" },
-    { key:"realistic", label:"Realistico", prompt:"photorealistic, ultra-detailed, 35mm, cinematic lighting, sharp focus" },
-    { key:"comic", label:"Comic", prompt:"comic book style, bold outlines, halftone shading, vibrant colors, high quality" },
-  ];
+function addMessage(role,text){
+  const d=document.createElement("div");
+  d.className="msg "+role;
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.textContent=text;
+  d.appendChild(b);
+  $("messages").appendChild(d);
+  $("messages").scrollTop=$("messages").scrollHeight;
+  return b;
+}
 
-  // “parla” = posa/gesti + espressione. Non lipsync.
-  const MOTION_PRESETS = [
-    { key:"talk", label:"Parla", prompt:"speaking pose, mouth slightly open, expressive face, hand gestures, lively" },
-    { key:"walk", label:"Cammina", prompt:"walking cycle, body movement, natural motion, slight camera follow" },
-    { key:"dance", label:"Danza", prompt:"dancing, rhythmic motion, energetic pose changes, dynamic" },
-    { key:"cinematic", label:"Cinematic", prompt:"cinematic camera, dolly in, slight parallax, depth of field, film look" },
-  ];
+function addMedia(title,url){
+  const d=document.createElement("div");
+  d.className="msg ai";
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.innerHTML="<b>"+title+"</b><div class='media'><img src='"+url+"'></div>";
+  d.appendChild(b);
+  $("messages").appendChild(d);
+  $("messages").scrollTop=$("messages").scrollHeight;
+}
 
-  let activeStyle = STYLE_PRESETS[0].key;
-  let activeMotion = MOTION_PRESETS[0].key;
+function setStatus(ok){
+  $("statusDot").className="dot "+(ok?"ok":"bad");
+  $("statusText").textContent=ok?"Backend: online":"Backend: offline";
+}
 
-  function getClientId(){
-    let id = localStorage.getItem("client_id");
-    if(!id){
-      id = "client_" + crypto.randomUUID();
-      localStorage.setItem("client_id", id);
-    }
-    return id;
+async function checkHealth(){
+  try{
+    const r=await fetch(API_BASE+"/health");
+    const d=await r.json();
+    setStatus(d.status==="ok");
+  }catch{
+    setStatus(false);
   }
+}
 
-  function authHeaders(){
-    return TOKEN ? { Authorization: "Bearer " + TOKEN } : {};
-  }
+function stripCreateWords(t){
+  return t.replace(/^(fammi|fai|crea|genera)\s+/i,"").trim();
+}
 
-  function setStatus(ok, text){
-    $("statusDot").className = "dot " + (ok ? "ok" : "bad");
-    $("statusText").textContent = text;
-  }
-
-  async function fetchWithTimeout(url, opts={}, timeoutMs=120000){
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), timeoutMs);
-    try{ return await fetch(url, { ...opts, signal: ctrl.signal }); }
-    finally{ clearTimeout(t); }
-  }
-
-  async function safeJson(url, opts={}, timeoutMs=25000){
-    try{
-      const r = await fetchWithTimeout(url, opts, timeoutMs);
-      const ct = (r.headers.get("content-type") || "").toLowerCase();
-      if(ct.includes("application/json")) return await r.json();
-      return { ok:r.ok, text: await r.text() };
-    }catch(e){
-      return { ok:false, error: e?.name === "AbortError" ? "Timeout" : "Connessione fallita" };
-    }
-  }
-
-  async function checkHealth(){
-    const d = await safeJson(API_BASE + "/health", { method:"GET" }, 12000);
-    if(d && d.status === "ok"){
-      setStatus(true, "Backend: online");
-      $("netHint").textContent = "OK /health";
-      $("backendDebug").textContent = "OK: /health";
-      return true;
-    }
-    setStatus(false, "Backend: offline");
-    $("netHint").textContent = d?.error || d?.text || "offline";
-    $("backendDebug").textContent = "OFFLINE: " + (d?.error || d?.text || "offline");
-    return false;
-  }
-
-  function addMessage(role, text){
-    const wrap = document.createElement("div");
-    wrap.className = "msg " + role;
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.textContent = text || "";
-
-    wrap.appendChild(bubble);
-    $("messages").appendChild(wrap);
-    $("messages").scrollTop = $("messages").scrollHeight;
-
-    return { wrap, bubble };
-  }
-
-  function addMediaMessage(title, dataUrl){
-    const wrap = document.createElement("div");
-    wrap.className = "msg ai";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-
-    const header = document.createElement("div");
-    header.textContent = title;
-    header.style.fontWeight = "bold";
-
-    const media = document.createElement("div");
-    media.className = "media";
-
-    const img = document.createElement("img");
-    img.src = dataUrl;
-    img.alt = title;
-
-    media.appendChild(img);
-    bubble.appendChild(header);
-    bubble.appendChild(media);
-
-    wrap.appendChild(bubble);
-    $("messages").appendChild(wrap);
-    $("messages").scrollTop = $("messages").scrollHeight;
-  }
-
-  function normalizeReply(d){
-    return d?.text || d?.detail || d?.error || d?.message || "Errore";
-  }
-
-  function systemHello(){
-    addMessage("ai",
-      "Ciao 👋 Sono ChatAI Bob.\n" +
-      "AUTO-MODE attivo: se chiedi una foto o un video/GIF li creo automaticamente.\n" +
-      "Esempi: “fammi una foto di un cane 3D cartoon”, “crea un video cartoon di un cane che parla”."
-    );
-  }
-
-  function clearChat(){
-    $("messages").innerHTML = "";
-    systemHello();
-  }
-
-  function closeAllInline(){
-    $("pdfBox").style.display="none";
-  }
-
-  // -------- PROMPT BOOST ENGINE --------
-  function getStylePrompt(){
-    return STYLE_PRESETS.find(s => s.key === activeStyle)?.prompt || "";
-  }
-  function getMotionPrompt(){
-    return MOTION_PRESETS.find(m => m.key === activeMotion)?.prompt || "";
-  }
-
-  function buildEnhancedPrompt(userPrompt, mode){
-    const base = (userPrompt || "").trim();
-    const style = getStylePrompt();
-    const motion = getMotionPrompt();
-    const quality = "high quality, detailed, clean composition, no text, no watermark, no logo";
-    const videoExtra = "smooth motion, coherent character, consistent outfit, consistent face, consistent colors";
-    const imageExtra = "sharp, well framed, pleasing lighting";
-
-    if(mode === "video"){
-      return `${style}, ${motion}, ${videoExtra}, ${quality}, ${base}`;
-    }
-    return `${style}, ${imageExtra}, ${quality}, ${base}`;
-  }
-
-  // -------- AUTO INTENT DETECTOR --------
+// -------- AUTO INTENT --------
 function classifyIntent(text){
-  const t = (text || "").toLowerCase().trim();
+  const t=text.toLowerCase();
 
-  if(t.startsWith("/foto "))  return { kind:"image", prompt:text.slice(6).trim() };
-  if(t.startsWith("/video ")) return { kind:"video", prompt:text.slice(7).trim() };
+  if(t.includes("video")||t.includes("gif")||t.includes("parla"))
+    return {kind:"video",prompt:stripCreateWords(text)};
 
-  const videoKW = [
-    "video","gif","animazione","animato","cartone","cartoon",
-    "muove","movimento","scene","filmato","clip","short","parla","parlante"
-  ];
+  if(t.includes("foto")||t.includes("immagine"))
+    return {kind:"image",prompt:stripCreateWords(text)};
 
-  const imageKW = [
-    "foto","immagine","image","picture","disegno",
-    "ritratto","poster","sfondo","wallpaper","sticker"
-  ];
+  if(t.split(" ").length<=6&&!t.endsWith("?"))
+    return {kind:"image",prompt:text};
 
-  const wantsCreate = /(crea|genera|fammi|fai|produci|creami|realizza)/.test(t);
-
-  if(wantsCreate && videoKW.some(k => t.includes(k)))
-    return { kind:"video", prompt: stripCreateWords(text) };
-
-  if(wantsCreate && imageKW.some(k => t.includes(k)))
-    return { kind:"image", prompt: stripCreateWords(text) };
-
-  if(videoKW.some(k => t.includes(k)))
-    return { kind:"video", prompt: stripCreateWords(text) };
-
-  if(t.split(" ").length <= 6 && !t.endsWith("?"))
-    return { kind:"image", prompt: stripCreateWords(text) };
-
-  return { kind:"chat", prompt:text };
+  return {kind:"chat",prompt:text};
 }
-  // comandi espliciti
-  if(t.startsWith("/foto "))  return { kind:"image", prompt:text.slice(6).trim() };
-  if(t.startsWith("/video ")) return { kind:"video", prompt:text.slice(7).trim() };
 
-  const videoKW = [
-    "video","gif","animazione","animato","cartone","cartoon",
-    "muove","movimento","scene","filmato","clip","short"
-  ];
-// -------- DECISION BADGE --------
 function addDecisionBadge(kind){
-  const label =
-    kind === "image" ? "🖼️ Riconosciuto: FOTO" :
-    kind === "video" ? "🎞️ Riconosciuto: VIDEO/GIF" :
-    "💬 Riconosciuto: TESTO";
-
-  addMessage("ai", label);
-}// -------- DECISION BADGE --------
-function addDecisionBadge(kind){
-  const label =
-    kind === "image" ? "🖼️ Riconosciuto: FOTO" :
-    kind === "video" ? "🎞️ Riconosciuto: VIDEO/GIF" :
-    "💬 Riconosciuto: TESTO";
-
-  addMessage("ai", label);
-}
-  const imageKW = [
-    "foto","immagine","image","picture","disegno",
-    "ritratto","poster","sfondo","wallpaper","sticker"
-  ];
-
-  const motionKW = [
-    "parla","parlante","gesticola","cammina","danza","balla",
-    "movimento","muoversi","espressioni","recita"
-  ];
-
-  const wantsCreate = /(crea|genera|fammi|fai|produci|creami|realizza)/.test(t);
-
-  // priorità massima: movimento/parlare → VIDEO
-  if(wantsCreate && motionKW.some(k => t.includes(k)))
-    return { kind:"video", prompt: stripCreateWords(text) };
-
-  if(wantsCreate && videoKW.some(k => t.includes(k)))
-    return { kind:"video", prompt: stripCreateWords(text) };
-
-  if(wantsCreate && imageKW.some(k => t.includes(k)))
-    return { kind:"image", prompt: stripCreateWords(text) };
-
-  // AUTO-FORTE:
-  // frase corta e descrittiva → FOTO
-  if(t.split(" ").length <= 6 && !t.endsWith("?"))
-    return { kind:"image", prompt: stripCreateWords(text) };
-
-  // fallback keyword
-  if(videoKW.some(k => t.includes(k)))
-    return { kind:"video", prompt: stripCreateWords(text) };
-
-  if(imageKW.some(k => t.includes(k)))
-    return { kind:"image", prompt: stripCreateWords(text) };
-
-  return { kind:"chat", prompt:text };
-}
-    // explicit slash commands
-    if(t.startsWith("/foto ")) return { kind:"image", prompt: text.slice(6).trim() };
-    if(t.startsWith("/video ")) return { kind:"video", prompt: text.slice(7).trim() };
-
-    // keywords for video
-    const videoKW = [
-      "video","gif","animazione","animato","cartone","cartoon","muove","movimento",
-      "scene","3 scene","filmato","clip","short"
-    ];
-    const imageKW = [
-      "foto","immagine","picture","image","disegno","ritratto","poster","sfondo","wallpaper","sticker"
-    ];
-
-    const hasVideo = videoKW.some(k => t.includes(k));
-    const hasImage = imageKW.some(k => t.includes(k));
-
-    // if user explicitly asks "crea/genera/fammi"
-    const wantsCreate = /(crea|genera|fammi|fai|produci|creami|realizza)/.test(t);
-
-    if(wantsCreate && hasVideo) return { kind:"video", prompt: stripCreateWords(text) };
-    if(wantsCreate && hasImage) return { kind:"image", prompt: stripCreateWords(text) };
-
-    // if message mentions both, prefer video
-    if(hasVideo) return { kind:"video", prompt: stripCreateWords(text) };
-    if(hasImage) return { kind:"image", prompt: stripCreateWords(text) };
-
-    return { kind:"chat", prompt: text };
-  }
-
-  function stripCreateWords(text){
-    // remove common leading patterns to keep prompt clean
-    return (text || "")
-      .replace(/^(per favore|pls|please)\s+/i, "")
-      .replace(/^(fammi|fai|crea|genera|produci|creami|realizza)\s+/i, "")
-      .replace(/^(una|un|il|lo|la)\s+/i, "")
-      .trim();
-  }
-
-  // -------- API CALLS --------
-  async function sendTextChat(userText){
-    const text = (userText || "").trim();
-    if(!text) return;
-
-    addMessage("user", text);
-    $("input").value = "";
-
-    const ai = addMessage("ai", "…");
-
-    const body = {
-      message: text,
-      client_id: getClientId(),
-      project_id: null,
-      mic_used: false
-    };
-
-    const d = await safeJson(API_BASE + "/chat", {
-      method:"POST",
-      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
-      body: JSON.stringify(body)
-    }, 45000);
-
-    ai.bubble.textContent = normalizeReply(d);
-  }
-
-  async function genImage(prompt){
-    const p = (prompt || "").trim();
-    if(!p){ addMessage("ai", "⚠️ Scrivi cosa vuoi nella foto."); return; }
-
-    addMessage("user", `🖼️ Foto: ${p}`);
-    const ai = addMessage("ai", "Genero foto…");
-
-    const enhanced = buildEnhancedPrompt(p, "image");
-
-    const d = await safeJson(API_BASE + "/image", {
-      method:"POST",
-      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
-      body: JSON.stringify({ prompt: enhanced, client_id: getClientId() })
-    }, 70000);
-
-    if(d?.url){
-      ai.wrap.remove();
-      addMediaMessage("🖼️ Foto generata", d.url);
-    }else{
-      ai.bubble.textContent = "❌ " + (d?.error || d?.detail || d?.text || "Errore");
-    }
-  }
-
-  async function genVideo(prompt){
-    const p = (prompt || "").trim();
-    if(!p){ addMessage("ai", "⚠️ Scrivi cosa vuoi nel video/GIF."); return; }
-
-    addMessage("user", `🎞️ Video/GIF: ${p}`);
-    const ai = addMessage("ai", "Genero GIF… (può impiegare 30–120s)");
-
-    const enhanced = buildEnhancedPrompt(p, "video");
-
-    const d = await safeJson(API_BASE + "/video", {
-      method:"POST",
-      headers: { "Content-Type":"application/json", ...(TOKEN ? authHeaders() : {}) },
-      body: JSON.stringify({ prompt: enhanced, client_id: getClientId() })
-    }, 140000);
-
-    if(d?.url){
-      ai.wrap.remove();
-      addMediaMessage("🎞️ GIF generata", d.url);
-    }else{
-      ai.bubble.textContent = "❌ " + (d?.error || d?.detail || d?.text || "Errore");
-    }
-  }
-
-  async function analyzePdf(file, prompt){
-    if(!file){ addMessage("ai", "⚠️ Seleziona un PDF."); return; }
-    const p = (prompt || "").trim();
-    if(!p){ addMessage("ai", "⚠️ Scrivi cosa vuoi fare sul PDF."); return; }
-
-    addMessage("user", `📄 PDF: ${file.name}\nRichiesta: ${p}`);
-    const ai = addMessage("ai", "Analizzo PDF…");
-
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("prompt", p);
-    fd.append("project_id", "");
-    fd.append("client_id", getClientId());
-
-    try{
-      const r = await fetchWithTimeout(API_BASE + "/analyze", {
-        method:"POST",
-        headers: { ...(TOKEN ? authHeaders() : {}) },
-        body: fd
-      }, 140000);
-
-      const ct = (r.headers.get("content-type") || "").toLowerCase();
-      const d = ct.includes("application/json") ? await r.json() : { text: await r.text() };
-      ai.bubble.textContent = normalizeReply(d);
-    }catch(e){
-      ai.bubble.textContent = "❌ " + (e?.name === "AbortError" ? "Timeout" : "Errore connessione");
-    }
-  }
-
-  // -------- AUTO SEND --------
-async function autoSend(text){
-  const decision = classifyIntent(text);
-
-  addDecisionBadge(decision.kind);
-
-  if(decision.kind === "image")
-    return await genImage(decision.prompt || text);
-
-  if(decision.kind === "video")
-    return await genVideo(decision.prompt || text);
-
-  return await sendTextChat(text);
+  const label=kind==="image"?"🖼️ Riconosciuto: FOTO":
+               kind==="video"?"🎞️ Riconosciuto: VIDEO/GIF":
+               "💬 Riconosciuto: TESTO";
+  addMessage("ai",label);
 }
 
-  // -------- Premium Drawer --------
-  function openDrawer(){ $("mask").style.display="block"; $("drawer").style.display="block"; }
-  function closeDrawer(){ $("mask").style.display="none"; $("drawer").style.display="none"; }
-
-  $("openPremium").onclick = openDrawer;
-  $("closePremium").onclick = closeDrawer;
-  $("mask").onclick = closeDrawer;
-
-  $("backendBtn").onclick = openDrawer;
-
-  $("saveApi").onclick = async () => {
-    API_BASE = $("apiBase").value.trim().replace(/\/+$/, "");
-    localStorage.setItem("API_BASE", API_BASE);
-    await checkHealth();
-  };
-
-  async function loadMe(){
-    if(!TOKEN) return;
-    const d = await safeJson(API_BASE + "/me", { headers: { ...authHeaders() } }, 25000);
-    if(d?.ok){
-      $("usageBox").style.display = "block";
-      $("usageText").textContent = JSON.stringify(d, null, 2);
-      $("logoutBtn").style.display = "inline-block";
-      $("planBadge").textContent = "PREMIUM";
-      $("planText").textContent = "AUTO-MODE";
-      $("authStatus").textContent = "✅ Premium attivo";
-    }else{
-      $("usageBox").style.display = "none";
-    }
-  }
-
-  $("signupBtn").onclick = async () => {
-    const email = $("email").value.trim();
-    const password = $("password").value;
-    const d = await safeJson(API_BASE + "/auth/signup", {
-      method:"POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ email, password })
-    }, 25000);
-    $("authStatus").textContent = d?.ok ? "✅ Registrato. Ora fai login." : ("❌ " + (d?.error || d?.detail || "Errore"));
-  };
-
-  $("loginBtn").onclick = async () => {
-    const email = $("email").value.trim();
-    const password = $("password").value;
-    const d = await safeJson(API_BASE + "/auth/login", {
-      method:"POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ email, password })
-    }, 25000);
-
-    if(d?.ok && d?.token){
-      TOKEN = d.token;
-      localStorage.setItem("TOKEN", TOKEN);
-      $("authStatus").textContent = "✅ Login ok";
-      $("logoutBtn").style.display = "inline-block";
-      await loadMe();
-    }else{
-      $("authStatus").textContent = "❌ " + (d?.error || d?.detail || "Errore login");
-    }
-  };
-
-  $("logoutBtn").onclick = async () => {
-    TOKEN = "";
-    localStorage.removeItem("TOKEN");
-    $("authStatus").textContent = "Sei uscito.";
-    $("usageBox").style.display = "none";
-    $("logoutBtn").style.display = "none";
-    $("planBadge").textContent = "FREE";
-    $("planText").textContent = "AUTO-MODE";
-  };
-
-  // -------- Chips UI --------
-  function renderChips(){
-    $("styleChips").innerHTML = "";
-    STYLE_PRESETS.forEach(s => {
-      const c = document.createElement("div");
-      c.className = "chip" + (s.key === activeStyle ? " active" : "");
-      c.textContent = s.label;
-      c.onclick = () => { activeStyle = s.key; renderChips(); renderHint(); };
-      $("styleChips").appendChild(c);
-    });
-
-    $("motionChips").innerHTML = "";
-    MOTION_PRESETS.forEach(m => {
-      const c = document.createElement("div");
-      c.className = "chip" + (m.key === activeMotion ? " active" : "");
-      c.textContent = m.label;
-      c.onclick = () => { activeMotion = m.key; renderChips(); renderHint(); };
-      $("motionChips").appendChild(c);
-    });
-  }
-
-  function renderHint(){
-    const s = STYLE_PRESETS.find(x => x.key === activeStyle)?.label || "—";
-    const m = MOTION_PRESETS.find(x => x.key === activeMotion)?.label || "—";
-    $("boostHint").textContent = `MAX BOOST: Stile = ${s} • Movimento = ${m} • AUTO-MODE decide testo/foto/video.`;
-  }
-
-  // -------- Controls --------
-  $("sendBtn").onclick = () => autoSend($("input").value);
-  $("input").addEventListener("keydown", (e) => {
-    if(e.key === "Enter" && !e.shiftKey){
-      e.preventDefault();
-      autoSend($("input").value);
-    }
+async function sendChat(text){
+  addMessage("user",text);
+  const ai=addMessage("ai","…");
+  const r=await fetch(API_BASE+"/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:text,client_id:"web"})
   });
+  const d=await r.json();
+  ai.textContent=d.text||"Errore";
+}
 
-  $("clearChatBtn").onclick = () => { closeAllInline(); clearChat(); };
+async function genImage(p){
+  addMessage("user","🖼️ "+p);
+  const ai=addMessage("ai","Genero foto…");
+  const r=await fetch(API_BASE+"/image",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({prompt:p})
+  });
+  const d=await r.json();
+  ai.remove();
+  if(d.url) addMedia("Foto generata",d.url);
+}
 
-  $("pdfBtn").onclick = () => {
-    closeAllInline();
-    $("pdfBox").style.display = "block";
-    $("pdfPrompt").focus();
-  };
-  $("closePdf").onclick = () => $("pdfBox").style.display = "none";
-  $("doPdf").onclick = async () => {
-    const p = $("pdfPrompt").value.trim();
-    const f = $("pdfFile").files && $("pdfFile").files[0];
-    if(!f || !p) return;
-    $("pdfPrompt").value="";
-    $("pdfFile").value="";
-    $("pdfBox").style.display = "none";
-    await analyzePdf(f, p);
-  };
+async function genVideo(p){
+  addMessage("user","🎞️ "+p);
+  const ai=addMessage("ai","Genero GIF…");
+  const r=await fetch(API_BASE+"/video",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({prompt:p})
+  });
+  const d=await r.json();
+  ai.remove();
+  if(d.url) addMedia("GIF generata",d.url);
+}
 
-  // Boot
-  $("clientIdLabel").textContent = getClientId();
-  $("apiBase").value = API_BASE;
+async function autoSend(text){
+  const d=classifyIntent(text);
+  addDecisionBadge(d.kind);
+  if(d.kind==="image") return genImage(d.prompt);
+  if(d.kind==="video") return genVideo(d.prompt);
+  return sendChat(text);
+}
 
-  renderChips();
-  renderHint();
-  clearChat();
+$("sendBtn").onclick=()=>{
+  const t=$("input").value.trim();
+  if(!t) return;
+  $("input").value="";
+  autoSend(t);
+};
+
+$("saveApi").onclick=()=>{
+  API_BASE=$("apiBase").value.trim().replace(/\/+$/,"");
+  localStorage.setItem("API_BASE",API_BASE);
   checkHealth();
+};
 
-  if(TOKEN){
-    $("logoutBtn").style.display = "inline-block";
-    loadMe();
-  }
-});
+$("apiBase").value=API_BASE;
+addMessage("ai","Ciao 👋 Scrivi liberamente: testo, foto o video.");
+checkHealth();
 </script>
+
 </body>
 </html>
