@@ -1,247 +1,537 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob FREE</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
-.top{padding:12px;background:#020617;display:flex;justify-content:space-between}
-.dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
-.dot.ok{background:#34d399}
-.dot.bad{background:#fb7185}
-.chat{padding:12px;max-width:720px;margin:auto}
-.msg{margin:8px 0;padding:10px;border-radius:10px;white-space:pre-wrap}
-.user{background:#38bdf822}
-.ai{background:#111827}
-textarea,input,button,select{width:100%;margin:6px 0;padding:10px}
-button{background:#38bdf8;border:0;font-weight:bold;border-radius:8px}
-textarea{min-height:70px}
+  body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
+  .top{padding:12px;background:#020617;display:flex;justify-content:space-between;gap:12px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#999;display:inline-block}
+  .dot.ok{background:#34d399}
+  .dot.bad{background:#fb7185}
+  .chat{padding:12px;max-width:820px;margin:auto}
+  .msg{margin:8px 0;padding:10px;border-radius:10px;white-space:pre-wrap;word-break:break-word}
+  .user{background:#38bdf822}
+  .ai{background:#111827}
+  textarea,input,button,select{width:100%;margin:6px 0;padding:10px;box-sizing:border-box}
+  button{background:#38bdf8;border:0;font-weight:bold;border-radius:10px;cursor:pointer}
+  textarea{min-height:70px;resize:vertical}
+  #messages{max-height:52vh;overflow-y:auto;padding-right:4px}
 
-.premium-box{
-  border:2px solid gold;
-  padding:14px;
-  border-radius:12px;
-  margin:12px 0;
-  background:#111827;
-}
-.premium-btn{
-  display:block;
-  background:gold;
-  color:black;
-  padding:10px;
-  text-align:center;
-  border-radius:10px;
-  font-weight:bold;
-  text-decoration:none;
-}
-.small{font-size:12px;opacity:.8}
-
-#messages{max-height:50vh;overflow-y:auto}
+  .box{border:1px solid #1f2937;padding:14px;border-radius:14px;margin:12px 0;background:#0b1220}
+  .premium-box{border:2px solid gold;background:#111827}
+  .premium-btn{display:block;background:gold;color:black;padding:10px;text-align:center;border-radius:10px;font-weight:bold;text-decoration:none}
+  .small{font-size:12px;opacity:.85}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937}
+  .ghost{background:transparent;border:1px solid #38bdf8;color:#e5e7eb}
+  .danger{background:#fb7185;color:#111827}
+  .project-btn{margin:6px 0;text-align:left}
+  .project-btn.active{outline:2px solid #38bdf8}
 </style>
 </head>
 
 <body>
-
-<div class="top">
-  <div>🤖 ChatAI Bob FREE</div>
-  <div>
-    <span class="dot" id="statusDot"></span>
-    <span id="statusText">Backend: controllo…</span>
+  <div class="top">
+    <div>🤖 ChatAI Bob FREE</div>
+    <div class="row">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Backend: controllo…</span>
+    </div>
   </div>
-</div>
 
-<div class="chat">
+  <div class="chat">
 
-<div id="authBox" class="premium-box">
-  <h3>🔐 Accesso</h3>
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="signupBtn">Registrati</button>
-  <button id="loginBtn">Login</button>
-  <p class="small" id="authStatus"></p>
-</div>
+    <div class="box">
+      <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com" />
+      <button id="saveApi">Salva backend URL</button>
+      <p class="small" id="netHint"></p>
+    </div>
 
-<input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
-<button id="saveApi">Salva backend URL</button>
+    <div class="box">
+      <div class="row" style="justify-content:space-between">
+        <div class="pill"><b>Progetto:</b> <span id="activeProjectLabel">Nessuno</span></div>
+        <button id="clearProjectChat" class="danger" style="width:auto">🧹 Cancella chat progetto</button>
+      </div>
 
-<input id="projectName" placeholder="Nome progetto">
-<select id="projectType">
-  <option value="BOOK">📘 Libro</option>
-  <option value="COACH">🧠 Coaching</option>
-  <option value="CODER">💻 Codice</option>
-  <option value="GENERAL">✨ Generale</option>
-</select>
-<button id="createProject">Crea progetto</button>
+      <input id="projectName" placeholder="Nome progetto (FREE: locale)" />
+      <select id="projectType">
+        <option value="BOOK">📘 Libro</option>
+        <option value="COACH">🧠 Coaching</option>
+        <option value="CODER">💻 Codice</option>
+        <option value="GENERAL">✨ Generale</option>
+      </select>
+      <button id="createProject">Crea progetto</button>
 
-<div class="premium-box">
-  <h3>💎 Passa a Premium</h3>
-  <p>Chat senza limiti, voce, video, immagini, PDF</p>
-  <a href="https://www.paypal.me/bobbob1979" target="_blank" class="premium-btn">
-    💰 Attiva Premium
-  </a>
-</div>
+      <div id="projectList"></div>
+      <p class="small">FREE: progetti e memoria in locale. Premium: prova anche sul backend (se disponibile).</p>
+    </div>
 
-<div id="usageBox" class="premium-box" style="display:none">
-  <h3>📊 Utilizzo</h3>
-  <pre id="usageText"></pre>
-</div>
+    <div class="premium-box box">
+      <h3 style="margin:0 0 6px 0">💎 Passa a Premium</h3>
+      <p style="margin:0 0 10px 0">Chat senza limiti, memoria server, voce, video, immagini, PDF</p>
 
-<div id="projectList"></div>
+      <div class="row">
+        <a href="https://www.paypal.me/bobbob1979" target="_blank" class="premium-btn" style="flex:1">
+          💰 Attiva Premium
+        </a>
+        <button id="toggleAuth" class="ghost" style="width:auto">🔐 Login Premium</button>
+        <button id="logoutBtn" class="danger" style="width:auto;display:none">Esci</button>
+      </div>
 
-<div id="messages"></div>
-<textarea id="input" placeholder="Scrivi..."></textarea>
-<button id="sendBtn">Invia</button>
+      <div id="authBox" class="box" style="display:none;margin-top:12px">
+        <h4 style="margin:0 0 8px 0">🔐 Accesso Premium</h4>
+        <input id="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <div class="row">
+          <button id="signupBtn" style="flex:1">Registrati</button>
+          <button id="loginBtn" style="flex:1">Login</button>
+        </div>
+        <p class="small" id="authStatus"></p>
+      </div>
 
-</div>
+      <div id="usageBox" class="box" style="display:none;margin-top:12px">
+        <h4 style="margin:0 0 8px 0">📊 Utilizzo Premium</h4>
+        <pre id="usageText" style="margin:0;white-space:pre-wrap"></pre>
+      </div>
+    </div>
+
+    <div id="messages"></div>
+    <textarea id="input" placeholder="Scrivi... (FREE senza login)"></textarea>
+    <button id="sendBtn">Invia</button>
+
+  </div>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
+  let API_BASE = localStorage.getItem("API_BASE") || "";
+  let TOKEN = localStorage.getItem("TOKEN") || "";
 
-let API_BASE=localStorage.getItem("API_BASE")||"";
-let TOKEN=localStorage.getItem("TOKEN")||"";
+  let currentProjectId = localStorage.getItem("CURRENT_PROJECT_ID") || "";
+  let currentProjectName = localStorage.getItem("CURRENT_PROJECT_NAME") || "";
 
-const $=id=>document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
+  const TYPING_CURSOR = " █";
+  let typingTimer = null;
 
-function getClientId(){
-  let id=localStorage.getItem("client_id");
-  if(!id){
-    id="client_"+crypto.randomUUID();
-    localStorage.setItem("client_id",id);
+  function getClientId(){
+    let id = localStorage.getItem("client_id");
+    if(!id){
+      id = "client_" + crypto.randomUUID();
+      localStorage.setItem("client_id", id);
+    }
+    return id;
   }
-  return id;
-}
 
-async function safeFetch(url,opts={}){
-  try{
-    const r=await fetch(url,opts);
-    return await r.json();
-  }catch(e){
-    return {ok:false,error:"Connessione fallita"};
+  function buildHeaders(authRequired=false){
+    const h = { "Content-Type":"application/json" };
+    if(authRequired && TOKEN) h.Authorization = "Bearer " + TOKEN;
+    return h;
   }
-}
 
-function addMessage(role,text){
-  const div=document.createElement("div");
-  div.className="msg "+role;
-  div.textContent=text;
-  $("messages").appendChild(div);
-  $("messages").scrollTop=$("messages").scrollHeight;
-}
-
-async function checkHealth(){
-  if(!API_BASE)return;
-  const d=await safeFetch(API_BASE+"/health");
-  if(d.status==="ok"){
-    $("statusDot").className="dot ok";
-    $("statusText").textContent="Backend: verificato";
-  }else{
-    $("statusDot").className="dot bad";
-    $("statusText").textContent="Backend: offline";
+  async function safeFetchJson(url, opts={}){
+    try{
+      const r = await fetch(url, opts);
+      const ct = r.headers.get("content-type") || "";
+      if(ct.includes("application/json")) return await r.json();
+      const t = await r.text();
+      return { ok: r.ok, text: t };
+    }catch{
+      return { ok:false, error:"Connessione fallita" };
+    }
   }
-}
 
-$("saveApi").onclick=()=>{
-  API_BASE=$("apiBase").value.trim().replace(/\/+$/,"");
-  localStorage.setItem("API_BASE",API_BASE);
-  checkHealth();
-  loadMe();
-  loadProjects();
-};
+  function setBackendStatus(ok){
+    $("statusDot").className = ok ? "dot ok" : "dot bad";
+    $("statusText").textContent = ok ? "Backend: verificato" : "Backend: offline";
+  }
 
-$("sendBtn").onclick=async()=>{
-  const text=$("input").value.trim();
-  if(!text)return;
-  addMessage("user",text);
-  $("input").value="";
-  const d=await safeFetch(API_BASE+"/chat",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      ...(TOKEN&&{Authorization:"Bearer "+TOKEN})
-    },
-    body:JSON.stringify({message:text,client_id:getClientId()})
-  });
-  addMessage("ai",d.text||d.detail||"Errore");
-};
+  async function checkHealth(){
+    if(!API_BASE) return;
+    const d = await safeFetchJson(API_BASE + "/health");
+    setBackendStatus(d && d.status === "ok");
+  }
 
-$("loginBtn").onclick=async()=>{
-  const d=await safeFetch(API_BASE+"/auth/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:$("email").value,
-      password:$("password").value
-    })
-  });
-  if(d.ok){
-    TOKEN=d.token;
-    localStorage.setItem("TOKEN",TOKEN);
-    $("authStatus").textContent="Login riuscito";
-    loadMe();
+  function startTypingCursor(el){
+    clearInterval(typingTimer);
+    typingTimer = setInterval(() => {
+      if(!el.textContent.endsWith(TYPING_CURSOR)) el.textContent += TYPING_CURSOR;
+      else el.textContent = el.textContent.replace(TYPING_CURSOR, "");
+    }, 500);
+  }
+
+  function stopTypingCursor(el){
+    clearInterval(typingTimer);
+    el.textContent = el.textContent.replace(TYPING_CURSOR, "");
+  }
+
+  function addMessage(role, text, {persist=true} = {}){
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = text;
+    $("messages").appendChild(div);
+    $("messages").scrollTop = $("messages").scrollHeight;
+    if(persist) saveHistoryLocal(role, text);
+    return div;
+  }
+
+  function historyKey(){
+    return currentProjectId ? `CHAT_HISTORY::${currentProjectId}` : "CHAT_HISTORY::GLOBAL";
+  }
+
+  function saveHistoryLocal(role, text){
+    const k = historyKey();
+    let arr = [];
+    try{ arr = JSON.parse(localStorage.getItem(k) || "[]"); }catch{ arr = []; }
+    arr.push({ role, text, ts: Date.now() });
+    localStorage.setItem(k, JSON.stringify(arr.slice(-300)));
+  }
+
+  function clearHistoryLocal(){
+    localStorage.removeItem(historyKey());
+  }
+
+  async function loadHistory(){
+    $("messages").innerHTML = "";
+    // Premium: prova history backend se loggato e progetto selezionato
+    if(TOKEN && currentProjectId){
+      const d = await safeFetchJson(`${API_BASE}/projects/${currentProjectId}/history`, {
+        headers: { ...buildHeaders(true) }
+      });
+      if(d && d.ok && Array.isArray(d.messages)){
+        d.messages.forEach(m => addMessage(m.role, m.text, {persist:false}));
+        return;
+      }
+    }
+    // Fallback FREE: localStorage
+    const raw = localStorage.getItem(historyKey());
+    if(!raw) return;
+    try{
+      const arr = JSON.parse(raw);
+      if(Array.isArray(arr)) arr.forEach(m => addMessage(m.role, m.text, {persist:false}));
+    }catch{}
+  }
+
+  async function appendHistoryBackend(role, text){
+    if(!TOKEN || !currentProjectId) return;
+    await safeFetchJson(`${API_BASE}/projects/${currentProjectId}/history/append`, {
+      method: "POST",
+      headers: { ...buildHeaders(true) },
+      body: JSON.stringify({ role, text })
+    });
+  }
+
+  function setActiveProjectLabel(){
+    $("activeProjectLabel").textContent = currentProjectId ? (currentProjectName || currentProjectId) : "Nessuno";
+  }
+
+  function highlightSelectedProject(){
+    $("projectList").querySelectorAll("button[data-pid]").forEach(b => {
+      b.classList.toggle("active", b.dataset.pid === currentProjectId);
+    });
+  }
+
+  // FREE projects: local only (no auth). Premium can still use backend list if exists (optional).
+  function getLocalProjects(){
+    try{
+      return JSON.parse(localStorage.getItem("LOCAL_PROJECTS") || "[]");
+    }catch{
+      return [];
+    }
+  }
+
+  function saveLocalProjects(projects){
+    localStorage.setItem("LOCAL_PROJECTS", JSON.stringify(projects));
+  }
+
+  function renderProjects(projects){
+    $("projectList").innerHTML = "";
+    projects.forEach(p => {
+      const b = document.createElement("button");
+      b.className = "project-btn";
+      b.dataset.pid = p.id;
+      b.textContent = "📂 " + p.name;
+      b.onclick = async () => {
+        currentProjectId = p.id;
+        currentProjectName = p.name;
+        localStorage.setItem("CURRENT_PROJECT_ID", currentProjectId);
+        localStorage.setItem("CURRENT_PROJECT_NAME", currentProjectName);
+        setActiveProjectLabel();
+        highlightSelectedProject();
+        await loadHistory();
+      };
+      $("projectList").appendChild(b);
+    });
+    highlightSelectedProject();
+  }
+
+  async function loadProjects(){
+    // Premium: if backend list exists, use it; else fallback to local
+    if(TOKEN){
+      const d = await safeFetchJson(API_BASE + "/projects/list", {
+        headers: { Authorization: "Bearer " + TOKEN }
+      });
+      if(d && d.ok && Array.isArray(d.projects) && d.projects.length){
+        const projects = d.projects.map(p => ({
+          id: p.id || p._id || p.project_id,
+          name: p.name || (p.id || p._id || p.project_id || "Progetto")
+        })).filter(p => !!p.id);
+        renderProjects(projects);
+        setActiveProjectLabel();
+        return;
+      }
+    }
+    // FREE local projects
+    renderProjects(getLocalProjects());
+    setActiveProjectLabel();
+  }
+
+  async function createProject(){
+    const name = $("projectName").value.trim();
+    const type = $("projectType").value;
+    if(!name){
+      addMessage("ai", "⚠️ Inserisci un nome progetto.");
+      return;
+    }
+
+    // Premium: prova creare su backend; se fallisce -> local
+    if(TOKEN){
+      const d = await safeFetchJson(API_BASE + "/projects/create", {
+        method: "POST",
+        headers: { ...buildHeaders(true) },
+        body: JSON.stringify({ name, type })
+      });
+      if(d && d.ok){
+        await loadProjects();
+        if(d.project){
+          currentProjectId = d.project.id || d.project._id || d.project.project_id || currentProjectId;
+          currentProjectName = d.project.name || name;
+          localStorage.setItem("CURRENT_PROJECT_ID", currentProjectId);
+          localStorage.setItem("CURRENT_PROJECT_NAME", currentProjectName);
+          setActiveProjectLabel();
+          await loadHistory();
+        }
+        return;
+      }
+    }
+
+    // FREE local create
+    const projects = getLocalProjects();
+    const id = "local_" + crypto.randomUUID();
+    projects.push({ id, name: `${name} (${type})` });
+    saveLocalProjects(projects);
+
+    currentProjectId = id;
+    currentProjectName = `${name} (${type})`;
+    localStorage.setItem("CURRENT_PROJECT_ID", currentProjectId);
+    localStorage.setItem("CURRENT_PROJECT_NAME", currentProjectName);
+
+    await loadProjects();
+    await loadHistory();
+  }
+
+  function normalizeAuthErrorText(d){
+    const msg = d?.detail || d?.error || d?.text || "";
+    if(String(msg).toLowerCase().includes("missing authorization") || String(msg).toLowerCase().includes("bearer")){
+      return "⚠️ Il backend sta richiedendo il token anche per FREE. Devi rendere /chat pubblico (senza Authorization).";
+    }
+    return msg || "Errore";
+  }
+
+  async function sendChat(message){
+    const text = message.trim();
+    if(!text) return;
+
+    addMessage("user", text, {persist:true});
+    $("input").value = "";
+
+    const aiEl = addMessage("ai", "", {persist:true});
+    startTypingCursor(aiEl);
+
+    const payload = JSON.stringify({
+      message: text,
+      client_id: getClientId(),
+      project_id: currentProjectId || null
+    });
+
+    // STREAM FIRST (NO TOKEN REQUIRED)
+    try{
+      const r = await fetch(API_BASE + "/chat/stream", {
+        method: "POST",
+        headers: buildHeaders(false), // FREE
+        body: payload
+      });
+
+      if(!r.ok || !r.body) throw new Error("no-stream");
+      $("netHint").textContent = "Streaming: ON";
+
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let out = "";
+      let buffer = "";
+
+      while(true){
+        const { value, done } = await reader.read();
+        if(done) break;
+
+        buffer += decoder.decode(value, { stream:true });
+
+        // accept either plain chunks OR newline-delimited
+        const parts = buffer.split("\n");
+        buffer = parts.pop() || "";
+
+        for(const part of parts){
+          const line = part.trim();
+          if(!line) continue;
+          if(line.startsWith("data:")){
+            const data = line.slice(5).trim();
+            if(data === "[DONE]") continue;
+            out += data;
+          }else{
+            // plain text line
+            out += part + "\n";
+          }
+          aiEl.textContent = out;
+          startTypingCursor(aiEl);
+        }
+      }
+
+      if(buffer.trim()){
+        out += buffer;
+        aiEl.textContent = out;
+      }
+
+      stopTypingCursor(aiEl);
+      // premium memory (optional)
+      await appendHistoryBackend("user", text);
+      await appendHistoryBackend("ai", out);
+      return;
+    }catch{
+      $("netHint").textContent = "Streaming: OFF (fallback)";
+    }
+
+    // FALLBACK /chat (NO TOKEN REQUIRED)
+    const d = await safeFetchJson(API_BASE + "/chat", {
+      method: "POST",
+      headers: buildHeaders(false), // FREE
+      body: payload
+    });
+
+    stopTypingCursor(aiEl);
+
+    if(d && (d.text || d.detail || d.error || d.ok === false)){
+      aiEl.textContent = d.text || normalizeAuthErrorText(d);
+    }else{
+      aiEl.textContent = "Errore";
+    }
+
+    // premium memory (optional)
+    await appendHistoryBackend("user", text);
+    await appendHistoryBackend("ai", aiEl.textContent);
+  }
+
+  async function premiumLogin(){
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const d = await safeFetchJson(API_BASE + "/auth/login", {
+      method: "POST",
+      headers: buildHeaders(false),
+      body: JSON.stringify({ email, password })
+    });
+
+    if(d && d.ok && d.token){
+      TOKEN = d.token;
+      localStorage.setItem("TOKEN", TOKEN);
+      $("authStatus").textContent = "✅ Login Premium riuscito";
+      $("logoutBtn").style.display = "inline-block";
+      $("usageBox").style.display = "block";
+      await loadMe();
+      await loadProjects();
+      await loadHistory();
+    }else{
+      $("authStatus").textContent = d?.error || "Credenziali errate.";
+    }
+  }
+
+  async function premiumSignup(){
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const d = await safeFetchJson(API_BASE + "/auth/signup", {
+      method: "POST",
+      headers: buildHeaders(false),
+      body: JSON.stringify({ email, password })
+    });
+    $("authStatus").textContent = d && d.ok ? "✅ Registrato. Ora fai login." : (d?.error || "Errore");
+  }
+
+  async function loadMe(){
+    if(!TOKEN) return;
+    const d = await safeFetchJson(API_BASE + "/me", { headers: { ...buildHeaders(true) } });
+    if(d && d.ok){
+      $("usageText").textContent = JSON.stringify(d.usage, null, 2);
+      $("usageBox").style.display = "block";
+      $("logoutBtn").style.display = "inline-block";
+    }
+  }
+
+  function logout(){
+    TOKEN = "";
+    localStorage.removeItem("TOKEN");
+    $("authStatus").textContent = "Sei uscito.";
+    $("usageBox").style.display = "none";
+    $("logoutBtn").style.display = "none";
+    // resti FREE
     loadProjects();
-  }else $("authStatus").textContent=d.error||"Errore";
-};
-
-$("signupBtn").onclick=async()=>{
-  const d=await safeFetch(API_BASE+"/auth/signup",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:$("email").value,
-      password:$("password").value
-    })
-  });
-  $("authStatus").textContent=d.ok?"Registrazione ok":"Errore";
-};
-
-async function loadMe(){
-  if(!TOKEN)return;
-  const d=await safeFetch(API_BASE+"/me",{
-    headers:{Authorization:"Bearer "+TOKEN}
-  });
-  if(d.ok){
-    $("authBox").style.display="none";
-    $("usageBox").style.display="block";
-    $("usageText").textContent=JSON.stringify(d.usage,null,2);
+    loadHistory();
   }
-}
 
-async function loadProjects(){
-  if(!TOKEN)return;
-  const d=await safeFetch(API_BASE+"/projects/list",{
-    headers:{Authorization:"Bearer "+TOKEN}
-  });
-  $("projectList").innerHTML="";
-  if(!d.ok)return;
-  d.projects.forEach(p=>{
-    const b=document.createElement("button");
-    b.textContent="📂 "+p.name;
-    $("projectList").appendChild(b);
-  });
-}
+  // UI wires
+  $("saveApi").onclick = async () => {
+    API_BASE = $("apiBase").value.trim().replace(/\/+$/, "");
+    localStorage.setItem("API_BASE", API_BASE);
+    await checkHealth();
+    await loadProjects();
+    await loadHistory();
+  };
 
-$("createProject").onclick=async()=>{
-  const d=await safeFetch(API_BASE+"/projects/create",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      Authorization:"Bearer "+TOKEN
-    },
-    body:JSON.stringify({
-      name:$("projectName").value,
-      type:$("projectType").value
-    })
-  });
-  if(d.ok)loadProjects();
-};
+  $("sendBtn").onclick = () => sendChat($("input").value);
 
-$("apiBase").value=API_BASE;
-checkHealth();
-loadMe();
+  $("input").addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      sendChat($("input").value);
+    }
+  });
+
+  $("createProject").onclick = createProject;
+
+  $("clearProjectChat").onclick = async () => {
+    // premium: optionally clear backend (if you implement it). For now: local only clear + reload.
+    clearHistoryLocal();
+    await loadHistory();
+  };
+
+  $("toggleAuth").onclick = () => {
+    $("authBox").style.display = $("authBox").style.display === "none" ? "block" : "none";
+  };
+
+  $("loginBtn").onclick = premiumLogin;
+  $("signupBtn").onclick = premiumSignup;
+  $("logoutBtn").onclick = logout;
+
+  // boot
+  $("apiBase").value = API_BASE;
+  setActiveProjectLabel();
+  await checkHealth();
+  await loadProjects();
+  await loadHistory();
+  if(TOKEN){
+    $("logoutBtn").style.display = "inline-block";
+    await loadMe();
+  }
 });
 </script>
-
 </body>
 </html>
