@@ -120,8 +120,43 @@ async function checkHealth(){
 function stripCreateWords(t){
   return t.replace(/^(fammi|fai|crea|genera)\s+/i,"").trim();
 }
-// -------- AUTO INTENT (FINAL) --------
+// -------- AUTO INTENT (FINAL & SAFE) --------
 function classifyIntent(text){
+  const t = (text || "").toLowerCase().trim();
+
+  // comandi espliciti
+  if(t.startsWith("/foto "))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  if(t.startsWith("/video "))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  // verbi di creazione (OBBLIGATORI)
+  const wantsCreate = /(fammi|fai|crea|genera|produci|realizza)/.test(t);
+
+  const imageKW = [
+    "foto","immagine","image","picture","disegno",
+    "ritratto","poster","sfondo","wallpaper"
+  ];
+
+  const videoKW = [
+    "video","gif","animazione","cartone","cartoon",
+    "parla","parlante","muove","movimento"
+  ];
+
+  const hasImage = imageKW.some(k => t.includes(k));
+  const hasVideo = videoKW.some(k => t.includes(k));
+
+  // SOLO se l’utente vuole CREARE
+  if(wantsCreate && hasVideo)
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(wantsCreate && hasImage)
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  // TUTTO IL RESTO È CHAT
+  return { kind:"chat", prompt: text };
+}
   const t = (text || "").toLowerCase().trim();
 
   // comandi espliciti
