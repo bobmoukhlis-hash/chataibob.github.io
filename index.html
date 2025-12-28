@@ -238,12 +238,18 @@ async function send(){
 
   const headers={'Content-Type':'application/json'};
   if(TOKEN) headers.Authorization="Bearer "+TOKEN;
-
-  if(c.k==="chat"){
-    const r=await fetch(API+"/chat",{method:"POST",headers,body:JSON.stringify({message:text})});
-    const d=await r.json();
-    ai.querySelector(".bubble").textContent=d.text||"Errore";
-  }
+if(c.k==="chat"){
+  const r = await fetch(API+"/chat",{
+    method:"POST",
+    headers,
+    body: JSON.stringify({
+      message: text,
+      client_id: "web_" + navigator.userAgent
+    })
+  });
+  const d = await r.json();
+  ai.querySelector(".bubble").textContent = d.text || "Errore";
+}
 
   if(c.k==="image"){
     const r=await fetch(API+"/image",{method:"POST",headers,body:JSON.stringify({prompt:text})});
