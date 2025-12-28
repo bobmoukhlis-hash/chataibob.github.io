@@ -120,9 +120,41 @@ async function checkHealth(){
 function stripCreateWords(t){
   return t.replace(/^(fammi|fai|crea|genera)\s+/i,"").trim();
 }
-
-// -------- AUTO INTENT --------
+// -------- AUTO INTENT (FINAL) --------
 function classifyIntent(text){
+  const t = (text || "").toLowerCase().trim();
+
+  // comandi espliciti
+  if(t.startsWith("/foto "))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  if(t.startsWith("/video "))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  const wantsCreate = /(fammi|fai|crea|genera|produci|realizza)/.test(t);
+
+  const imageKW = [
+    "foto","immagine","image","picture","disegno",
+    "ritratto","poster","sfondo","wallpaper"
+  ];
+
+  const videoKW = [
+    "video","gif","animazione","cartoon","cartone",
+    "parla","parlante","muove","movimento"
+  ];
+
+  const hasImage = imageKW.some(k => t.includes(k));
+  const hasVideo = videoKW.some(k => t.includes(k));
+
+  if(wantsCreate && hasVideo)
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(wantsCreate && hasImage)
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  // DEFAULT: CHAT
+  return { kind:"chat", prompt: text };
+}
   const t=text.toLowerCase();
 
   if(t.includes("video")||t.includes("gif")||t.includes("parla"))
