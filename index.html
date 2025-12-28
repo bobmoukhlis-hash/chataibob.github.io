@@ -35,32 +35,15 @@ button{background:#38bdf8;border:0;font-weight:bold}
   font-weight:bold;
   text-decoration:none;
 }
-.small {
-  font-size:12px;
-  opacity:0.8;
-}
+.small{font-size:12px;opacity:.8}
 
-button,
-input,
-textarea,
-select {
-  pointer-events: auto !important;
-  position: relative;
-  z-index: 9999;
-}#messages {
-  pointer-events: none;
+button,input,textarea,select{
+  pointer-events:auto!important;
+  position:relative;
+  z-index:10;
 }
-
-.chat input,
-.chat button,
-.chat textarea,
-.chat select {
-  pointer-events: auto;
-}
-
-body {
-  touch-action: manipulation;
-}
+#messages{pointer-events:none}
+body{touch-action:manipulation}
 </style>
 </head>
 
@@ -76,20 +59,18 @@ body {
 
 <div class="chat">
 
-<!-- LOGIN -->
 <div id="authBox" class="premium-box">
   <h3>🔐 Accesso</h3>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
-  <button onclick="signup()">Registrati</button>
-  <button onclick="login()">Login</button>
+  <button id="signupBtn">Registrati</button>
+  <button id="loginBtn">Login</button>
   <p class="small" id="authStatus"></p>
 </div>
 
 <input id="apiBase" placeholder="https://chatai-bob-backend.onrender.com">
 <button id="saveApi">Salva backend URL</button>
 
-<!-- PROGETTI -->
 <input id="projectName" placeholder="Nome progetto">
 <select id="projectType">
   <option value="BOOK">📘 Libro</option>
@@ -99,19 +80,16 @@ body {
 </select>
 <button id="createProject">Crea progetto</button>
 
-<!-- PREMIUM -->
 <div class="premium-box">
   <h3>💎 Passa a Premium</h3>
   <p>Chat senza limiti, voce, video, immagini, PDF</p>
   <a href="https://www.paypal.me/bobbob1979" target="_blank" class="premium-btn">
     💰 Attiva Premium
   </a>
-  <p class="small">Dopo il pagamento, Premium viene attivato subito.</p>
 </div>
 
-<!-- UTILIZZO -->
 <div id="usageBox" class="premium-box" style="display:none">
-  <h3>📊 Utilizzo Giornaliero</h3>
+  <h3>📊 Utilizzo</h3>
   <pre id="usageText"></pre>
 </div>
 
@@ -124,55 +102,50 @@ body {
 </div>
 
 <script>
-/* ================= BASE ================= */
-let API_BASE = "";
-let TOKEN = localStorage.getItem("TOKEN") || "";
+document.addEventListener("DOMContentLoaded",()=>{
 
-const statusDot = document.getElementById("statusDot");
-const statusText = document.getElementById("statusText");
-const messages = document.getElementById("messages");
-const input = document.getElementById("input");
-const apiBaseInput = document.getElementById("apiBase");
+let API_BASE="";
+let TOKEN=localStorage.getItem("TOKEN")||"";
 
-/* ================= CLIENT ID ================= */
+const statusDot=statusText=null;
+const messages=document.getElementById("messages");
+const input=document.getElementById("input");
+const apiBaseInput=document.getElementById("apiBase");
+
+const statusDotEl=document.getElementById("statusDot");
+const statusTextEl=document.getElementById("statusText");
+
 function getClientId(){
-  let id = localStorage.getItem("client_id");
+  let id=localStorage.getItem("client_id");
   if(!id){
-    id = "client_" + crypto.randomUUID();
-    localStorage.setItem("client_id", id);
+    id="client_"+crypto.randomUUID();
+    localStorage.setItem("client_id",id);
   }
   return id;
 }
 
-/* ================= BACKEND ================= */
-document.getElementById("saveApi").onclick = () => {
-  API_BASE = apiBaseInput.value.trim().replace(/\/+$/, "");
-  localStorage.setItem("API_BASE", API_BASE);
+document.getElementById("saveApi").onclick=()=>{
+  API_BASE=apiBaseInput.value.trim().replace(/\/+$/,"");
+  localStorage.setItem("API_BASE",API_BASE);
   checkHealth();
-  loadProjects();
   loadMe();
+  loadProjects();
 };
 
 async function checkHealth(){
   try{
-    const r = await fetch(API_BASE + "/health");
-    const d = await r.json();
-
-    if(d.status === "ok"){
-      statusDot.className = "dot ok";
-      statusText.textContent = "Backend: verificato";
-    } else {
-      statusDot.className = "dot bad";
-      statusText.textContent = "Backend: offline";
-    }
-
+    const r=await fetch(API_BASE+"/health");
+    const d=await r.json();
+    if(d.status==="ok"){
+      statusDotEl.className="dot ok";
+      statusTextEl.textContent="Backend: verificato";
+    }else throw 0;
   }catch{
-    statusDot.className = "dot bad";
-    statusText.textContent = "Backend: offline";
+    statusDotEl.className="dot bad";
+    statusTextEl.textContent="Backend: offline";
   }
 }
 
-/* ================= CHAT ================= */
 function addMessage(role,text){
   const div=document.createElement("div");
   div.className="msg "+role;
@@ -180,9 +153,9 @@ function addMessage(role,text){
   messages.appendChild(div);
 }
 
-document.getElementById("sendBtn").onclick = async ()=>{
+document.getElementById("sendBtn").onclick=async()=>{
   const text=input.value.trim();
-  if(!text) return;
+  if(!text)return;
   addMessage("user",text);
   input.value="";
   const r=await fetch(API_BASE+"/chat",{
@@ -191,73 +164,10 @@ document.getElementById("sendBtn").onclick = async ()=>{
     body:JSON.stringify({message:text,client_id:getClientId()})
   });
   const d=await r.json();
-  if(d.text){
-  addMessage("ai", d.text);
-} else if(d.detail){
-  addMessage("ai", "❌ " + d.detail);
-} else {
-  addMessage("ai", "❌ Errore sconosciuto");
-}
-
-/* ================= PROGETTI ================= */
-async function loadProjects(){
-  if(!TOKEN) return;
-  const r = await fetch(API_BASE+"/projects/list",{
-    headers:{Authorization:"Bearer "+TOKEN}
-  });
-  const d = await r.json();
-  const list=document.getElementById("projectList");
-  list.innerHTML="";
-  if(!d.ok) return;
-  d.projects.forEach(p=>{
-    const b=document.createElement("button");
-    b.textContent="📂 "+p.name;
-    list.appendChild(b);
-  });
-}
-
-document.getElementById("createProject").onclick = async ()=>{
-  if(!TOKEN) return alert("Devi fare login");
-  const name=projectName.value.trim();
-  if(!name) return;
-  await fetch(API_BASE+"/projects/create",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      Authorization:"Bearer "+TOKEN
-    },
-    body:JSON.stringify({name,type:projectType.value})
-  });
-  projectName.value="";
-  loadProjects();
+  addMessage("ai",d.text||d.detail||"Errore");
 };
 
-/* ================= AUTH ================= */
-async function login(){
-  if(!API_BASE){
-    authStatus.textContent = "Salva prima il backend URL";
-    return;
-  }
-
-  const r = await fetch(API_BASE+"/auth/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:email.value,password:password.value})
-  });
-  const d = await r.json();
-
-  if(d.ok){
-    TOKEN = d.token;
-    localStorage.setItem("TOKEN", TOKEN);
-    authStatus.textContent = "Login riuscito";
-    loadMe();
-    loadProjects();
-  } else {
-    authStatus.textContent = d.error;
-  }
-}
-
-async function login(){
+document.getElementById("loginBtn").onclick=async()=>{
   const r=await fetch(API_BASE+"/auth/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -271,13 +181,11 @@ async function login(){
     loadMe();
     loadProjects();
   }else authStatus.textContent=d.error;
-}
+};
 
 async function loadMe(){
-  if(!TOKEN) return;
-  const r=await fetch(API_BASE+"/me",{
-    headers:{Authorization:"Bearer "+TOKEN}
-  });
+  if(!TOKEN)return;
+  const r=await fetch(API_BASE+"/me",{headers:{Authorization:"Bearer "+TOKEN}});
   const d=await r.json();
   if(d.ok){
     authBox.style.display="none";
@@ -286,19 +194,27 @@ async function loadMe(){
   }
 }
 
-/* ================= INIT ================= */
-((function(){
-  const saved = localStorage.getItem("API_BASE");
-  if(saved){
-    API_BASE = saved;
-    apiBaseInput.value = saved;
-  }
+async function loadProjects(){
+  if(!TOKEN)return;
+  const r=await fetch(API_BASE+"/projects/list",{headers:{Authorization:"Bearer "+TOKEN}});
+  const d=await r.json();
+  projectList.innerHTML="";
+  if(!d.ok)return;
+  d.projects.forEach(p=>{
+    const b=document.createElement("button");
+    b.textContent="📂 "+p.name;
+    projectList.appendChild(b);
+  });
+}
 
-  // 👇 FORZA SEMPRE IL CONTROLLO
-  if(API_BASE){
-    checkHealth();
-  }
-})();
+const saved=localStorage.getItem("API_BASE");
+if(saved){
+  API_BASE=saved;
+  apiBaseInput.value=saved;
+  checkHealth();
+}
+
+});
 </script>
 
 </body>
