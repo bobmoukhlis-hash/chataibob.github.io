@@ -362,9 +362,62 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------- AUTO INTENT DETECTOR --------
-  function classifyIntent(text){
-    const t = (text || "").toLowerCase().trim();
+function classifyIntent(text){
+  const t = (text || "").toLowerCase().trim();
 
+  // comandi espliciti
+  if(t.startsWith("/foto "))  return { kind:"image", prompt:text.slice(6).trim() };
+  if(t.startsWith("/video ")) return { kind:"video", prompt:text.slice(7).trim() };
+
+  const videoKW = [
+    "video","gif","animazione","animato","cartone","cartoon",
+    "muove","movimento","scene","filmato","clip","short"
+  ];
+// -------- DECISION BADGE --------
+function addDecisionBadge(kind){
+  const label =
+    kind === "image" ? "🖼️ Riconosciuto: FOTO" :
+    kind === "video" ? "🎞️ Riconosciuto: VIDEO/GIF" :
+    "💬 Riconosciuto: TESTO";
+
+  addMessage("ai", label);
+}
+  const imageKW = [
+    "foto","immagine","image","picture","disegno",
+    "ritratto","poster","sfondo","wallpaper","sticker"
+  ];
+
+  const motionKW = [
+    "parla","parlante","gesticola","cammina","danza","balla",
+    "movimento","muoversi","espressioni","recita"
+  ];
+
+  const wantsCreate = /(crea|genera|fammi|fai|produci|creami|realizza)/.test(t);
+
+  // priorità massima: movimento/parlare → VIDEO
+  if(wantsCreate && motionKW.some(k => t.includes(k)))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(wantsCreate && videoKW.some(k => t.includes(k)))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(wantsCreate && imageKW.some(k => t.includes(k)))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  // AUTO-FORTE:
+  // frase corta e descrittiva → FOTO
+  if(t.split(" ").length <= 6 && !t.endsWith("?"))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  // fallback keyword
+  if(videoKW.some(k => t.includes(k)))
+    return { kind:"video", prompt: stripCreateWords(text) };
+
+  if(imageKW.some(k => t.includes(k)))
+    return { kind:"image", prompt: stripCreateWords(text) };
+
+  return { kind:"chat", prompt:text };
+}
     // explicit slash commands
     if(t.startsWith("/foto ")) return { kind:"image", prompt: text.slice(6).trim() };
     if(t.startsWith("/video ")) return { kind:"video", prompt: text.slice(7).trim() };
