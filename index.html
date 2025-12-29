@@ -303,8 +303,7 @@ async function checkBackend(){
     $("status").textContent = "Backend: offline";
   }
 }
-
-/checkBackend();
+checkBackend();                 // ← TOGLI //
 setInterval(checkBackend, 30000);
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
 </script>
