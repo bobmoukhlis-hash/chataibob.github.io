@@ -263,12 +263,14 @@ const payload = type==="chat"
   }
 }
 
+<script>
 async function analyzePhoto(){
   const f = $("photoFile").files[0];
   if(!f){
     add("ai","⚠️ Seleziona una foto");
     return;
   }
+
   const q = $("photoQuestion").value || "";
   add("user","📷 Analisi foto");
   const ai = add("ai","Analizzo…");
@@ -279,9 +281,9 @@ async function analyzePhoto(){
   fd.append("client_id", CLIENT_ID);
 
   try{
-    const r = await fetch(API+"/analyze_photo",{
-      method:"POST",
-      body:fd
+    const r = await fetch(API + "/analyze_photo", {
+      method: "POST",
+      body: fd
     });
     const d = await r.json();
     ai.remove();
@@ -298,12 +300,19 @@ $("clear").onclick = ()=>{
   add("ai","Ciao 👋 Come posso aiutarti?");
 };
 $("analyzeBtn").onclick = analyzePhoto;
+
+$("input").onkeydown = e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+};
+
+/* ✅ QUI ESATTAMENTE */
 checkBackend();
 setInterval(checkBackend, 30000);
-HF_IMAGE_MODEL = runwayml/stable-diffusion-v1-5
-checkBackend();
+
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
 </script>
-
 </body>
 </html>
