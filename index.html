@@ -211,8 +211,13 @@ function addImg(title, url){
 
 function classifyIntent(t){
   t = (t || "").toLowerCase();
-  if(/video|gif|animazione|filmato/.test(t)) return "video";
-  if(/foto|immagine|image|picture/.test(t)) return "image";
+
+  if(t.startsWith("video") || t.startsWith("gif"))
+    return "video";
+
+  if(t.startsWith("foto") || t.startsWith("immagine"))
+    return "image";
+
   return "chat";
 }
 
@@ -235,9 +240,15 @@ async function send(){
   const ai = add("ai","…");
 
   try{
-    const payload = type==="chat"
-      ? { message:text, client_id:CLIENT_ID }
-      : { prompt:text, client_id:CLIENT_ID };
+    let clean = text
+  .replace(/^crea(re)?\s+/i,"")
+  .replace(/^(una|un|un’|un')\s+/i,"")
+  .replace(/^(foto|immagine|video|gif)\s+/i,"")
+  .trim();
+
+const payload = type==="chat"
+  ? { message:text, client_id:CLIENT_ID }
+  : { prompt:clean, client_id:CLIENT_ID };
 
     const d = await postJson("/"+type, payload);
     ai.remove();
