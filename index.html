@@ -313,6 +313,12 @@ checkBackend();
 setInterval(checkBackend, 30000);
 
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
+  $("input").onkeydown = e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+};
 </script>
 </body>
 </html>
