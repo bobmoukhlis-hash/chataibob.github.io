@@ -293,32 +293,20 @@ async function analyzePhoto(){
     add("ai","❌ Errore rete");
   }
 }
-
-$("send").onclick = send;
-$("clear").onclick = ()=>{
-  $("messages").innerHTML="";
-  add("ai","Ciao 👋 Come posso aiutarti?");
-};
-$("analyzeBtn").onclick = analyzePhoto;
-
-$("input").onkeydown = e=>{
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    send();
+async function checkBackend(){
+  try{
+    const r = await fetch(API + "/health", { cache:"no-store" });
+    const d = await r.json();
+    $("status").textContent =
+      d.status === "ok" ? "Backend: online" : "Backend: offline";
+  }catch{
+    $("status").textContent = "Backend: offline";
   }
-};
+}
 
-/* ✅ QUI ESATTAMENTE */
-checkBackend();
+/checkBackend();
 setInterval(checkBackend, 30000);
-
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
-  $("input").onkeydown = e=>{
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    send();
-  }
-};
 </script>
 </body>
 </html>
