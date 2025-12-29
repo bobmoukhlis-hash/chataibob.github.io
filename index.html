@@ -298,12 +298,8 @@ $("clear").onclick = ()=>{
   add("ai","Ciao 👋 Come posso aiutarti?");
 };
 $("analyzeBtn").onclick = analyzePhoto;
-$("input").onkeydown = e=>{
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    send();
-  }
-};
+checkBackend();
+setInterval(checkBackend, 30000);
 HF_IMAGE_MODEL = runwayml/stable-diffusion-v1-5
 checkBackend();
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
