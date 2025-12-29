@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ChatAI Bob</title>
 
-<!-- PWA / WebView friendly -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0f1a">
@@ -13,14 +12,12 @@
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   background:#0b0f1a;
   color:#e5e7eb;
 }
 .top{
-  position:sticky;
-  top:0;
-  z-index:10;
+  position:sticky;top:0;z-index:10;
   background:#020617;
   padding:12px;
   display:flex;
@@ -63,13 +60,9 @@ body{
   border-radius:14px;
   margin-top:8px;
 }
-.toolbar{
-  padding:12px;
-  border-top:1px solid #1f2937;
-}
+.toolbar{padding:12px;border-top:1px solid #1f2937}
 textarea{
-  width:100%;
-  min-height:56px;
+  width:100%;min-height:56px;
   border-radius:14px;
   background:#0a1020;
   color:#fff;
@@ -97,15 +90,7 @@ button{
   align-items:center;
   margin-top:8px;
 }
-input[type="file"]{
-  border:1px dashed #1f2937;
-  padding:10px;
-  border-radius:12px;
-  background:#0a1020;
-  color:#fff;
-}
-input[type="text"]{
-  flex:1;
+input{
   border:1px solid #1f2937;
   padding:10px;
   border-radius:12px;
@@ -124,42 +109,39 @@ a{color:#38bdf8;text-decoration:none}
 </div>
 
 <div class="wrap">
-  <div class="card">
-    <div id="messages"></div>
+<div class="card">
+<div id="messages"></div>
 
-    <div class="toolbar">
-      <textarea id="input"
-        placeholder="Scrivi una domanda, oppure: 'foto di un cane', 'video di una persona che cammina'">
-      </textarea>
+<div class="toolbar">
+<textarea id="input"
+placeholder="Scrivi una domanda, oppure: 'foto di un cane', 'video di una persona che cammina'"></textarea>
 
-      <div class="row">
-        <button class="send" id="send">Invia</button>
-        <button class="ghost" id="clear">Pulisci</button>
-      </div>
+<div class="row">
+<button class="send" id="send">Invia</button>
+<button class="ghost" id="clear">Pulisci</button>
+</div>
 
-      <div class="row">
-        <input id="photoFile" type="file" accept="image/*" />
-        <input id="photoQuestion" type="text"
-          placeholder="Domanda sulla foto (es: cosa c’è? che testo vedi?)" />
-        <button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
-      </div>
+<div class="row">
+<input id="photoFile" type="file" accept="image/*">
+<input id="photoQuestion" type="text"
+placeholder="Domanda sulla foto (es: cosa c’è? che testo vedi?)">
+<button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
+</div>
 
-      <div class="small">
-        Limite giornaliero attivo per garantire stabilità del servizio.<br>
-        ☕ Supporta il progetto:
-        <a href="https://www.paypal.me/bobbob1979" target="_blank">
-          paypal.me/bobbob1979
-        </a>
-      </div>
-    </div>
-  </div>
+<div class="small">
+Limite giornaliero attivo per garantire stabilità del servizio.<br>
+☕ Supporta il progetto:
+<a href="https://www.paypal.me/bobbob1979" target="_blank">paypal.me/bobbob1979</a>
+</div>
+</div>
+</div>
 </div>
 
 <script>
-let API = localStorage.getItem("API")
-  || 
-  "https://chatai-bob-backend.onrender.com";
-const $ = (id) => document.getElementById(id);
+let API = localStorage.getItem("API") ||
+"https://chatai-bob-backend.onrender.com";
+
+const $ = id => document.getElementById(id);
 
 const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
@@ -172,7 +154,7 @@ const CLIENT_ID = (() => {
 
 async function checkBackend(){
   try{
-    const r = await fetch(API + "/health", { cache:"no-store" });
+    const r = await fetch(API + "/health",{cache:"no-store"});
     const d = await r.json();
     $("status").textContent =
       d.status === "ok" ? "Backend: online" : "Backend: offline";
@@ -181,48 +163,35 @@ async function checkBackend(){
   }
 }
 
-function add(role, text){
-  const d = document.createElement("div");
-  d.className = "msg " + role;
-  d.innerHTML = `<div class="bubble"></div>`;
-  d.querySelector(".bubble").textContent = text || "";
+function add(role,text){
+  const d=document.createElement("div");
+  d.className="msg "+role;
+  d.innerHTML='<div class="bubble"></div>';
+  d.querySelector(".bubble").textContent=text||"";
   $("messages").appendChild(d);
-  $("messages").scrollTop = 999999;
+  $("messages").scrollTop=999999;
   return d;
 }
 
-function addImg(title, url){
-  if(!url){
-    add("ai","❌ Contenuto non disponibile");
-    return;
-  }
-  const d = document.createElement("div");
-  d.className = "msg ai";
-  d.innerHTML = `
-    <div class="bubble">
-      <b>${title}</b>
-      <div class="media">
-        <img src="${url}">
-      </div>
-    </div>`;
+function addImg(title,url){
+  if(!url){ add("ai","❌ Contenuto non disponibile"); return; }
+  const d=document.createElement("div");
+  d.className="msg ai";
+  d.innerHTML=`<div class="bubble"><b>${title}</b>
+  <div class="media"><img src="${url}"></div></div>`;
   $("messages").appendChild(d);
-  $("messages").scrollTop = 999999;
+  $("messages").scrollTop=999999;
 }
 
 function classifyIntent(t){
-  t = (t || "").toLowerCase();
-
-  if(t.startsWith("video") || t.startsWith("gif"))
-    return "video";
-
-  if(t.startsWith("foto") || t.startsWith("immagine"))
-    return "image";
-
+  t=(t||"").toLowerCase();
+  if(t.startsWith("video")||t.startsWith("gif")) return "video";
+  if(t.startsWith("foto")||t.startsWith("immagine")) return "image";
   return "chat";
 }
 
-async function postJson(path, body){
-  const r = await fetch(API + path,{
+async function postJson(path,body){
+  const r=await fetch(API+path,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(body)
@@ -231,81 +200,62 @@ async function postJson(path, body){
 }
 
 async function send(){
-  const text = $("input").value.trim();
+  const text=$("input").value.trim();
   if(!text) return;
-  $("input").value = "";
-  add("user", text);
+  $("input").value="";
+  add("user",text);
 
-  const type = classifyIntent(text);
-  const ai = add("ai","…");
+  const type=classifyIntent(text);
+  const ai=add("ai","…");
 
   try{
-    let clean = text
-  .replace(/^crea(re)?\s+/i,"")
-  .replace(/^(una|un|un’|un')\s+/i,"")
-  .replace(/^(foto|immagine|video|gif)\s+/i,"")
-  .trim();
+    let clean=text.replace(/^(crea|una|un|foto|immagine|video|gif)\s+/i,"").trim();
+    const payload=type==="chat"
+      ?{message:text,client_id:CLIENT_ID}
+      :{prompt:clean,client_id:CLIENT_ID};
 
-const payload = type==="chat"
-  ? { message:text, client_id:CLIENT_ID }
-  : { prompt:clean, client_id:CLIENT_ID };
-
-    const d = await postJson("/"+type, payload);
+    const d=await postJson("/"+type,payload);
     ai.remove();
-
     if(d.error) add("ai","❌ "+d.error);
-    else if(type==="chat") add("ai", d.text);
-    else addImg(type==="image"?"🖼 Foto":"🎞 Video", d.url);
-
+    else if(type==="chat") add("ai",d.text);
+    else addImg(type==="image"?"🖼 Foto":"🎞 Video",d.url);
   }catch{
     ai.remove();
     add("ai","❌ Servizio non disponibile");
   }
 }
 
-<script>
 async function analyzePhoto(){
-  const f = $("photoFile").files[0];
-  if(!f){
-    add("ai","⚠️ Seleziona una foto");
-    return;
-  }
-
-  const q = $("photoQuestion").value || "";
+  const f=$("photoFile").files[0];
+  if(!f){ add("ai","⚠️ Seleziona una foto"); return; }
+  const q=$("photoQuestion").value||"";
   add("user","📷 Analisi foto");
-  const ai = add("ai","Analizzo…");
+  const ai=add("ai","Analizzo…");
 
-  const fd = new FormData();
-  fd.append("file", f);
-  fd.append("question", q);
-  fd.append("client_id", CLIENT_ID);
+  const fd=new FormData();
+  fd.append("file",f);
+  fd.append("question",q);
+  fd.append("client_id",CLIENT_ID);
 
   try{
-    const r = await fetch(API + "/analyze_photo", {
-      method: "POST",
-      body: fd
-    });
-    const d = await r.json();
+    const r=await fetch(API+"/analyze_photo",{method:"POST",body:fd});
+    const d=await r.json();
     ai.remove();
-    add("ai", d.text || "Errore analisi");
+    add("ai",d.text||"Errore analisi");
   }catch{
     ai.remove();
     add("ai","❌ Errore rete");
   }
 }
-async function checkBackend(){
-  try{
-    const r = await fetch(API + "/health", { cache:"no-store" });
-    const d = await r.json();
-    $("status").textContent =
-      d.status === "ok" ? "Backend: online" : "Backend: offline";
-  }catch{
-    $("status").textContent = "Backend: offline";
-  }
-}
-checkBackend();                 // ← TOGLI //
-setInterval(checkBackend, 30000);
+
+$("send").onclick=send;
+$("clear").onclick=()=>{$("messages").innerHTML="";};
+$("analyzeBtn").onclick=analyzePhoto;
+
+checkBackend();
+setInterval(checkBackend,30000);
 add("ai","Ciao 👋 ChatAI Bob è pronto.");
 </script>
+
 </body>
 </html>
