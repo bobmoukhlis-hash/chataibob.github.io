@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-requests
-python-multipart
-pillow
-gtts
-deep-translator
