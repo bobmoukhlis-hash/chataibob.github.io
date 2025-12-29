@@ -10,7 +10,7 @@ body{margin:0;font-family:Arial;background:#0b0f1a;color:#e5e7eb}
 .badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
 .wrap{max-width:900px;margin:auto;padding:12px}
 .card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
-#messages{height:calc(100vh - 290px);overflow:auto;padding:14px}
+#messages{height:calc(100vh - 310px);overflow:auto;padding:14px}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
 .bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
@@ -23,11 +23,8 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
 .ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
 .small{font-size:12px;opacity:.75}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .style.active{outline:2px solid #38bdf8}
 
-input[type="file"]{border:1px dashed #1f2937;...}
-input[type="text"]{flex:1;border:1px solid #1f2937;...}
 input[type="file"]{border:1px dashed #1f2937;padding:10px;border-radius:12px;background:#0a1020;color:#fff}
 input[type="text"]{flex:1;border:1px solid #1f2937;padding:10px;border-radius:12px;background:#0a1020;color:#fff}
 </style>
@@ -46,6 +43,13 @@ input[type="text"]{flex:1;border:1px solid #1f2937;padding:10px;border-radius:12
     <div class="toolbar">
       <textarea id="input" placeholder="Scrivi: chat, foto o video/GIF (es: 'foto di un cane 3D', 'video di un uomo che cammina')"></textarea>
 
+      <!-- STILE -->
+      <div class="row" id="styleRow">
+        <button class="ghost style active" data-style="cartoon">🎨 3D Cartoon</button>
+        <button class="ghost style" data-style="realistic">📷 Realistico</button>
+        <button class="ghost style" data-style="anime">🍥 Anime</button>
+      </div>
+
       <div class="row">
         <button class="send" id="send">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
@@ -53,12 +57,12 @@ input[type="text"]{flex:1;border:1px solid #1f2937;padding:10px;border-radius:12
 
       <div class="row">
         <input id="photoFile" type="file" accept="image/*" />
-        <input id="photoQuestion" type="text" placeholder="Domanda sulla foto (es: cosa c’è? che testo vedi? che emozione?)" />
-        <button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
+        <input id="photoQuestion" type="text" placeholder="(Opzionale) domanda sulla foto" />
+        <button class="ghost" id="analyzeBtn" disabled>🔍 Analizza foto (non attivo)</button>
       </div>
 
       <div class="small">
-        AUTO-MODE: se scrivi “foto/immagine/image” → genera immagine. Se scrivi “video/gif/animazione” → genera GIF con movimento.
+        AUTO-MODE: “foto/immagine/image” → immagine. “video/gif/animazione” → GIF.
       </div>
     </div>
   </div>
@@ -76,6 +80,16 @@ const CLIENT_ID = (() => {
   }
   return id;
 })();
+
+/* ===== STYLE STATE ===== */
+let STYLE = "cartoon";
+document.querySelectorAll(".style").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".style").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    STYLE = btn.dataset.style || "cartoon";
+  };
+});
 
 async function checkBackend(){
   try{
@@ -145,45 +159,21 @@ async function send(){
     }
 
     if(kind === "image"){
-      const d = await postJson("/image", { prompt:text, client_id: CLIENT_ID });
+      const d = await postJson("/image", { prompt:text, client_id: CLIENT_ID, style: STYLE });
       ai.remove();
       if(d.error) add("ai", "❌ " + d.error);
-      else addImg("🖼 Foto", d.url);
+      else addImg("🖼 Foto ("+STYLE+")", d.url);
       return;
     }
 
-    const d = await postJson("/video", { prompt:text, client_id: CLIENT_ID });
+    const d = await postJson("/video", { prompt:text, client_id: CLIENT_ID, style: STYLE });
     ai.remove();
     if(d.error) add("ai", "❌ " + d.error);
-    else addImg("🎞 GIF", d.url);
+    else addImg("🎞 GIF ("+STYLE+")", d.url);
+
   }catch{
     ai.remove();
     add("ai","❌ Backend non raggiungibile");
-  }
-}
-
-async function analyzePhoto(){
-  const f = $("photoFile").files && $("photoFile").files[0];
-  const q = $("photoQuestion").value.trim();
-
-  if(!f){ add("ai","⚠️ Seleziona una foto"); return; }
-
-  add("user", `🔍 Analisi foto: ${f.name}\nDomanda: ${q || "(nessuna)"} `);
-  const ai = add("ai","Analizzo…");
-
-  const fd = new FormData();
-  fd.append("file", f);
-  fd.append("question", q);
-  fd.append("client_id", CLIENT_ID);
-
-  try{
-    const r = await fetch(API + "/analyze_photo", { method:"POST", body: fd });
-    const d = await r.json();
-    ai.remove();
-    add("ai", d.text || "Errore analisi");
-  }catch{
-    ai.remove();
-    add("ai","❌ Errore rete analisi foto");
   }
 }
 
@@ -198,10 +188,9 @@ $("clear").onclick = () => {
   $("messages").innerHTML = "";
   add("ai","Ciao 👋");
 };
-$("analyzeBtn").onclick = analyzePhoto;
 
 checkBackend();
-add("ai","Ciao 👋 Scrivi chat, foto o video/GIF. Puoi anche caricare una foto e fare una domanda.");
+add("ai","Ciao 👋 Scrivi chat, foto o video/GIF. Seleziona anche lo stile (Cartoon/Realistico/Anime).");
 </script>
 
 </body>
