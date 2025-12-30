@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob</title>
 
 <meta name="mobile-web-app-capable" content="yes">
@@ -10,28 +10,80 @@
 <meta name="theme-color" content="#0b0f1a">
 
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0b0f1a;color:#e5e7eb}
-.top{position:sticky;top:0;z-index:10;background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
-.badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0b0f1a;
+  color:#e5e7eb;
+}
+.top{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:#020617;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #1f2937;
+}
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#111827;
+  border:1px solid #1f2937;
+  font-size:12px;
+}
 .wrap{max-width:900px;margin:auto;padding:12px}
-.card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
-#messages{height:calc(100vh - 290px);overflow:auto;padding:14px}
+.card{
+  background:#0b1220;
+  border:1px solid #1f2937;
+  border-radius:16px;
+  overflow:hidden;
+}
+#messages{
+  height:calc(100vh - 230px);
+  overflow:auto;
+  padding:14px;
+}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
-.bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
+.bubble{
+  max-width:78%;
+  padding:12px;
+  border-radius:14px;
+  background:#111827;
+  border:1px solid #1f2937;
+  white-space:pre-wrap;
+}
 .msg.user .bubble{background:#38bdf822}
-.toolbar{padding:12px;border-top:1px solid #1f2937}
-textarea{width:100%;min-height:56px;border-radius:14px;background:#0a1020;color:#fff;border:1px solid #1f2937;padding:10px}
-button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:pointer}
+.toolbar{
+  padding:12px;
+  border-top:1px solid #1f2937;
+}
+textarea{
+  width:100%;
+  min-height:56px;
+  border-radius:14px;
+  background:#0a1020;
+  color:#fff;
+  border:1px solid #1f2937;
+  padding:10px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  font-weight:bold;
+  cursor:pointer;
+}
 .send{background:#38bdf8;color:#001018}
-.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
-.small{font-size:12px;opacity:.75}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
-input{border:1px solid #1f2937;padding:10px;border-radius:12px;background:#0a1020;color:#fff}
-input[type="file"]{border:1px dashed #1f2937}
-a{color:#38bdf8;text-decoration:none}
-
-/* PayPal */
+.ghost{
+  background:transparent;
+  color:#fff;
+  border:1px solid #38bdf8;
+}
+.small{font-size:12px;opacity:.8}
 .paypal-btn{
   display:inline-block;
   margin-top:8px;
@@ -41,7 +93,7 @@ a{color:#38bdf8;text-decoration:none}
   color:#fff;
   font-weight:bold;
 }
-.paypal-btn:hover{opacity:0.9}
+.paypal-btn:hover{opacity:.9}
 </style>
 </head>
 
@@ -57,30 +109,25 @@ a{color:#38bdf8;text-decoration:none}
     <div id="messages"></div>
 
     <div class="toolbar">
-      <textarea id="input" placeholder="Scrivi una domanda (multilingua)."></textarea>
-
-      <div class="row">
+      <textarea id="input" placeholder="Scrivi una domanda…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
         <button class="send" id="send">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
 
-      <div class="row">
-        <input id="photoFile" type="file" accept="image/*" />
-        <input id="photoQuestion" type="text" placeholder="Domanda sulla foto (opzionale)" />
-        <button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
-      </div>
-
       <div class="small" style="margin-top:10px">
-        ☕ Supporta il progetto se ti piace ChatAI Bob<br>
-        <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">💙 Dona con PayPal</a>
+        Supporta il progetto ❤️<br>
+        <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">
+          Dona con PayPal
+        </a>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
-const $ = (id) => document.getElementById(id);
+const API = "https://chatai-bob-backend.onrender.com";
+const $ = id => document.getElementById(id);
 
 const CLIENT_ID = (() => {
   let id = localStorage.getItem("CLIENT_ID");
@@ -95,94 +142,64 @@ async function checkBackend(){
   try{
     const r = await fetch(API + "/health", { cache:"no-store" });
     const d = await r.json();
-    $("status").textContent = (d && d.status === "ok") ? "Backend: online" : "Backend: offline";
+    $("status").textContent = d.status === "ok" ? "Online" : "Offline";
   }catch{
-    $("status").textContent = "Backend: offline";
+    $("status").textContent = "Offline";
   }
 }
 
 function add(role, text){
   const d = document.createElement("div");
   d.className = "msg " + role;
-  d.innerHTML = '<div class="bubble"></div>';
-  d.querySelector(".bubble").textContent = text || "";
+  d.innerHTML = `<div class="bubble"></div>`;
+  d.querySelector(".bubble").textContent = text;
   $("messages").appendChild(d);
   $("messages").scrollTop = 999999;
-  return d;
-}
-
-async function postJson(path, body){
-  const r = await fetch(API + path, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(body)
-  });
-  return await r.json();
 }
 
 async function send(){
   const text = $("input").value.trim();
   if(!text) return;
-
   $("input").value = "";
   add("user", text);
-  const ai = add("ai", "…");
+  const ai = document.createElement("div");
+  ai.className = "msg ai";
+  ai.innerHTML = `<div class="bubble">…</div>`;
+  $("messages").appendChild(ai);
 
   try{
-    const d = await postJson("/chat", { message: text, client_id: CLIENT_ID });
-    ai.querySelector(".bubble").textContent = d.text || d.error || "Errore";
-  }catch{
-    ai.querySelector(".bubble").textContent = "Servizio non disponibile";
-  }
-}
-
-async function analyzePhoto(){
-  const f = $("photoFile").files && $("photoFile").files[0];
-  if(!f){
-    add("ai","Seleziona una foto prima di analizzare.");
-    return;
-  }
-
-  const q = ($("photoQuestion").value || "").trim();
-  add("user", "📷 Analisi foto" + (q ? (": " + q) : ""));
-  const ai = add("ai","Analizzo…");
-
-  const fd = new FormData();
-  fd.append("file", f);
-  fd.append("question", q);
-  fd.append("client_id", CLIENT_ID);
-
-  try{
-    const r = await fetch(API + "/analyze_photo", { method:"POST", body: fd });
+    const r = await fetch(API + "/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        message:text,
+        client_id:CLIENT_ID
+      })
+    });
     const d = await r.json();
-    ai.querySelector(".bubble").textContent = d.text || "Errore analisi";
+    ai.remove();
+    add("ai", d.text || "Errore");
   }catch{
-    ai.querySelector(".bubble").textContent = "Errore rete";
-  }finally{
-    $("photoFile").value = "";
-    $("photoQuestion").value = "";
+    ai.remove();
+    add("ai","Servizio non disponibile");
   }
 }
 
 $("send").onclick = send;
-$("analyzeBtn").onclick = analyzePhoto;
-
-$("input").addEventListener("keydown", (e) => {
-  if(e.key === "Enter" && !e.shiftKey){
+$("clear").onclick = () => {
+  $("messages").innerHTML = "";
+  add("ai","Ciao 👋 Come posso aiutarti?");
+};
+$("input").onkeydown = e => {
+  if(e.key==="Enter" && !e.shiftKey){
     e.preventDefault();
     send();
   }
-});
-
-$("clear").onclick = async () => {
-  $("messages").innerHTML = "";
-  add("ai","Ciao 👋 Come posso aiutarti?");
-  try{ await postJson("/clear", { client_id: CLIENT_ID }); }catch{}
 };
 
 checkBackend();
 setInterval(checkBackend, 30000);
-add("ai","Ciao 👋 ChatAI Bob è pronto.");
+add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
 </script>
 
 </body>
