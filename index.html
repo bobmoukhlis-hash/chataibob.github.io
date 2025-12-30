@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatAI Bob</title>
 
 <meta name="mobile-web-app-capable" content="yes">
@@ -17,7 +17,9 @@ body{
   color:#e5e7eb;
 }
 .top{
-  position:sticky;top:0;z-index:10;
+  position:sticky;
+  top:0;
+  z-index:10;
   background:#020617;
   padding:12px;
   display:flex;
@@ -40,7 +42,7 @@ body{
   overflow:hidden;
 }
 #messages{
-  height:calc(100vh - 290px);
+  height:calc(100vh - 240px);
   overflow:auto;
   padding:14px;
 }
@@ -55,14 +57,10 @@ body{
   white-space:pre-wrap;
 }
 .msg.user .bubble{background:#38bdf822}
-.media img{
-  max-width:100%;
-  border-radius:14px;
-  margin-top:8px;
-}
 .toolbar{padding:12px;border-top:1px solid #1f2937}
 textarea{
-  width:100%;min-height:56px;
+  width:100%;
+  min-height:56px;
   border-radius:14px;
   background:#0a1020;
   color:#fff;
@@ -82,22 +80,21 @@ button{
   color:#fff;
   border:1px solid #38bdf8;
 }
-.small{font-size:12px;opacity:.75}
-.row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
+.small{font-size:12px;opacity:.75;margin-top:10px}
+
+/* ✅ PAYPAL BUTTON */
+.paypal-btn{
+  display:inline-block;
   margin-top:8px;
-}
-input{
-  border:1px solid #1f2937;
-  padding:10px;
+  padding:10px 14px;
   border-radius:12px;
-  background:#0a1020;
+  background:#0070ba;
   color:#fff;
+  font-weight:bold;
 }
-a{color:#38bdf8;text-decoration:none}
+.paypal-btn:hover{
+  opacity:0.9;
+}
 </style>
 </head>
 
@@ -110,43 +107,34 @@ a{color:#38bdf8;text-decoration:none}
 
 <div class="wrap">
 <div class="card">
+
 <div id="messages"></div>
 
 <div class="toolbar">
-<textarea id="input"
-placeholder="Scrivi una domanda, oppure: 'foto di un cane', 'video di una persona che cammina'"></textarea>
+<textarea id="input" placeholder="Scrivi qualsiasi domanda, in qualsiasi lingua…"></textarea>
 
-<div class="row">
-<button class="send" id="send">Invia</button>
-<button class="ghost" id="clear">Pulisci</button>
+<div style="display:flex;gap:8px;margin-top:8px">
+  <button class="send" id="send">Invia</button>
+  <button class="ghost" id="clear">Pulisci</button>
 </div>
 
-<div class="row">
-<input id="photoFile" type="file" accept="image/*">
-<input id="photoQuestion" type="text"
-placeholder="Domanda sulla foto (es: cosa c’è? che testo vedi?)">
-<button class="ghost" id="analyzeBtn">🔍 Analizza foto</button>
-</div>
-
-<div class="small">
 <div class="small">
   Limite giornaliero attivo per garantire stabilità del servizio.<br><br>
-
   ☕ Supporta il progetto se ti piace ChatAI Bob<br>
 
-  <a href="https://www.paypal.me/bobbob1979" target="_blank">
-    💙 Dona con PayPal
+  <a class="paypal-btn"
+     href="https://www.paypal.me/bobbob1979"
+     target="_blank">
+     💙 Dona con PayPal
   </a>
 </div>
-</div>
+
 </div>
 </div>
 </div>
 
 <script>
-let API = localStorage.getItem("API") ||
-"https://chatai-bob-backend.onrender.com";
-
+let API = "https://chatai-bob-backend.onrender.com";
 const $ = id => document.getElementById(id);
 
 const CLIENT_ID = (() => {
@@ -179,88 +167,41 @@ function add(role,text){
   return d;
 }
 
-function addImg(title,url){
-  if(!url){ add("ai","❌ Contenuto non disponibile"); return; }
-  const d=document.createElement("div");
-  d.className="msg ai";
-  d.innerHTML=`<div class="bubble"><b>${title}</b>
-  <div class="media"><img src="${url}"></div></div>`;
-  $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
-}
-
-function classifyIntent(t){
-  t=(t||"").toLowerCase();
-  if(t.startsWith("video")||t.startsWith("gif")) return "video";
-  if(t.startsWith("foto")||t.startsWith("immagine")) return "image";
-  return "chat";
-}
-
-async function postJson(path,body){
-  const r=await fetch(API+path,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(body)
-  });
-  return await r.json();
-}
-
 async function send(){
   const text=$("input").value.trim();
   if(!text) return;
   $("input").value="";
   add("user",text);
 
-  const type=classifyIntent(text);
   const ai=add("ai","…");
 
   try{
-    let clean=text.replace(/^(crea|una|un|foto|immagine|video|gif)\s+/i,"").trim();
-    const payload=type==="chat"
-      ?{message:text,client_id:CLIENT_ID}
-      :{prompt:clean,client_id:CLIENT_ID};
-
-    const d=await postJson("/"+type,payload);
+    const r=await fetch(API+"/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text,client_id:CLIENT_ID})
+    });
+    const d=await r.json();
     ai.remove();
-    if(d.error) add("ai","❌ "+d.error);
-    else if(type==="chat") add("ai",d.text);
-    else addImg(type==="image"?"🖼 Foto":"🎞 Video",d.url);
+    add("ai", d.text || "Errore");
   }catch{
     ai.remove();
     add("ai","❌ Servizio non disponibile");
   }
 }
 
-async function analyzePhoto(){
-  const f=$("photoFile").files[0];
-  if(!f){ add("ai","⚠️ Seleziona una foto"); return; }
-  const q=$("photoQuestion").value||"";
-  add("user","📷 Analisi foto");
-  const ai=add("ai","Analizzo…");
-
-  const fd=new FormData();
-  fd.append("file",f);
-  fd.append("question",q);
-  fd.append("client_id",CLIENT_ID);
-
-  try{
-    const r=await fetch(API+"/analyze_photo",{method:"POST",body:fd});
-    const d=await r.json();
-    ai.remove();
-    add("ai",d.text||"Errore analisi");
-  }catch{
-    ai.remove();
-    add("ai","❌ Errore rete");
-  }
-}
-
 $("send").onclick=send;
 $("clear").onclick=()=>{$("messages").innerHTML="";};
-$("analyzeBtn").onclick=analyzePhoto;
+$("input").onkeydown=e=>{
+  if(e.key==="Enter"&&!e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+};
 
 checkBackend();
 setInterval(checkBackend,30000);
-add("ai","Ciao 👋 ChatAI Bob è pronto.");
+add("ai","Ciao 👋 ChatAI Bob è pronto. Scrivi pure!");
 </script>
 
 </body>
