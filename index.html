@@ -200,6 +200,27 @@ $("input").onkeydown = e => {
 checkBackend();
 setInterval(checkBackend, 30000);
 add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
+</script><script>
+let recognition;
+
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Voce non supportata su questo browser");
+    return;
+  }
+
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'it-IT'; // puoi cambiarla se vuoi
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+    const text = event.results[0][0].transcript;
+    document.getElementById("input").value = text;
+    sendMessage(); // funzione che già usi
+  };
+
+  recognition.start();
+}
 </script>
 
 </body>
