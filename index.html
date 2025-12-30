@@ -10,29 +10,102 @@
 <meta name="theme-color" content="#0b0f1a">
 
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0b0f1a;color:#e5e7eb}
-.top{position:sticky;top:0;z-index:10;background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
-.badge{padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;font-size:12px}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b0f1a;
+  color:#e5e7eb;
+}
+.top{
+  position:sticky; top:0; z-index:10;
+  background:#020617;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #1f2937;
+}
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#111827;
+  border:1px solid #1f2937;
+  font-size:12px;
+}
 .wrap{max-width:900px;margin:auto;padding:12px}
-.card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;overflow:hidden}
-#messages{height:calc(100vh - 240px);overflow:auto;padding:14px}
+.card{
+  background:#0b1220;
+  border:1px solid #1f2937;
+  border-radius:16px;
+  overflow:hidden;
+}
+#messages{
+  height:calc(100vh - 240px);
+  overflow:auto;
+  padding:14px;
+}
 .msg{margin:10px 0;display:flex}
 .msg.user{justify-content:flex-end}
-.bubble{max-width:78%;padding:10px 12px;border-radius:14px;background:#111827;border:1px solid #1f2937;white-space:pre-wrap}
+.bubble{
+  max-width:78%;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#111827;
+  border:1px solid #1f2937;
+  white-space:pre-wrap;
+  line-height:1.35;
+}
 .msg.user .bubble{background:#38bdf822}
 .toolbar{padding:12px;border-top:1px solid #1f2937}
-textarea{width:100%;min-height:56px;border-radius:14px;background:#0a1020;color:#fff;border:1px solid #1f2937;padding:10px}
-button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:pointer}
+textarea{
+  width:100%;
+  min-height:60px;
+  border-radius:14px;
+  background:#0a1020;
+  color:#fff;
+  border:1px solid #1f2937;
+  padding:10px;
+  resize:none;
+}
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:8px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  font-weight:bold;
+  cursor:pointer;
+}
 .send{background:#38bdf8;color:#001018}
-.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
-.small{font-size:12px;opacity:.78;margin-top:10px;line-height:1.35}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
-.paypal-btn{display:inline-block;margin-top:8px;padding:10px 14px;border-radius:12px;background:#0070ba;color:#fff;font-weight:bold;text-decoration:none}
-.paypal-btn:hover{opacity:0.9}
+.ghost{
+  background:transparent;
+  color:#fff;
+  border:1px solid #38bdf8;
+}
+.small{font-size:12px;opacity:.75;margin-top:10px}
+a{color:#38bdf8;text-decoration:none}
+
+/* ✅ PayPal button */
+.paypal-btn{
+  display:inline-block;
+  margin-top:8px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#0070ba;
+  color:#fff;
+  font-weight:bold;
+}
+.paypal-btn:hover{ opacity:0.9; }
 </style>
 </head>
 
 <body>
+
 <div class="top">
   <b>🤖 ChatAI Bob</b>
   <span class="badge"><span id="status">Backend: controllo…</span></span>
@@ -43,7 +116,7 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
     <div id="messages"></div>
 
     <div class="toolbar">
-      <textarea id="input" placeholder="Scrivi qualsiasi domanda, in qualsiasi lingua…"></textarea>
+      <textarea id="input" placeholder="Scrivi una domanda... (qualsiasi lingua)"></textarea>
 
       <div class="row">
         <button class="send" id="send">Invia</button>
@@ -51,17 +124,18 @@ button{padding:10px 14px;border-radius:12px;border:0;font-weight:bold;cursor:poi
       </div>
 
       <div class="small">
-        ☕ Supporta il progetto se ti piace ChatAI Bob<br>
-        <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank" rel="noopener">
-          💙 Dona con PayPal
-        </a>
+        ☕ Se ti piace ChatAI Bob, puoi supportare il progetto:
+        <br>
+        <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">💙 Dona con PayPal</a>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const API = "https://chatai-bob-backend.onrender.com";
+/* ✅ METTI QUI IL TUO BACKEND RENDER */
+let API = localStorage.getItem("API") || "https://chatai-bob-backend.onrender.com";
+
 const $ = (id) => document.getElementById(id);
 
 const CLIENT_ID = (() => {
@@ -73,24 +147,33 @@ const CLIENT_ID = (() => {
   return id;
 })();
 
+function add(role, text){
+  const d = document.createElement("div");
+  d.className = "msg " + role;
+  d.innerHTML = `<div class="bubble"></div>`;
+  d.querySelector(".bubble").textContent = text || "";
+  $("messages").appendChild(d);
+  $("messages").scrollTop = 999999;
+  return d;
+}
+
 async function checkBackend(){
   try{
     const r = await fetch(API + "/health", { cache:"no-store" });
     const d = await r.json();
-    $("status").textContent = d.status === "ok" ? "Backend: online" : "Backend: offline";
+    $("status").textContent = (d.status === "ok") ? "Backend: online" : "Backend: offline";
   }catch{
     $("status").textContent = "Backend: offline";
   }
 }
 
-function add(role,text){
-  const d=document.createElement("div");
-  d.className="msg "+role;
-  d.innerHTML='<div class="bubble"></div>';
-  d.querySelector(".bubble").textContent=text||"";
-  $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
-  return d;
+async function postJson(path, body){
+  const r = await fetch(API + path, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(body),
+  });
+  return await r.json();
 }
 
 async function send(){
@@ -99,36 +182,37 @@ async function send(){
 
   $("input").value = "";
   add("user", text);
+
   const ai = add("ai", "…");
 
   try{
-    const r = await fetch(API + "/chat", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ message:text, client_id: CLIENT_ID })
-    });
-
-    const d = await r.json();
+    const d = await postJson("/chat", { message: text, client_id: CLIENT_ID });
     ai.remove();
-    add("ai", d.text || "Errore");
+
+    if(d.error) add("ai", "❌ " + d.error);
+    else add("ai", d.text || "❌ Risposta vuota");
   }catch{
     ai.remove();
-    add("ai","❌ Servizio non disponibile");
+    add("ai", "❌ Errore rete / backend non raggiungibile");
   }
 }
 
+/* eventi */
 $("send").onclick = send;
-$("clear").onclick = () => { $("messages").innerHTML=""; add("ai","Chat pulita. Scrivi pure!"); };
-$("input").onkeydown = (e) => {
-  if(e.key==="Enter" && !e.shiftKey){
+$("clear").onclick = () => { $("messages").innerHTML = ""; };
+
+$("input").addEventListener("keydown", (e) => {
+  if(e.key === "Enter" && !e.shiftKey){
     e.preventDefault();
     send();
   }
-};
+});
 
+/* ✅ avvio */
 checkBackend();
 setInterval(checkBackend, 30000);
-add("ai","Ciao 👋 ChatAI Bob è pronto. Scrivi pure!");
+add("ai", "Ciao 👋 Sono ChatAI Bob. Scrivimi in qualsiasi lingua!");
 </script>
+
 </body>
 </html>
