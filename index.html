@@ -120,7 +120,8 @@ button{
         <button class="send" onclick="sendMessage()">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
-
+<input type="file" id="photo" accept="image/*" style="margin-top:10px" />
+  <button class="ghost" onclick="sendPhoto()">📸 Analizza foto</button>
       <div class="small" style="margin-top:10px">
         Supporta il progetto ❤️<br>
         <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">
@@ -215,26 +216,75 @@ add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
 <script>
 let recognition;
 
-/* ✅ VOCE */
+/* 🎤 VOCE */
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
-    alert("Voce non supportata su questo browser");
+    alert("Il microfono non è supportato su questo browser");
     return;
   }
 
   recognition = new webkitSpeechRecognition();
-  recognition.lang = 'it-IT'; // se vuoi poi lo rendiamo automatico
+  recognition.lang = 'it-IT';
   recognition.interimResults = false;
 
   recognition.onresult = function(event) {
     const text = event.results[0][0].transcript;
     document.getElementById("input").value = text;
-    sendMessage(); // ✅ esiste e funziona
+    sendMessage();
   };
 
   recognition.start();
 }
-</script>
 
+/* 📸 FOTO + OCR */
+async function sendPhoto() {
+  const fileInput = document.getElementById("photo");
+  const file = fileInput.files[0];
+
+if (!file) {
+  alert("Seleziona prima una foto");
+  return;
+}
+
+  add("user", "📸 Analizza questa foto");
+
+  const form = new FormData();
+  form.append("file", file);
+
+  const ai = document.createElement("div");
+  ai.className = "msg ai";
+  ai.innerHTML = `<div class="bubble">Analisi in corso…</div>`;
+  $("messages").appendChild(ai);
+  $("messages").scrollTop = 999999;
+
+  try {
+    const r = await fetch(API + "/ocr_photo", {
+      method: "POST",
+      body: form
+    });
+
+    const d = await r.json();
+    ai.remove();
+
+    if (!d.text) {
+      add("ai", "Non riesco a leggere il testo nella foto.");
+      return;
+    }
+
+    document.getElementById("input").value =
+      "Nella foto c'è scritto: " + d.text + ". Spiegamelo bene.";
+
+    sendMessage();
+    fileInput.value = "";
+
+  } catch {
+    ai.remove();
+    add("ai", "Errore durante l’analisi della foto.");
+  }
+}
+     
+</script>
 </body>
 </html>
+
+  
