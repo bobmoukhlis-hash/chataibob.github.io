@@ -121,7 +121,13 @@ button{
         <button class="send" onclick="sendMessage()">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
-<input type="file" id="photo" accept="image/*" style="margin-top:10px" />
+<input
+  type="file"
+  id="photo"
+  accept="image/*"
+  capture="environment"
+  style="margin-top:10px"
+/>
   <button class="ghost" onclick="sendPhoto()">📸 Analizza foto</button>
       <div class="small" style="margin-top:10px">
         Supporta il progetto ❤️<br>
