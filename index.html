@@ -249,6 +249,7 @@ async function sendPhoto() {
 
   add("user", "📸 Analizza questa foto");
 
+  // messaggio temporaneo
   const ai = document.createElement("div");
   ai.className = "msg ai";
   ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
@@ -260,30 +261,22 @@ async function sendPhoto() {
   form.append("question", "");
   form.append("client_id", CLIENT_ID());
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 45000); // 45s
-
   try {
-    const r = await fetch(API + "/analyze_photo", {
+    const r = await fetch(API + "/ocr_photo", {
       method: "POST",
-      body: form,
-      signal: controller.signal
+      body: form
     });
-
-    clearTimeout(timeout);
 
     const data = await r.json();
     ai.remove();
-    add("assistant", data.text);
 
-} catch (e) {
-  ai.remove();
-  add(
-    "assistant",
-    e.name === "AbortError"
-      ? "⏱️ L’analisi sta impiegando troppo tempo. Riprova tra poco."
-      : "Errore durante l’analisi della foto."
-  );
+    add("assistant", data.text || "Nessun testo riconosciuto.");
+  } catch (e) {
+    ai.remove();
+    add("assistant", "Errore durante l’analisi della foto.");
+  }
+
+  fileInput.value = "";
 }
      
 </script>
