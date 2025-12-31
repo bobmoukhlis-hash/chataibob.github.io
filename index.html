@@ -61,14 +61,15 @@ body{
   padding:12px;
   border-top:1px solid #1f2937;
 }
-textarea{
+input[type="text"]{
   width:100%;
-  min-height:56px;
+  min-height:46px;
   border-radius:14px;
   background:#0a1020;
   color:#fff;
   border:1px solid #1f2937;
   padding:10px;
+  outline:none;
 }
 button{
   padding:10px 14px;
@@ -109,9 +110,14 @@ button{
     <div id="messages"></div>
 
     <div class="toolbar">
-      <textarea id="input" placeholder="Scrivi una domanda…"></textarea>
+
+      <!-- INPUT (come richiesto da te) -->
+      <input id="input" type="text" placeholder="Scrivi una domanda..." />
+
+      <!-- BOTTONI (come richiesto da te) -->
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="send" id="send">Invia</button>
+        <button class="ghost" onclick="startVoice()">🎤</button>
+        <button class="send" onclick="sendMessage()">Invia</button>
         <button class="ghost" id="clear">Pulisci</button>
       </div>
 
@@ -121,6 +127,7 @@ button{
           Dona con PayPal
         </a>
       </div>
+
     </div>
   </div>
 </div>
@@ -152,29 +159,30 @@ function add(role, text){
   const d = document.createElement("div");
   d.className = "msg " + role;
   d.innerHTML = `<div class="bubble"></div>`;
-  d.querySelector(".bubble").textContent = text;
+  d.querySelector(".bubble").textContent = text || "";
   $("messages").appendChild(d);
   $("messages").scrollTop = 999999;
 }
 
-async function send(){
+/* ✅ QUESTA È LA FUNZIONE CHE USA IL BOTTONE "Invia" */
+async function sendMessage(){
   const text = $("input").value.trim();
   if(!text) return;
+
   $("input").value = "";
   add("user", text);
+
   const ai = document.createElement("div");
   ai.className = "msg ai";
   ai.innerHTML = `<div class="bubble">…</div>`;
   $("messages").appendChild(ai);
+  $("messages").scrollTop = 999999;
 
   try{
     const r = await fetch(API + "/chat",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        message:text,
-        client_id:CLIENT_ID
-      })
+      body:JSON.stringify({ message:text, client_id:CLIENT_ID })
     });
     const d = await r.json();
     ai.remove();
@@ -185,24 +193,29 @@ async function send(){
   }
 }
 
-$("send").onclick = send;
+/* ✅ ENTER per inviare */
+$("input").addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* ✅ PULISCI */
 $("clear").onclick = () => {
   $("messages").innerHTML = "";
   add("ai","Ciao 👋 Come posso aiutarti?");
-};
-$("input").onkeydown = e => {
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    send();
-  }
 };
 
 checkBackend();
 setInterval(checkBackend, 30000);
 add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
-</script><script>
+</script>
+
+<script>
 let recognition;
 
+/* ✅ VOCE */
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
     alert("Voce non supportata su questo browser");
@@ -210,13 +223,13 @@ function startVoice() {
   }
 
   recognition = new webkitSpeechRecognition();
-  recognition.lang = 'it-IT'; // puoi cambiarla se vuoi
+  recognition.lang = 'it-IT'; // se vuoi poi lo rendiamo automatico
   recognition.interimResults = false;
 
   recognition.onresult = function(event) {
     const text = event.results[0][0].transcript;
     document.getElementById("input").value = text;
-    sendMessage(); // funzione che già usi
+    sendMessage(); // ✅ esiste e funziona
   };
 
   recognition.start();
