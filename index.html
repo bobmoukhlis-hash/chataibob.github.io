@@ -242,46 +242,40 @@ async function sendPhoto() {
   const fileInput = document.getElementById("photo");
   const file = fileInput.files[0];
 
-if (!file) {
-  alert("Seleziona prima una foto");
-  return;
-}
+  if (!file) {
+    alert("Seleziona prima una foto");
+    return;
+  }
 
   add("user", "📸 Analizza questa foto");
 
-  const form = new FormData();
-  form.append("file", file);
-
   const ai = document.createElement("div");
   ai.className = "msg ai";
-  ai.innerHTML = `<div class="bubble">Analisi in corso…</div>`;
-  $("messages").appendChild(ai);
-  $("messages").scrollTop = 999999;
+  ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
+  document.getElementById("messages").appendChild(ai);
+  document.getElementById("messages").scrollTop = 999999;
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("question", "");
+  form.append("client_id", CLIENT_ID());
 
   try {
-    const r = await fetch(API + "/ocr_photo", {
+    const r = await fetch(API + "/analyze_photo", {
       method: "POST",
       body: form
     });
 
-    const d = await r.json();
+    const data = await r.json();
     ai.remove();
+    add("assistant", data.text);
 
-    if (!d.text) {
-      add("ai", "Non riesco a leggere il testo nella foto.");
-      return;
-    }
-
-    document.getElementById("input").value =
-      "Nella foto c'è scritto: " + d.text + ". Spiegamelo bene.";
-
-    sendMessage();
-    fileInput.value = "";
-
-  } catch {
+  } catch (e) {
     ai.remove();
-    add("ai", "Errore durante l’analisi della foto.");
+    add("assistant", "Errore durante l’analisi della foto.");
   }
+
+  fileInput.value = "";
 }
      
 </script>
