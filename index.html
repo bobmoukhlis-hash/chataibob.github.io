@@ -297,62 +297,68 @@
       recognition.start();
     }
 
-    // =========================
-    // FOTO + OCR (da galleria)
-    // =========================
-    async function sendPhoto() {
-      const fileInput = $("photo");
-      const file = fileInput.files[0];
+    // ===============================
+// 📸 FOTO + OCR (da galleria)
+// ===============================
+async function sendPhoto() {
 
-      if (!file) {
-        add("ai", "📸 Seleziona prima una foto dalla galleria.");
-        speak("Seleziona prima una foto dalla galleria");
-        return;
-      }
+  const fileInput = document.getElementById("photo");
+  const file = fileInput.files[0];
 
-      // blocca il bottone mentre carica
-      $("photoBtn").disabled = true;
+  // 1️⃣ controllo file
+  if (!file) {
+    add("ai", "📸 Seleziona prima una foto dalla galleria.");
+    speak("Seleziona prima una foto dalla galleria");
+    return;
+  }
 
-      add("user", "📸 Analizza questa foto");
+  // 2️⃣ blocca bottone
+  const btn = document.getElementById("photoBtn");
+  btn.disabled = true;
 
-      const ai = document.createElement("div");
-      ai.className = "msg ai";
-      ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
-      $("messages").appendChild(ai);
-      $("messages").scrollTop = 999999;
+  add("user", "📸 Analizza questa foto");
 
-      const form = new FormData();
-      form.append("file", file);
-      form.append("question", "");
-      form.append("client_id", CLIENT_ID);
+  // 3️⃣ messaggio loading
+  const ai = document.createElement("div");
+  ai.className = "msg ai";
+  ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
+  document.getElementById("messages").appendChild(ai);
+  document.getElementById("messages").scrollTop = 999999;
 
-      try {
-        const r = await fetch(API + "/ocr_photo", {
-          method: "POST",
-          body: form
-        });
+  // 4️⃣ form data
+  const form = new FormData();
+  form.append("file", file);
+  form.append("client_id", CLIENT_ID);
 
-        const data = await r.json();
-        ai.remove();
+  try {
+    // 5️⃣ fetch OCR
+    const r = await fetch(API + "/ocr_photo", {
+      method: "POST",
+      body: form
+    });
 
-        const text =
-          (data && typeof data.text === "string" && data.text.trim())
-            ? data.text
-            : "Nessun testo riconosciuto.";
+    const data = await r.json();
+    ai.remove();
 
-        add("ai", text);
-        speak(text);
+    // 6️⃣ testo sicuro
+    const text =
+      (data && typeof data.text === "string" && data.text.trim())
+        ? data.text
+        : "Nessun testo riconosciuto.";
 
-      } catch (e) {
-        ai.remove();
-        add("ai", "OCR non disponibile al momento.");
-        speak("OCR non disponibile al momento");
-      }
+    add("ai", text);
+    speak(text);
 
-      // reset file input (così puoi ricaricare la stessa foto)
-      fileInput.value = "";
-      $("photoBtn").disabled = true;
-    }
+  } catch (e) {
+    ai.remove();
+    add("ai", "❌ Errore durante l’analisi della foto.");
+    speak("Errore durante l’analisi della foto");
+  }
+
+  // 7️⃣ reset
+  fileInput.value = "";
+  btn.disabled = false;
+}
 
     // =========================
     // START
