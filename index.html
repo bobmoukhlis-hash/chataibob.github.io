@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ChatAI Bob</title>
 
-  <!-- PWA / Play Store -->
-  <link rel="manifest" href="/manifest.json" />
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#0b1220" />
-
-  <!-- Mobile -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
 
@@ -46,7 +44,7 @@
       overflow:hidden;
     }
     #messages{
-      height:calc(100vh - 230px);
+      height:calc(100vh - 260px);
       overflow:auto;
       padding:14px;
     }
@@ -59,6 +57,7 @@
       background:#111827;
       border:1px solid #1f2937;
       white-space:pre-wrap;
+      line-height:1.35;
     }
     .msg.user .bubble{background:#38bdf822}
     .toolbar{
@@ -74,6 +73,7 @@
       border:1px solid #1f2937;
       padding:10px;
       outline:none;
+      box-sizing:border-box;
     }
     button{
       padding:10px 14px;
@@ -81,6 +81,11 @@
       border:0;
       font-weight:bold;
       cursor:pointer;
+      white-space:nowrap;
+    }
+    button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
     }
     .send{background:#38bdf8;color:#001018}
     .ghost{
@@ -88,7 +93,13 @@
       color:#fff;
       border:1px solid #38bdf8;
     }
-    .small{font-size:12px;opacity:.8}
+    .row{
+      display:flex;
+      gap:8px;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+    .small{font-size:12px;opacity:.85}
     .paypal-btn{
       display:inline-block;
       margin-top:8px;
@@ -116,20 +127,22 @@
       <div class="toolbar">
         <input id="input" type="text" placeholder="Scrivi una domanda..." />
 
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="ghost" onclick="startVoice()">🎤</button>
+        <div class="row">
+          <button class="ghost" id="micBtn" onclick="startMic()">🎤 Microfono</button>
           <button class="send" onclick="sendMessage()">Invia</button>
-          <button class="ghost" id="clear">Pulisci</button>
+          <button class="ghost" id="clearBtn">Pulisci</button>
+          <button class="ghost" id="voiceToggle" onclick="toggleVoice()">🔊 Voce: ON</button>
         </div>
 
-        <input type="file" id="photo" accept="image/*" onchange="sendPhoto()">
-          style="margin-top:10px"
-        />
-        <button class="ghost" onclick="sendPhoto()">📸 Analizza foto</button>
+        <!-- FOTO: SOLO GALLERIA (niente capture per evitare bug Android) -->
+        <div class="row" style="align-items:center">
+          <input type="file" id="photo" accept="image/*" />
+          <button class="ghost" id="photoBtn" onclick="sendPhoto()">📸 Analizza foto</button>
+        </div>
 
         <div class="small" style="margin-top:10px">
           Supporta il progetto ❤️<br />
-          <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">
+          <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank" rel="noreferrer">
             Dona con PayPal
           </a>
         </div>
@@ -138,10 +151,13 @@
   </div>
 
   <script>
+    // =========================
+    // CONFIG
+    // =========================
     const API = "https://chatai-bob-backend.onrender.com";
     const $ = (id) => document.getElementById(id);
 
-    // ✅ QUI è una stringa, non una funzione
+    // ID cliente stabile
     const CLIENT_ID = (() => {
       let id = localStorage.getItem("CLIENT_ID");
       if (!id) {
@@ -151,16 +167,31 @@
       return id;
     })();
 
-    async function checkBackend() {
-      try {
-        const r = await fetch(API + "/health", { cache: "no-store" });
-        const d = await r.json();
-        $("status").textContent = d.status === "ok" ? "Online" : "Offline";
-      } catch {
-        $("status").textContent = "Offline";
-      }
+    // Voce ON/OFF
+    let VOICE_ON = true;
+
+    function toggleVoice() {
+      VOICE_ON = !VOICE_ON;
+      $("voiceToggle").textContent = VOICE_ON ? "🔊 Voce: ON" : "🔇 Voce: OFF";
+      if (!VOICE_ON) speechSynthesis.cancel();
     }
 
+    // Legge un testo (TTS)
+    function speak(text) {
+      if (!VOICE_ON) return;
+      if (!text) return;
+      if (!("speechSynthesis" in window)) return;
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "it-IT";
+      u.rate = 1;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+
+    // =========================
+    // UI
+    // =========================
     function add(role, text) {
       const d = document.createElement("div");
       d.className = "msg " + role;
@@ -170,6 +201,42 @@
       $("messages").scrollTop = 999999;
     }
 
+    $("clearBtn").onclick = () => {
+      $("messages").innerHTML = "";
+      add("ai", "Ciao 👋 Come posso aiutarti?");
+      speak("Ciao, come posso aiutarti?");
+    };
+
+    $("input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Abilita/disabilita bottone foto se non c'è file
+    $("photo").addEventListener("change", () => {
+      const file = $("photo").files[0];
+      $("photoBtn").disabled = !file;
+    });
+    $("photoBtn").disabled = true;
+
+    // =========================
+    // BACKEND STATUS
+    // =========================
+    async function checkBackend() {
+      try {
+        const r = await fetch(API + "/health", { cache: "no-store" });
+        const d = await r.json();
+        $("status").textContent = (d && d.status === "ok") ? "Online" : "Offline";
+      } catch {
+        $("status").textContent = "Offline";
+      }
+    }
+
+    // =========================
+    // CHAT
+    // =========================
     async function sendMessage() {
       const text = $("input").value.trim();
       if (!text) return;
@@ -187,39 +254,33 @@
         const r = await fetch(API + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, client_id: CLIENT_ID }),
+          body: JSON.stringify({ message: text, client_id: CLIENT_ID })
         });
 
         const d = await r.json();
         ai.remove();
-        add("ai", d.text || "Errore");
+
+        const out = (d && d.text) ? d.text : "Errore";
+        add("ai", out);
+        speak(out);
+
       } catch {
         ai.remove();
         add("ai", "Servizio non disponibile");
+        speak("Servizio non disponibile");
       }
     }
 
-    $("input").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    $("clear").onclick = () => {
-      $("messages").innerHTML = "";
-      add("ai", "Ciao 👋 Come posso aiutarti?");
-    };
-
-    // 🎤 VOCE
-    let recognition;
-    function startVoice() {
+    // =========================
+    // MICROFONO (speech -> testo)
+    // =========================
+    function startMic() {
       if (!("webkitSpeechRecognition" in window)) {
         alert("Il microfono non è supportato su questo browser");
         return;
       }
 
-      recognition = new webkitSpeechRecognition();
+      const recognition = new webkitSpeechRecognition();
       recognition.lang = "it-IT";
       recognition.interimResults = false;
 
@@ -229,47 +290,76 @@
         sendMessage();
       };
 
+      recognition.onerror = function () {
+        // non spammiamo alert, su Android capita spesso
+      };
+
       recognition.start();
     }
 
-    // 📸 FOTO + OCR
+    // =========================
+    // FOTO + OCR (da galleria)
+    // =========================
     async function sendPhoto() {
-  const fileInput = $("photo");
-  const file = fileInput.files[0];
+      const fileInput = $("photo");
+      const file = fileInput.files[0];
 
-  console.log(file); // ora sarà SEMPRE valorizzato su Android
+      if (!file) {
+        add("ai", "📸 Seleziona prima una foto dalla galleria.");
+        speak("Seleziona prima una foto dalla galleria");
+        return;
+      }
 
-  add("user", "📸 Analizza questa foto");
+      // blocca il bottone mentre carica
+      $("photoBtn").disabled = true;
 
-  const ai = document.createElement("div");
-  ai.className = "msg ai";
-  ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
-  $("messages").appendChild(ai);
+      add("user", "📸 Analizza questa foto");
 
-  const form = new FormData();
-  form.append("file", file);
-  form.append("client_id", CLIENT_ID);
+      const ai = document.createElement("div");
+      ai.className = "msg ai";
+      ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
+      $("messages").appendChild(ai);
+      $("messages").scrollTop = 999999;
 
-  try {
-    const r = await fetch(API + "/ocr_photo", {
-      method: "POST",
-      body: form,
-    });
+      const form = new FormData();
+      form.append("file", file);
+      form.append("question", "");
+      form.append("client_id", CLIENT_ID);
 
-    const data = await r.json();
-    ai.remove();
-    add("ai", data.text || "Nessun testo riconosciuto.");
-  } catch (e) {
-    ai.remove();
-    add("ai", "Errore durante l’analisi della foto.");
-  }
+      try {
+        const r = await fetch(API + "/ocr_photo", {
+          method: "POST",
+          body: form
+        });
 
-  fileInput.value = ""; // reset corretto
-}
+        const data = await r.json();
+        ai.remove();
 
+        const text =
+          (data && typeof data.text === "string" && data.text.trim())
+            ? data.text
+            : "Nessun testo riconosciuto.";
+
+        add("ai", text);
+        speak(text);
+
+      } catch (e) {
+        ai.remove();
+        add("ai", "OCR non disponibile al momento.");
+        speak("OCR non disponibile al momento");
+      }
+
+      // reset file input (così puoi ricaricare la stessa foto)
+      fileInput.value = "";
+      $("photoBtn").disabled = true;
+    }
+
+    // =========================
+    // START
+    // =========================
+    add("ai", "Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
     checkBackend();
     setInterval(checkBackend, 30000);
-    add("ai", "Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
   </script>
 </body>
 </html>
