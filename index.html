@@ -122,11 +122,7 @@
           <button class="ghost" id="clear">Pulisci</button>
         </div>
 
-        <input
-          type="file"
-          id="photo"
-          accept="image/*"
-          capture="environment"
+        <input type="file" id="photo" accept="image/*" onchange="sendPhoto()">
           style="margin-top:10px"
         />
         <button class="ghost" onclick="sendPhoto()">📸 Analizza foto</button>
