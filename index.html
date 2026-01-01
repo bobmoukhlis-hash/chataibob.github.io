@@ -1,246 +1,263 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatAI Bob</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChatAI Bob</title>
 
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0b1220">
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0b0f1a;
-  color:#e5e7eb;
-}
-.top{
-  position:sticky;
-  top:0;
-  background:#020617;
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  border-bottom:1px solid #1f2937;
-}
-.badge{
-  padding:6px 10px;
-  border-radius:999px;
-  background:#111827;
-  border:1px solid #1f2937;
-  font-size:12px;
-}
-.wrap{max-width:900px;margin:auto;padding:12px}
-.card{
-  background:#0b1220;
-  border:1px solid #1f2937;
-  border-radius:16px;
-}
-#messages{
-  height:calc(100vh - 260px);
-  overflow:auto;
-  padding:14px;
-}
-.msg{margin:10px 0;display:flex}
-.msg.user{justify-content:flex-end}
-.bubble{
-  max-width:78%;
-  padding:12px;
-  border-radius:14px;
-  background:#111827;
-  border:1px solid #1f2937;
-  white-space:pre-wrap;
-}
-.msg.user .bubble{background:#38bdf822}
-.toolbar{padding:12px;border-top:1px solid #1f2937}
-input[type=text]{
-  width:100%;
-  border-radius:14px;
-  background:#0a1020;
-  color:#fff;
-  border:1px solid #1f2937;
-  padding:10px;
-}
-button{
-  padding:10px 14px;
-  border-radius:12px;
-  border:0;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:disabled{opacity:.5}
-.send{background:#38bdf8;color:#001018}
-.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
-.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.small{font-size:12px;opacity:.85}
-.paypal-btn{
-  display:inline-block;
-  margin-top:8px;
-  padding:10px 14px;
-  border-radius:12px;
-  background:#0070ba;
-  color:#fff;
-  text-decoration:none;
-}
-</style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0f1a;
+      color: #e5e7eb;
+    }
+
+    .top {
+      position: sticky;
+      top: 0;
+      background: #020617;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1f2937;
+      z-index: 10;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      font-size: 12px;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: auto;
+      padding: 12px;
+    }
+
+    .card {
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    #messages {
+      height: calc(100vh - 240px);
+      overflow-y: auto;
+      padding: 14px;
+    }
+
+    .msg {
+      margin: 10px 0;
+      display: flex;
+    }
+
+    .msg.user {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 12px;
+      border-radius: 14px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    .msg.user .bubble {
+      background: #38bdf822;
+    }
+
+    .toolbar {
+      padding: 12px;
+      border-top: 1px solid #1f2937;
+    }
+
+    input {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      background: #0a1020;
+      color: #ffffff;
+      border: 1px solid #1f2937;
+      padding: 10px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .send {
+      background: #38bdf8;
+      color: #001018;
+    }
+
+    .ghost {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid #38bdf8;
+    }
+
+    .small {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 10px;
+    }
+
+    .paypal-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #0070ba;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="top">
+    <b>ChatAI Bob</b>
+    <span class="badge" id="status">Offline</span>
+  </div>
 
-<div class="top">
-  <b>🤖 ChatAI Bob</b>
-  <span class="badge" id="status">Offline</span>
-</div>
+  <div class="wrap">
+    <div class="card">
+      <div id="messages"></div>
 
-<div class="wrap">
-<div class="card">
+      <div class="toolbar">
+        <input id="input" type="text" placeholder="Scrivi una domanda..." />
 
-<div id="messages"></div>
+        <div class="row">
+          <button class="ghost" onclick="startMic()">Microfono</button>
+          <button class="send" onclick="sendMessage()">Invia</button>
+          <button class="ghost" onclick="clearChat()">Pulisci</button>
+          <button class="ghost" onclick="toggleVoice()" id="voiceBtn">Voce ON</button>
+        </div>
 
-<div class="toolbar">
+        <div class="small">
+          Supporta il progetto<br />
+          <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">Dona con PayPal</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<input id="input" type="text" placeholder="Scrivi una domanda...">
+  <script>
+    const API = "https://chatai-bob-backend.onrender.com";
+    const input = document.getElementById("input");
+    const messages = document.getElementById("messages");
+    const status = document.getElementById("status");
+    const voiceBtn = document.getElementById("voiceBtn");
 
-<div class="row">
-  <button class="ghost" onclick="startMic()">🎤 Microfono</button>
-  <button class="send" onclick="sendMessage()">Invia</button>
-  <button class="ghost" onclick="clearChat()">Pulisci</button>
-  <button class="ghost" onclick="toggleVoice()" id="voiceBtn">🔊 Voce ON</button>
-</div>
+    let VOICE_ON = true;
 
-<!-- FOTO SOLO GALLERIA (STABILE SU ANDROID) -->
-<input type="file" id="photo" accept="image/*" style="margin-top:10px">
+    function add(role, text) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+      div.appendChild(bubble);
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
 
-<button class="ghost" id="photoBtn" onclick="sendPhoto()" disabled>
-📸 Analizza foto
-</button>
+    function speak(text) {
+      if (!VOICE_ON) return;
+      if (!window.speechSynthesis) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "it-IT";
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
 
-<div class="small">
-Supporta il progetto ❤️<br>
-<a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">
-Dona con PayPal
-</a>
-</div>
+    function toggleVoice() {
+      VOICE_ON = !VOICE_ON;
+      voiceBtn.textContent = VOICE_ON ? "Voce ON" : "Voce OFF";
+      if (!VOICE_ON) speechSynthesis.cancel();
+    }
 
-</div>
-</div>
-</div>
+    function clearChat() {
+      messages.innerHTML = "";
+      add("ai", "Ciao, come posso aiutarti?");
+      speak("Ciao, come posso aiutarti?");
+    }
 
-<script>
-const API = "https://chatai-bob-backend.onrender.com";
-const $ = id => document.getElementById(id);
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      add("user", text);
 
-/* PULIZIA TESTO (NO ** NO LISTE ROTTE) */
-function cleanText(t){
-  if(!t) return "";
-  return t
-    .replace(/\*\*(.*?)\*\*/g,"$1")
-    .replace(/\*(.*?)\*/g,"$1")
-    .replace(/^\s*[-*]\s+/gm,"")
-    .replace(/^\s{0,3}#{1,6}\s+/gm,"")
-    .replace(/\n{3,}/g,"\n\n")
-    .trim();
-}
+      try {
+        const r = await fetch(API + "/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
 
-/* CLIENT ID */
-const CLIENT_ID = localStorage.CLIENT_ID || (
-  localStorage.CLIENT_ID = "web_" + Math.random().toString(36).slice(2)
-);
+        const d = await r.json();
+        const reply = d.text || "Errore di risposta";
+        add("ai", reply);
+        speak(reply);
+      } catch {
+        add("ai", "Servizio non disponibile");
+        speak("Servizio non disponibile");
+      }
+    }
 
-/* VOCE */
-let VOICE_ON = true;
-function toggleVoice(){
-  VOICE_ON = !VOICE_ON;
-  $("voiceBtn").textContent = VOICE_ON ? "🔊 Voce ON" : "🔇 Voce OFF";
-  speechSynthesis.cancel();
-}
-function speak(t){
-  if(!VOICE_ON || !t) return;
-  const u = new SpeechSynthesisUtterance(t);
-  u.lang = "it-IT";
-  speechSynthesis.speak(u);
-}
+    function startMic() {
+      if (!("webkitSpeechRecognition" in window)) return;
+      const rec = new webkitSpeechRecognition();
+      rec.lang = "it-IT";
+      rec.onresult = e => {
+        input.value = e.results[0][0].transcript;
+        sendMessage();
+      };
+      rec.start();
+    }
 
-/* UI */
-function add(role,text){
-  const d=document.createElement("div");
-  d.className="msg "+role;
-  d.innerHTML=`<div class="bubble"></div>`;
-  d.querySelector(".bubble").textContent=text;
-  $("messages").appendChild(d);
-  $("messages").scrollTop=999999;
-}
+    async function checkBackend() {
+      try {
+        const r = await fetch(API + "/health");
+        const d = await r.json();
+        status.textContent = d.status === "ok" ? "Online" : "Offline";
+      } catch {
+        status.textContent = "Offline";
+      }
+    }
 
-function clearChat(){
-  $("messages").innerHTML="";
-  add("ai","Ciao 👋 Come posso aiutarti?");
-}
-
-/* CHAT */
-async function sendMessage(){
-  const t=$("input").value.trim();
-  if(!t) return;
-  $("input").value="";
-  add("user",t);
-
-  const r=await fetch(API+"/chat",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({message:t,client_id:CLIENT_ID})
-  }).catch(()=>null);
-
-  if(!r){ add("ai","Servizio non disponibile"); return; }
-
-  const d=await r.json();
-  const clean=cleanText(d.text||"Errore");
-  add("ai",clean);
-  speak(clean);
-}
-
-/* MICROFONO */
-function startMic(){
-  if(!window.webkitSpeechRecognition) return;
-  const rec=new webkitSpeechRecognition();
-  rec.lang="it-IT";
-  rec.onresult=e=>{
-    $("input").value=e.results[0][0].transcript;
-    sendMessage();
-  };
-  rec.start();
-}
-
-/* FOTO */
-$("photo").onchange=()=> $("photoBtn").disabled=!$("photo").files[0];
-
-async function sendPhoto(){
-  const f=$("photo").files[0];
-  if(!f){ add("ai","Seleziona una foto"); return; }
-
-  add("user","📸 Analizza foto");
-
-  const fd=new FormData();
-  fd.append("file",f);
-  fd.append("client_id",CLIENT_ID);
-
-  const r=await fetch(API+"/ocr_photo",{method:"POST",body:fd}).catch(()=>null);
-  if(!r){ add("ai","OCR non disponibile"); return; }
-
-  const d=await r.json();
-  const clean=cleanText(d.text || "Nessun testo rilevato");
-  add("ai",clean);
-  speak(clean);
-
-  $("photo").value="";
-  $("photoBtn").disabled=true;
-}
-
-/* START */
-add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
-fetch(API+"/health").then(r=>r.json()).then(d=>{
-  $("status").textContent=d.status==="ok"?"Online":"Offline";
-});
-</script>
-
+    add("ai", "Ciao, sono ChatAI Bob.");
+    checkBackend();
+    setInterval(checkBackend, 30000);
+  </script>
 </body>
 </html>
