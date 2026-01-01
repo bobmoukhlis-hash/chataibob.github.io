@@ -134,11 +134,23 @@
           <button class="ghost" id="voiceToggle" onclick="toggleVoice()">🔊 Voce: ON</button>
         </div>
 
-        <!-- FOTO: SOLO GALLERIA (niente capture per evitare bug Android) -->
-        <div class="row" style="align-items:center">
-          <input type="file" id="photo" accept="image/*" />
-          <button class="ghost" id="photoBtn" onclick="sendPhoto()">📸 Analizza foto</button>
-        </div>
+        <!-- INPUT FOTO (GALLERIA / CAMERA) -->
+<input
+  type="file"
+  id="photo"
+  accept="image/*"
+  capture="environment"
+  style="margin-top:10px"
+/>
+
+<!-- BOTTONE ANALIZZA FOTO -->
+<button
+  id="photoBtn"
+  class="ghost"
+  onclick="sendPhoto()"
+>
+  📸 Analizza foto
+</button>
 
         <div class="small" style="margin-top:10px">
           Supporta il progetto ❤️<br />
@@ -157,27 +169,12 @@
     const API = "https://chatai-bob-backend.onrender.com";
     const $ = (id) => document.getElementById(id);
 function cleanText(t) {
-  if (!t || typeof t !== "string") return "";
-
+  if (!t) return "";
   return t
-    // rimuove markdown titoli ###
-    .replace(/^#{1,6}\s*/gm, "")
-
-    // rimuove **grassetto**
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-
-    // rimuove * corsivo *
-    .replace(/\*(.*?)\*/g, "$1")
-
-    // rimuove elenchi - • –
-    .replace(/^[\-\•\–]\s+/gm, "")
-
-    // rimuove elenchi numerati 1. 2.
-    .replace(/^\d+\.\s+/gm, "")
-
-    // rimuove spazi vuoti multipli
-    .replace(/\n{3,}/g, "\n\n")
-
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/#/g, "")
+    .replace(/-\s+/g, "")
     .trim();
 }
     // ID cliente stabile
