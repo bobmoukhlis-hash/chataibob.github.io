@@ -156,7 +156,30 @@
     // =========================
     const API = "https://chatai-bob-backend.onrender.com";
     const $ = (id) => document.getElementById(id);
+function cleanText(t) {
+  if (!t || typeof t !== "string") return "";
 
+  return t
+    // rimuove markdown titoli ###
+    .replace(/^#{1,6}\s*/gm, "")
+
+    // rimuove **grassetto**
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+
+    // rimuove * corsivo *
+    .replace(/\*(.*?)\*/g, "$1")
+
+    // rimuove elenchi - • –
+    .replace(/^[\-\•\–]\s+/gm, "")
+
+    // rimuove elenchi numerati 1. 2.
+    .replace(/^\d+\.\s+/gm, "")
+
+    // rimuove spazi vuoti multipli
+    .replace(/\n{3,}/g, "\n\n")
+
+    .trim();
+}
     // ID cliente stabile
     const CLIENT_ID = (() => {
       let id = localStorage.getItem("CLIENT_ID");
@@ -341,13 +364,19 @@ async function sendPhoto() {
     ai.remove();
 
     // 6️⃣ testo sicuro
-    const text =
-      (data && typeof data.text === "string" && data.text.trim())
-        ? data.text
-        : "Nessun testo riconosciuto.";
+    let text = "";
 
-    add("ai", text);
-    speak(text);
+if (data && typeof data.text === "string" && data.text.trim()) {
+  text = data.text;
+} else if (data && data.error) {
+  text = "⚠️ Analisi foto temporaneamente non disponibile.";
+} else {
+  text = "📷 Foto ricevuta, ma nessun testo rilevato.";
+}
+
+ const clean = cleanText(data.text);
+add("ai", clean);
+speak(clean);
 
   } catch (e) {
     ai.remove();
