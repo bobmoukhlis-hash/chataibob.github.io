@@ -238,43 +238,38 @@
 
     // 📸 FOTO + OCR
     async function sendPhoto() {
-      const fileInput = $("photo");
-      const file = fileInput.files[0];
+  const fileInput = $("photo");
+  const file = fileInput.files[0];
 
-      if (!file) {
-        alert("Seleziona prima una foto");
-        return;
-      }
+  console.log(file); // ora sarà SEMPRE valorizzato su Android
 
-      add("user", "📸 Analizza questa foto");
+  add("user", "📸 Analizza questa foto");
 
-      const ai = document.createElement("div");
-      ai.className = "msg ai";
-      ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
-      $("messages").appendChild(ai);
-      $("messages").scrollTop = 999999;
+  const ai = document.createElement("div");
+  ai.className = "msg ai";
+  ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
+  $("messages").appendChild(ai);
 
-      const form = new FormData();
-      form.append("file", file);
-      form.append("question", "");
-      form.append("client_id", CLIENT_ID); // ✅ qui è CLIENT_ID, non CLIENT_ID()
+  const form = new FormData();
+  form.append("file", file);
+  form.append("client_id", CLIENT_ID);
 
-      try {
-        const r = await fetch(API + "/ocr_photo", {
-          method: "POST",
-          body: form,
-        });
+  try {
+    const r = await fetch(API + "/ocr_photo", {
+      method: "POST",
+      body: form,
+    });
 
-        const data = await r.json();
-        ai.remove();
-        add("ai", data.text || "Nessun testo riconosciuto.");
-      } catch (e) {
-        ai.remove();
-        add("ai", "Errore durante l’analisi della foto.");
-      }
+    const data = await r.json();
+    ai.remove();
+    add("ai", data.text || "Nessun testo riconosciuto.");
+  } catch (e) {
+    ai.remove();
+    add("ai", "Errore durante l’analisi della foto.");
+  }
 
-      fileInput.value = "";
-    }
+  fileInput.value = ""; // reset corretto
+}
 
     checkBackend();
     setInterval(checkBackend, 30000);
