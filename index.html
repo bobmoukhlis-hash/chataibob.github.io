@@ -1,397 +1,246 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChatAI Bob</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatAI Bob</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0b1220" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0b1220">
 
-  <style>
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:#0b0f1a;
-      color:#e5e7eb;
-    }
-    .top{
-      position:sticky;
-      top:0;
-      z-index:10;
-      background:#020617;
-      padding:12px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid #1f2937;
-    }
-    .badge{
-      padding:6px 10px;
-      border-radius:999px;
-      background:#111827;
-      border:1px solid #1f2937;
-      font-size:12px;
-    }
-    .wrap{max-width:900px;margin:auto;padding:12px}
-    .card{
-      background:#0b1220;
-      border:1px solid #1f2937;
-      border-radius:16px;
-      overflow:hidden;
-    }
-    #messages{
-      height:calc(100vh - 260px);
-      overflow:auto;
-      padding:14px;
-    }
-    .msg{margin:10px 0;display:flex}
-    .msg.user{justify-content:flex-end}
-    .bubble{
-      max-width:78%;
-      padding:12px;
-      border-radius:14px;
-      background:#111827;
-      border:1px solid #1f2937;
-      white-space:pre-wrap;
-      line-height:1.35;
-    }
-    .msg.user .bubble{background:#38bdf822}
-    .toolbar{
-      padding:12px;
-      border-top:1px solid #1f2937;
-    }
-    input[type="text"]{
-      width:100%;
-      min-height:46px;
-      border-radius:14px;
-      background:#0a1020;
-      color:#fff;
-      border:1px solid #1f2937;
-      padding:10px;
-      outline:none;
-      box-sizing:border-box;
-    }
-    button{
-      padding:10px 14px;
-      border-radius:12px;
-      border:0;
-      font-weight:bold;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    button:disabled{
-      opacity:.5;
-      cursor:not-allowed;
-    }
-    .send{background:#38bdf8;color:#001018}
-    .ghost{
-      background:transparent;
-      color:#fff;
-      border:1px solid #38bdf8;
-    }
-    .row{
-      display:flex;
-      gap:8px;
-      margin-top:8px;
-      flex-wrap:wrap;
-    }
-    .small{font-size:12px;opacity:.85}
-    .paypal-btn{
-      display:inline-block;
-      margin-top:8px;
-      padding:10px 14px;
-      border-radius:12px;
-      background:#0070ba;
-      color:#fff;
-      font-weight:bold;
-      text-decoration:none;
-    }
-    .paypal-btn:hover{opacity:.9}
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0b0f1a;
+  color:#e5e7eb;
+}
+.top{
+  position:sticky;
+  top:0;
+  background:#020617;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #1f2937;
+}
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#111827;
+  border:1px solid #1f2937;
+  font-size:12px;
+}
+.wrap{max-width:900px;margin:auto;padding:12px}
+.card{
+  background:#0b1220;
+  border:1px solid #1f2937;
+  border-radius:16px;
+}
+#messages{
+  height:calc(100vh - 260px);
+  overflow:auto;
+  padding:14px;
+}
+.msg{margin:10px 0;display:flex}
+.msg.user{justify-content:flex-end}
+.bubble{
+  max-width:78%;
+  padding:12px;
+  border-radius:14px;
+  background:#111827;
+  border:1px solid #1f2937;
+  white-space:pre-wrap;
+}
+.msg.user .bubble{background:#38bdf822}
+.toolbar{padding:12px;border-top:1px solid #1f2937}
+input[type=text]{
+  width:100%;
+  border-radius:14px;
+  background:#0a1020;
+  color:#fff;
+  border:1px solid #1f2937;
+  padding:10px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{opacity:.5}
+.send{background:#38bdf8;color:#001018}
+.ghost{background:transparent;color:#fff;border:1px solid #38bdf8}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.small{font-size:12px;opacity:.85}
+.paypal-btn{
+  display:inline-block;
+  margin-top:8px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#0070ba;
+  color:#fff;
+  text-decoration:none;
+}
+</style>
 </head>
 
 <body>
-  <div class="top">
-    <b>🤖 ChatAI Bob</b>
-    <span class="badge"><span id="status">Backend: controllo…</span></span>
-  </div>
 
-  <div class="wrap">
-    <div class="card">
-      <div id="messages"></div>
+<div class="top">
+  <b>🤖 ChatAI Bob</b>
+  <span class="badge" id="status">Offline</span>
+</div>
 
-      <div class="toolbar">
-        <input id="input" type="text" placeholder="Scrivi una domanda..." />
+<div class="wrap">
+<div class="card">
 
-        <div class="row">
-          <button class="ghost" id="micBtn" onclick="startMic()">🎤 Microfono</button>
-          <button class="send" onclick="sendMessage()">Invia</button>
-          <button class="ghost" id="clearBtn">Pulisci</button>
-          <button class="ghost" id="voiceToggle" onclick="toggleVoice()">🔊 Voce: ON</button>
-        </div>
+<div id="messages"></div>
 
-        <!-- INPUT FOTO (GALLERIA / CAMERA) -->
-<input
-  type="file"
-  id="photo"
-  accept="image/*"
-  capture="environment"
-  style="margin-top:10px"
-/>
+<div class="toolbar">
 
-<!-- BOTTONE ANALIZZA FOTO -->
-<button
-  id="photoBtn"
-  class="ghost"
-  onclick="sendPhoto()"
->
-  📸 Analizza foto
+<input id="input" type="text" placeholder="Scrivi una domanda...">
+
+<div class="row">
+  <button class="ghost" onclick="startMic()">🎤 Microfono</button>
+  <button class="send" onclick="sendMessage()">Invia</button>
+  <button class="ghost" onclick="clearChat()">Pulisci</button>
+  <button class="ghost" onclick="toggleVoice()" id="voiceBtn">🔊 Voce ON</button>
+</div>
+
+<!-- FOTO SOLO GALLERIA (STABILE SU ANDROID) -->
+<input type="file" id="photo" accept="image/*" style="margin-top:10px">
+
+<button class="ghost" id="photoBtn" onclick="sendPhoto()" disabled>
+📸 Analizza foto
 </button>
 
-        <div class="small" style="margin-top:10px">
-          Supporta il progetto ❤️<br />
-          <a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank" rel="noreferrer">
-            Dona con PayPal
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="small">
+Supporta il progetto ❤️<br>
+<a class="paypal-btn" href="https://www.paypal.me/bobbob1979" target="_blank">
+Dona con PayPal
+</a>
+</div>
 
-  <script>
-    // =========================
-    // CONFIG
-    // =========================
-    const API = "https://chatai-bob-backend.onrender.com";
-    const $ = (id) => document.getElementById(id);
-function cleanText(t) {
-  if (!t) return "";
+</div>
+</div>
+</div>
+
+<script>
+const API = "https://chatai-bob-backend.onrender.com";
+const $ = id => document.getElementById(id);
+
+/* PULIZIA TESTO (NO ** NO LISTE ROTTE) */
+function cleanText(t){
+  if(!t) return "";
   return t
-    .replace(/\*\*/g, "")
-    .replace(/\*/g, "")
-    .replace(/#/g, "")
-    .replace(/-\s+/g, "")
+    .replace(/\*\*(.*?)\*\*/g,"$1")
+    .replace(/\*(.*?)\*/g,"$1")
+    .replace(/^\s*[-*]\s+/gm,"")
+    .replace(/^\s{0,3}#{1,6}\s+/gm,"")
+    .replace(/\n{3,}/g,"\n\n")
     .trim();
 }
-    // ID cliente stabile
-    const CLIENT_ID = (() => {
-      let id = localStorage.getItem("CLIENT_ID");
-      if (!id) {
-        id = "web_" + Math.random().toString(36).slice(2);
-        localStorage.setItem("CLIENT_ID", id);
-      }
-      return id;
-    })();
 
-    // Voce ON/OFF
-    let VOICE_ON = true;
+/* CLIENT ID */
+const CLIENT_ID = localStorage.CLIENT_ID || (
+  localStorage.CLIENT_ID = "web_" + Math.random().toString(36).slice(2)
+);
 
-    function toggleVoice() {
-      VOICE_ON = !VOICE_ON;
-      $("voiceToggle").textContent = VOICE_ON ? "🔊 Voce: ON" : "🔇 Voce: OFF";
-      if (!VOICE_ON) speechSynthesis.cancel();
-    }
-
-    // Legge un testo (TTS)
-    function speak(text) {
-      if (!VOICE_ON) return;
-      if (!text) return;
-      if (!("speechSynthesis" in window)) return;
-
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "it-IT";
-      u.rate = 1;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-    }
-
-    // =========================
-    // UI
-    // =========================
-    function add(role, text) {
-      const d = document.createElement("div");
-      d.className = "msg " + role;
-      d.innerHTML = `<div class="bubble"></div>`;
-      d.querySelector(".bubble").textContent = text || "";
-      $("messages").appendChild(d);
-      $("messages").scrollTop = 999999;
-    }
-
-    $("clearBtn").onclick = () => {
-      $("messages").innerHTML = "";
-      add("ai", "Ciao 👋 Come posso aiutarti?");
-      speak("Ciao, come posso aiutarti?");
-    };
-
-    $("input").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    // Abilita/disabilita bottone foto se non c'è file
-    $("photo").addEventListener("change", () => {
-      const file = $("photo").files[0];
-      $("photoBtn").disabled = !file;
-    });
-    $("photoBtn").disabled = true;
-
-    // =========================
-    // BACKEND STATUS
-    // =========================
-    async function checkBackend() {
-      try {
-        const r = await fetch(API + "/health", { cache: "no-store" });
-        const d = await r.json();
-        $("status").textContent = (d && d.status === "ok") ? "Online" : "Offline";
-      } catch {
-        $("status").textContent = "Offline";
-      }
-    }
-
-    // =========================
-    // CHAT
-    // =========================
-    async function sendMessage() {
-      const text = $("input").value.trim();
-      if (!text) return;
-
-      $("input").value = "";
-      add("user", text);
-
-      const ai = document.createElement("div");
-      ai.className = "msg ai";
-      ai.innerHTML = `<div class="bubble">…</div>`;
-      $("messages").appendChild(ai);
-      $("messages").scrollTop = 999999;
-
-      try {
-        const r = await fetch(API + "/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, client_id: CLIENT_ID })
-        });
-
-        const d = await r.json();
-        ai.remove();
-
-        const out = (d && d.text) ? d.text : "Errore";
-        add("ai", out);
-        speak(out);
-
-      } catch {
-        ai.remove();
-        add("ai", "Servizio non disponibile");
-        speak("Servizio non disponibile");
-      }
-    }
-
-    // =========================
-    // MICROFONO (speech -> testo)
-    // =========================
-    function startMic() {
-      if (!("webkitSpeechRecognition" in window)) {
-        alert("Il microfono non è supportato su questo browser");
-        return;
-      }
-
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = "it-IT";
-      recognition.interimResults = false;
-
-      recognition.onresult = function (event) {
-        const text = event.results[0][0].transcript;
-        $("input").value = text;
-        sendMessage();
-      };
-
-      recognition.onerror = function () {
-        // non spammiamo alert, su Android capita spesso
-      };
-
-      recognition.start();
-    }
-
-    // ===============================
-// 📸 FOTO + OCR (da galleria)
-// ===============================
-async function sendPhoto() {
-
-  const fileInput = document.getElementById("photo");
-  const file = fileInput.files[0];
-
-  // 1️⃣ controllo file
-  if (!file) {
-    add("ai", "📸 Seleziona prima una foto dalla galleria.");
-    speak("Seleziona prima una foto dalla galleria");
-    return;
-  }
-
-  // 2️⃣ blocca bottone
-  const btn = document.getElementById("photoBtn");
-  btn.disabled = true;
-
-  add("user", "📸 Analizza questa foto");
-
-  // 3️⃣ messaggio loading
-  const ai = document.createElement("div");
-  ai.className = "msg ai";
-  ai.innerHTML = `<div class="bubble">Analisi in corso...</div>`;
-  document.getElementById("messages").appendChild(ai);
-  document.getElementById("messages").scrollTop = 999999;
-
-  // 4️⃣ form data
-  const form = new FormData();
-  form.append("file", file);
-  form.append("client_id", CLIENT_ID);
-
-  try {
-    // 5️⃣ fetch OCR
-    const r = await fetch(API + "/ocr_photo", {
-      method: "POST",
-      body: form
-    });
-
-    const data = await r.json();
-    ai.remove();
-
-    // 6️⃣ testo sicuro
-    let text = "";
-
-if (data && typeof data.text === "string" && data.text.trim()) {
-  text = data.text;
-} else if (data && data.error) {
-  text = "⚠️ Analisi foto temporaneamente non disponibile.";
-} else {
-  text = "📷 Foto ricevuta, ma nessun testo rilevato.";
+/* VOCE */
+let VOICE_ON = true;
+function toggleVoice(){
+  VOICE_ON = !VOICE_ON;
+  $("voiceBtn").textContent = VOICE_ON ? "🔊 Voce ON" : "🔇 Voce OFF";
+  speechSynthesis.cancel();
+}
+function speak(t){
+  if(!VOICE_ON || !t) return;
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = "it-IT";
+  speechSynthesis.speak(u);
 }
 
- const clean = cleanText(data.text);
-add("ai", clean);
-speak(clean);
-
-  } catch (e) {
-    ai.remove();
-    add("ai", "❌ Errore durante l’analisi della foto.");
-    speak("Errore durante l’analisi della foto");
-  }
-
-  // 7️⃣ reset
-  fileInput.value = "";
-  btn.disabled = false;
+/* UI */
+function add(role,text){
+  const d=document.createElement("div");
+  d.className="msg "+role;
+  d.innerHTML=`<div class="bubble"></div>`;
+  d.querySelector(".bubble").textContent=text;
+  $("messages").appendChild(d);
+  $("messages").scrollTop=999999;
 }
 
-    // =========================
-    // START
-    // =========================
-    add("ai", "Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
-    checkBackend();
-    setInterval(checkBackend, 30000);
-  </script>
+function clearChat(){
+  $("messages").innerHTML="";
+  add("ai","Ciao 👋 Come posso aiutarti?");
+}
+
+/* CHAT */
+async function sendMessage(){
+  const t=$("input").value.trim();
+  if(!t) return;
+  $("input").value="";
+  add("user",t);
+
+  const r=await fetch(API+"/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:t,client_id:CLIENT_ID})
+  }).catch(()=>null);
+
+  if(!r){ add("ai","Servizio non disponibile"); return; }
+
+  const d=await r.json();
+  const clean=cleanText(d.text||"Errore");
+  add("ai",clean);
+  speak(clean);
+}
+
+/* MICROFONO */
+function startMic(){
+  if(!window.webkitSpeechRecognition) return;
+  const rec=new webkitSpeechRecognition();
+  rec.lang="it-IT";
+  rec.onresult=e=>{
+    $("input").value=e.results[0][0].transcript;
+    sendMessage();
+  };
+  rec.start();
+}
+
+/* FOTO */
+$("photo").onchange=()=> $("photoBtn").disabled=!$("photo").files[0];
+
+async function sendPhoto(){
+  const f=$("photo").files[0];
+  if(!f){ add("ai","Seleziona una foto"); return; }
+
+  add("user","📸 Analizza foto");
+
+  const fd=new FormData();
+  fd.append("file",f);
+  fd.append("client_id",CLIENT_ID);
+
+  const r=await fetch(API+"/ocr_photo",{method:"POST",body:fd}).catch(()=>null);
+  if(!r){ add("ai","OCR non disponibile"); return; }
+
+  const d=await r.json();
+  const clean=cleanText(d.text || "Nessun testo rilevato");
+  add("ai",clean);
+  speak(clean);
+
+  $("photo").value="";
+  $("photoBtn").disabled=true;
+}
+
+/* START */
+add("ai","Ciao 👋 Sono ChatAI Bob. Scrivi pure.");
+fetch(API+"/health").then(r=>r.json()).then(d=>{
+  $("status").textContent=d.status==="ok"?"Online":"Offline";
+});
+</script>
+
 </body>
 </html>
