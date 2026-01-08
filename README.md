@@ -1,5 +1,5 @@
 # ChatAI Bob 🤖
-![Visite](https://hits.sh/bobmoukhlis-hash.github.io.svg)
+
 ChatAI Bob è un assistente intelligente basato su intelligenza artificiale.
 Permette di fare domande, ottenere idee, migliorare testi e ricevere risposte rapide.
 
