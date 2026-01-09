@@ -13,8 +13,52 @@
       text-align: center;
       overflow-x: hidden;
     }
+
+    /* NAVBAR */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(15, 32, 39, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      z-index: 1000;
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+    nav.scrolled {
+      background: rgba(0, 0, 0, 0.85);
+      box-shadow: 0 2px 10px rgba(0, 201, 255, 0.3);
+    }
+    .logo {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #00c9ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+    .nav-links a:hover {
+      color: #00c9ff;
+      text-shadow: 0 0 8px #00c9ff;
+    }
+
     header {
-      padding: 70px 20px;
+      padding: 120px 20px 70px;
       opacity: 0;
       transform: translateY(40px);
       transition: opacity 1.2s ease, transform 1.2s ease;
@@ -90,27 +134,43 @@
   </style>
 </head>
 <body>
-  <header class="reveal">
+
+  <!-- 🌐 Navbar -->
+  <nav id="navbar">
+    <div class="logo">💠 Bouabid.dev</div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#projects">Progetti</a></li>
+      <li><a href="https://bobmoukhlis-hash.github.io/">ChatAI Bob</a></li>
+      <li><a href="#contact">Contatti</a></li>
+    </ul>
+  </nav>
+
+  <!-- 🏠 Home -->
+  <header id="home" class="reveal">
     <h1>👋 Ciao, sono <span style="color:#00c9ff;">Bouabid Moukhlis</span></h1>
     <h2><span id="typing" class="typing"></span></h2>
     <p>Appassionato di intelligenza artificiale e automazione. Creo esperienze digitali dove il codice incontra la creatività.</p>
     <a href="https://bobmoukhlis-hash.github.io/" class="btn">🤖 Apri ChatAI Bob</a>
   </header>
 
-  <section class="projects reveal">
+  <!-- 💻 Progetti -->
+  <section id="projects" class="projects reveal">
     <h2>📁 I miei progetti</h2>
     <a href="https://github.com/bobmoukhlis-hash/chatai-bob-backend">ChatAI Bob Backend</a>
     <a href="https://github.com/bobmoukhlis-hash/bobmoukhlis-hash.github.io">ChatAI Bob Web</a>
     <a href="https://github.com/bobmoukhlis-hash/bobmoukhlis-hash">Portfolio GitHub</a>
   </section>
 
-  <footer class="reveal">
+  <!-- 📬 Contatti -->
+  <footer id="contact" class="reveal">
+    <p>📧 <a href="mailto:bobmoukhlis@gmail.com" style="color:#00c9ff;text-decoration:none;">bobmoukhlis@gmail.com</a></p>
     <p>⭐ “Il futuro è di chi trasforma le idee in codice.”</p>
     <p>© 2026 Bouabid Moukhlis - Tutti i diritti riservati.</p>
   </footer>
 
   <script>
-    // Effetto digitazione automatica
+    // Effetto digitazione
     const text = [
       "💻 Sviluppatore di progetti AI e Web App",
       "🧠 Creatore di esperienze digitali",
@@ -120,42 +180,36 @@
     let index = 0;
     let currentText = "";
     let letter = "";
-
     function type() {
-      if (count === text.length) {
-        count = 0;
-      }
+      if (count === text.length) count = 0;
       currentText = text[count];
       letter = currentText.slice(0, ++index);
-
       document.getElementById("typing").textContent = letter;
       if (letter.length === currentText.length) {
-        count++;
-        index = 0;
+        count++; index = 0;
         setTimeout(type, 1800);
-      } else {
-        setTimeout(type, 100);
-      }
+      } else setTimeout(type, 100);
     }
-
     type();
 
-    // Effetto apparizione quando si scorre
+    // Navbar effetto scroll
+    const navbar = document.getElementById("navbar");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 50) navbar.classList.add("scrolled");
+      else navbar.classList.remove("scrolled");
+    });
+
+    // Animazione reveal
     const reveals = document.querySelectorAll('.reveal');
     window.addEventListener('scroll', () => {
       for (let i = 0; i < reveals.length; i++) {
         const windowHeight = window.innerHeight;
         const elementTop = reveals[i].getBoundingClientRect().top;
         const elementVisible = 100;
-        if (elementTop < windowHeight - elementVisible) {
-          reveals[i].classList.add("visible");
-        }
+        if (elementTop < windowHeight - elementVisible) reveals[i].classList.add("visible");
       }
     });
-    // Mostra il primo elemento all'avvio
-    window.onload = () => {
-      document.querySelector('header').classList.add('visible');
-    };
+    window.onload = () => document.querySelector('header').classList.add('visible');
   </script>
 </body>
 </html>
