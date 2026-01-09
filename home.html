@@ -15,7 +15,18 @@
     }
     header {
       padding: 70px 20px;
-      animation: fadeIn 2s ease-in;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+    section, footer {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .visible {
+      opacity: 1;
+      transform: translateY(0);
     }
     h1 {
       font-size: 2.5em;
@@ -67,42 +78,39 @@
       color: #999;
       padding-bottom: 20px;
     }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
+    @keyframes blink {
+      from, to {border-color: transparent}
+      50% {border-color: #00c9ff}
     }
     .typing {
       border-right: 3px solid #00c9ff;
       display: inline-block;
       animation: blink 0.7s step-end infinite;
     }
-    @keyframes blink {
-      from, to {border-color: transparent}
-      50% {border-color: #00c9ff}
-    }
   </style>
 </head>
 <body>
-  <header>
+  <header class="reveal">
     <h1>👋 Ciao, sono <span style="color:#00c9ff;">Bouabid Moukhlis</span></h1>
     <h2><span id="typing" class="typing"></span></h2>
     <p>Appassionato di intelligenza artificiale e automazione. Creo esperienze digitali dove il codice incontra la creatività.</p>
     <a href="https://bobmoukhlis-hash.github.io/" class="btn">🤖 Apri ChatAI Bob</a>
   </header>
 
-  <section class="projects">
+  <section class="projects reveal">
     <h2>📁 I miei progetti</h2>
     <a href="https://github.com/bobmoukhlis-hash/chatai-bob-backend">ChatAI Bob Backend</a>
     <a href="https://github.com/bobmoukhlis-hash/bobmoukhlis-hash.github.io">ChatAI Bob Web</a>
     <a href="https://github.com/bobmoukhlis-hash/bobmoukhlis-hash">Portfolio GitHub</a>
   </section>
 
-  <footer>
+  <footer class="reveal">
     <p>⭐ “Il futuro è di chi trasforma le idee in codice.”</p>
     <p>© 2026 Bouabid Moukhlis - Tutti i diritti riservati.</p>
   </footer>
 
   <script>
+    // Effetto digitazione automatica
     const text = [
       "💻 Sviluppatore di progetti AI e Web App",
       "🧠 Creatore di esperienze digitali",
@@ -131,6 +139,23 @@
     }
 
     type();
+
+    // Effetto apparizione quando si scorre
+    const reveals = document.querySelectorAll('.reveal');
+    window.addEventListener('scroll', () => {
+      for (let i = 0; i < reveals.length; i++) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveals[i].getBoundingClientRect().top;
+        const elementVisible = 100;
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add("visible");
+        }
+      }
+    });
+    // Mostra il primo elemento all'avvio
+    window.onload = () => {
+      document.querySelector('header').classList.add('visible');
+    };
   </script>
 </body>
 </html>
