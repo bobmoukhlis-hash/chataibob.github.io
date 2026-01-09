@@ -71,12 +71,21 @@
       from {opacity: 0; transform: translateY(20px);}
       to {opacity: 1; transform: translateY(0);}
     }
+    .typing {
+      border-right: 3px solid #00c9ff;
+      display: inline-block;
+      animation: blink 0.7s step-end infinite;
+    }
+    @keyframes blink {
+      from, to {border-color: transparent}
+      50% {border-color: #00c9ff}
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>👋 Ciao, sono <span style="color:#00c9ff;">Bouabid Moukhlis</span></h1>
-    <h2>💻 Sviluppatore di progetti AI & Web App</h2>
+    <h2><span id="typing" class="typing"></span></h2>
     <p>Appassionato di intelligenza artificiale e automazione. Creo esperienze digitali dove il codice incontra la creatività.</p>
     <a href="https://bobmoukhlis-hash.github.io/" class="btn">🤖 Apri ChatAI Bob</a>
   </header>
@@ -92,5 +101,36 @@
     <p>⭐ “Il futuro è di chi trasforma le idee in codice.”</p>
     <p>© 2026 Bouabid Moukhlis - Tutti i diritti riservati.</p>
   </footer>
+
+  <script>
+    const text = [
+      "💻 Sviluppatore di progetti AI e Web App",
+      "🧠 Creatore di esperienze digitali",
+      "🚀 Innovatore nel mondo del codice"
+    ];
+    let count = 0;
+    let index = 0;
+    let currentText = "";
+    let letter = "";
+
+    function type() {
+      if (count === text.length) {
+        count = 0;
+      }
+      currentText = text[count];
+      letter = currentText.slice(0, ++index);
+
+      document.getElementById("typing").textContent = letter;
+      if (letter.length === currentText.length) {
+        count++;
+        index = 0;
+        setTimeout(type, 1800);
+      } else {
+        setTimeout(type, 100);
+      }
+    }
+
+    type();
+  </script>
 </body>
 </html>
