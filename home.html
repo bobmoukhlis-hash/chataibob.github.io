@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bouabid Moukhlis - AI & Web Developer</title>
+
   <style>
     body {
       margin: 0;
@@ -28,10 +29,12 @@
       z-index: 1000;
       transition: background 0.4s ease, box-shadow 0.4s ease;
     }
+
     nav.scrolled {
       background: rgba(0, 0, 0, 0.85);
       box-shadow: 0 2px 10px rgba(0, 201, 255, 0.3);
     }
+
     .logo {
       font-size: 1.2em;
       font-weight: 600;
@@ -39,6 +42,7 @@
       letter-spacing: 1px;
       text-transform: uppercase;
     }
+
     .nav-links {
       list-style: none;
       display: flex;
@@ -46,46 +50,55 @@
       margin: 0;
       padding: 0;
     }
+
     .nav-links a {
       color: #fff;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s ease, text-shadow 0.3s ease;
     }
+
     .nav-links a:hover {
       color: #00c9ff;
       text-shadow: 0 0 8px #00c9ff;
     }
 
+    /* SEZIONI */
     header {
       padding: 120px 20px 70px;
       opacity: 0;
       transform: translateY(40px);
       transition: opacity 1.2s ease, transform 1.2s ease;
     }
+
     section, footer {
       opacity: 0;
       transform: translateY(40px);
       transition: opacity 1s ease, transform 1s ease;
     }
+
     .visible {
       opacity: 1;
       transform: translateY(0);
     }
+
     h1 {
       font-size: 2.5em;
       margin-bottom: 10px;
     }
+
     h2 {
       color: #00c9ff;
       margin-top: 0;
     }
+
     p {
       max-width: 600px;
       margin: 10px auto;
       line-height: 1.6;
       color: #ccc;
     }
+
     .btn {
       display: inline-block;
       margin: 20px;
@@ -97,13 +110,16 @@
       text-decoration: none;
       transition: 0.3s;
     }
+
     .btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 10px #00c9ff;
     }
+
     .projects {
       margin-top: 60px;
     }
+
     .projects a {
       display: block;
       margin: 10px auto;
@@ -112,20 +128,24 @@
       text-decoration: none;
       transition: 0.3s;
     }
+
     .projects a:hover {
       text-decoration: underline;
       color: #92fe9d;
     }
+
     footer {
       margin-top: 60px;
       font-size: 0.9em;
       color: #999;
       padding-bottom: 20px;
     }
+
     @keyframes blink {
-      from, to {border-color: transparent}
-      50% {border-color: #00c9ff}
+      from, to { border-color: transparent; }
+      50% { border-color: #00c9ff; }
     }
+
     .typing {
       border-right: 3px solid #00c9ff;
       display: inline-block;
@@ -133,15 +153,15 @@
     }
   </style>
 </head>
-<body>
 
+<body>
   <!-- 🌐 Navbar -->
   <nav id="navbar">
     <div class="logo">💠 Bouabid.dev</div>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#projects">Progetti</a></li>
-      <li><a href="https://bobmoukhlis-hash.github.io/">ChatAI Bob</a></li>
+      <li><a href="https://bobmoukhlis-hash.github.io/" target="_blank">ChatAI Bob</a></li>
       <li><a href="#contact">Contatti</a></li>
     </ul>
   </nav>
@@ -151,45 +171,46 @@
     <h1>👋 Ciao, sono <span style="color:#00c9ff;">Bouabid Moukhlis</span></h1>
     <h2><span id="typing" class="typing"></span></h2>
     <p>Appassionato di intelligenza artificiale e automazione. Creo esperienze digitali dove il codice incontra la creatività.</p>
-    <a href="https://bobmoukhlis-hash.github.io/" class="btn">🤖 Apri ChatAI Bob</a>
+    <a href="https://bobmoukhlis-hash.github.io/" class="btn" target="_blank">🤖 Apri ChatAI Bob</a>
   </header>
 
   <!-- 💻 Progetti -->
   <section id="projects" class="projects reveal">
-  <h2>📁 I miei progetti</h2>
+    <h2>📁 I miei progetti</h2>
 
-  <a href="https://chatai-world.onrender.com" target="_blank" style="color:#22d3ee; font-weight:bold;">
-    🌍 ChatAI World – Chat intelligente su persone e mondo
-  </a><br>
+    <a href="https://chatai-world.onrender.com" target="_blank" style="color:#22d3ee; font-weight:bold;">
+      🌍 ChatAI World – Chat intelligente su persone e mondo
+    </a><br>
 
-  <a href="https://bobmoukhlis-hash.github.io/" target="_blank" style="color:#22d3ee;">
-    🤖 ChatAI Bob Web
-  </a><br>
+    <a href="https://bobmoukhlis-hash.github.io/" target="_blank" style="color:#22d3ee;">
+      🤖 ChatAI Bob Web
+    </a><br>
 
-  <a href="https://github.com/bobmoukhlis-hash/chatai-bob-backend" target="_blank" style="color:#22d3ee;">
-    ⚙️ ChatAI Bob Backend
-  </a><br>
+    <a href="https://github.com/bobmoukhlis-hash/chatai-bob-backend" target="_blank" style="color:#22d3ee;">
+      ⚙️ ChatAI Bob Backend
+    </a><br>
 
-<a href="https://github.com/bobmoukhlis-hash" target="_blank"
-   style="color:#22d3ee; font-weight:bold; text-decoration:none;"
-   onmouseover="this.style.color='#92fe9d';"
-   onmouseout="this.style.color='#22d3ee';">
-  💼 Portfolio GitHub ↗️
-</a>
-</section>
+    <a href="https://github.com/bobmoukhlis-hash" target="_blank"
+       style="color:#22d3ee; font-weight:bold; text-decoration:none;"
+       onmouseover="this.style.color='#92fe9d';"
+       onmouseout="this.style.color='#22d3ee';">
+      💼 Portfolio GitHub ↗️
+    </a>
+  </section>
 
   <!-- 📬 Contatti -->
   <footer id="contact" class="reveal">
     <p>📧 <a href="mailto:bobmoukhlis@gmail.com" style="color:#00c9ff;text-decoration:none;">bobmoukhlis@gmail.com</a></p>
     <p>⭐ “Il futuro è di chi trasforma le idee in codice.”</p>
     <p>© 2026 Bouabid Moukhlis - Tutti i diritti riservati.</p>
-    <!-- 💖 Bottone PayPal per supportare ChatAI Bob -->
-<a href="https://www.paypal.me/bobbob1979" target="_blank" class="btn" 
-style="background:linear-gradient(90deg,#0070ba,#00c9ff);color:#fff;
-border:none;font-size:16px;padding:10px 20px;border-radius:8px;
-display:inline-block;margin-top:10px;text-decoration:none;">
-  💖 Supporta ChatAI Bob su PayPal
-</a>
+
+    <!-- 💖 Supporto PayPal -->
+    <a href="https://www.paypal.me/bobbob1979" target="_blank" class="btn"
+       style="background:linear-gradient(90deg,#0070ba,#00c9ff);color:#fff;
+       border:none;font-size:16px;padding:10px 20px;border-radius:8px;
+       display:inline-block;margin-top:10px;text-decoration:none;">
+       💖 Supporta ChatAI Bob su PayPal
+    </a>
   </footer>
 
   <script>
@@ -199,10 +220,8 @@ display:inline-block;margin-top:10px;text-decoration:none;">
       "🧠 Creatore di esperienze digitali",
       "🚀 Innovatore nel mondo del codice"
     ];
-    let count = 0;
-    let index = 0;
-    let currentText = "";
-    let letter = "";
+    let count = 0, index = 0, currentText = "", letter = "";
+
     function type() {
       if (count === text.length) count = 0;
       currentText = text[count];
@@ -228,32 +247,31 @@ display:inline-block;margin-top:10px;text-decoration:none;">
       for (let i = 0; i < reveals.length; i++) {
         const windowHeight = window.innerHeight;
         const elementTop = reveals[i].getBoundingClientRect().top;
-        const elementVisible = 100;
-        if (elementTop < windowHeight - elementVisible) reveals[i].classList.add("visible");
+        if (elementTop < windowHeight - 100) reveals[i].classList.add("visible");
       }
     });
+
     window.onload = () => document.querySelector('header').classList.add('visible');
   </script>
-<!-- 🌍 Footer con Privacy Policy e Copyright -->
-<div style="text-align:center; margin-top:40px; padding:25px; font-size:14px;
-            background:#0b0f1a; color:#fff; border-top:1px solid #1f2937;">
-  
-  <a href="privacy.html"
-     style="display:inline-block; background:#38bdf8; color:#001018;
-     padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:bold;
-     transition:0.3s;"
-     onmouseover="this.style.background='#4fd1c5';"
-     onmouseout="this.style.background='#38bdf8';">
-     🔒 Privacy Policy / سياسة الخصوصية
-  </a>
 
-  <br><br>
+  <!-- 🌍 Footer extra -->
+  <div style="text-align:center; margin-top:40px; padding:25px; font-size:14px;
+              background:#0b0f1a; color:#fff; border-top:1px solid #1f2937;">
 
-  <p style="margin:8px 0;">🇮🇹 Tutti i diritti riservati — Bouabid Moukhlis</p>
-  <p style="margin:8px 0;">🇬🇧 All rights reserved — Bouabid Moukhlis</p>
-  <p style="margin:8px 0;">🇲🇦 جميع الحقوق محفوظة — بوعبيد موخليس</p>
+    <a href="privacy.html"
+       style="display:inline-block; background:#38bdf8; color:#001018;
+       padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:bold;
+       transition:0.3s;"
+       onmouseover="this.style.background='#4fd1c5';"
+       onmouseout="this.style.background='#38bdf8';">
+       🔒 Privacy Policy / سياسة الخصوصية
+    </a>
 
-  <p style="margin-top:10px; opacity:0.8;">© 2026 Bouabid Moukhlis</p>
-</div>
+    <br><br>
+    <p style="margin:8px 0;">🇮🇹 Tutti i diritti riservati — Bouabid Moukhlis</p>
+    <p style="margin:8px 0;">🇬🇧 All rights reserved — Bouabid Moukhlis</p>
+    <p style="margin:8px 0;">🇲🇦 جميع الحقوق محفوظة — بوعبيد موخليس</p>
+    <p style="margin-top:10px; opacity:0.8;">© 2026 Bouabid Moukhlis</p>
+  </div>
 </body>
 </html>
