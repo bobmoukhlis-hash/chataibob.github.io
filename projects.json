@@ -1,18 +1,22 @@
 [
   {
-    "name": "ChatAI World – Chat intelligente su persone e mondo",
-    "url": "https://bobmoukhlis-hash.github.io/ChatAI-World/"
+    "name": "ChatAI World 🌍",
+    "url": "https://bobmoukhlis-hash.github.io/ChatAI-World/",
+    "type": "app"
   },
   {
-    "name": "ChatAI Bob Web",
-    "url": "https://bobmoukhlis-hash.github.io/ChatAI-Bob-Web/"
+    "name": "ChatAI Bob Web 🤖",
+    "url": "https://bobmoukhlis-hash.github.io/ChatAI-Bob-Web/",
+    "type": "app"
   },
   {
-    "name": "ChatAI Bob Backend",
-    "url": "https://github.com/bobmoukhlis-hash/ChatAI-Bob-Backend"
+    "name": "ChatAI Bob Backend ⚙️",
+    "url": "https://github.com/bobmoukhlis-hash/chatai-bob-backend",
+    "type": "code"
   },
   {
-    "name": "Portfolio GitHub",
-    "url": "https://bobmoukhlis-hash.github.io/"
+    "name": "Portfolio GitHub 💼",
+    "url": "https://bobmoukhlis-hash.github.io/",
+    "type": "site"
   }
 ]
