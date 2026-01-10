@@ -17,6 +17,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: 📦 Installa dipendenze necessarie
+        run: pip install requests
+
       - name: 📄 Crea o aggiorna il file projects.json
         run: |
           python - <<EOF
