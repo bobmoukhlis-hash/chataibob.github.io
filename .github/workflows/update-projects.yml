@@ -1,45 +1,49 @@
-
 name: 🚀 Aggiorna lista progetti automaticamente
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Ogni 6 ore
-  workflow_dispatch:       # Puoi anche avviarlo manualmente
+    - cron: "0 9 * * *" # Ogni giorno alle 09:00 UTC (10:00 Italia/Marocco)
+  workflow_dispatch: # Puoi anche avviarlo manualmente
 
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 📂 Clona il repository del sito
+      - name: 📦 Clona il repository
         uses: actions/checkout@v3
 
       - name: 🐍 Imposta Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
-      - name: 📦 Installa dipendenze
+      - name: 🔧 Crea o aggiorna il file projects.json
         run: |
-          python -m pip install --upgrade pip
           pip install requests
+          python <<EOF
+          import requests, json
 
-      - name: 📄 Crea o aggiorna il file projects.json
-        run: |
-          echo "import json, requests" > script.py
-          echo "USER = 'bobmoukhlis-hash'" >> script.py
-          echo "repos = requests.get(f'https://api.github.com/users/{USER}/repos?per_page=100').json()" >> script.py
-          echo "data = []" >> script.py
-          echo "for repo in repos:" >> script.py
-          echo "    if not repo['private'] and repo['name'] != f'{USER}.github.io':" >> script.py
-          echo "        data.append({'name': repo['name'], 'url': repo['homepage'] or repo['html_url']})" >> script.py
-          echo "with open('projects.json', 'w', encoding='utf-8') as f:" >> script.py
-          echo "    json.dump(data, f, indent=2, ensure_ascii=False)" >> script.py
-          python script.py
+          USER = "bobmoukhlis-hash"
+          url = f"https://api.github.com/users/{USER}/repos?per_page=100"
+          repos = requests.get(url).json()
 
-      - name: 💾 Commit e push dei cambiamenti
+          data = []
+          for r in repos:
+              if not r.get("private") and r.get("name") != f"{USER}.github.io":
+                  data.append({
+                      "name": r["name"],
+                      "url": r.get("homepage") or r.get("html_url")
+                  })
+
+          with open("projects.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2, ensure_ascii=False)
+          EOF
+
+      - name: 💾 Commit e push se ci sono modifiche
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add projects.json
-          git commit -m "🔁 Aggiornamento automatico lista progetti" || echo "Nessun cambiamento"
+          git commit -m "🔄 Aggiornamento automatico lista progetti" || echo "Nessuna modifica da salvare"
           git push
