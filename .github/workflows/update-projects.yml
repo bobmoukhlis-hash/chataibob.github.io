@@ -1,9 +1,10 @@
+
 name: 🚀 Aggiorna lista progetti automaticamente
 
 on:
   schedule:
-    - cron: "0 9 * * *"  # Esegue ogni giorno alle 09:00 UTC
-  workflow_dispatch:     # Puoi anche avviarlo manualmente
+    - cron: "0 */6 * * *"  # Ogni 6 ore
+  workflow_dispatch:       # Puoi anche avviarlo manualmente
 
 jobs:
   update:
@@ -17,25 +18,23 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: 📦 Installa dipendenze necessarie
-        run: pip install requests
+      - name: 📦 Installa dipendenze
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
 
       - name: 📄 Crea o aggiorna il file projects.json
         run: |
-          python - <<EOF
-          import json, requests
-          USER = "bobmoukhlis-hash"
-          repos = requests.get(f"https://api.github.com/users/{USER}/repos?per_page=100").json()
-          data = []
-          for repo in repos:
-              if not repo["private"] and repo["name"] != f"{USER}.github.io":
-                  data.append({
-                      "name": repo["name"],
-                      "url": repo["homepage"] or repo["html_url"]
-                  })
-          with open("projects.json", "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2, ensure_ascii=False)
-          EOF
+          echo "import json, requests" > script.py
+          echo "USER = 'bobmoukhlis-hash'" >> script.py
+          echo "repos = requests.get(f'https://api.github.com/users/{USER}/repos?per_page=100').json()" >> script.py
+          echo "data = []" >> script.py
+          echo "for repo in repos:" >> script.py
+          echo "    if not repo['private'] and repo['name'] != f'{USER}.github.io':" >> script.py
+          echo "        data.append({'name': repo['name'], 'url': repo['homepage'] or repo['html_url']})" >> script.py
+          echo "with open('projects.json', 'w', encoding='utf-8') as f:" >> script.py
+          echo "    json.dump(data, f, indent=2, ensure_ascii=False)" >> script.py
+          python script.py
 
       - name: 💾 Commit e push dei cambiamenti
         run: |
