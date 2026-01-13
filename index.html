@@ -3,324 +3,555 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bouabid Moukhlis - AI & Web Developer</title>
+  <meta name="description" content="Bouabid Moukhlis — AI & Web Developer. Portfolio premium con progetti, app e ChatAI Bob." />
+  <title>Bouabid Moukhlis — AI & Web Developer</title>
 
-  <!-- Google Font (Poppins) -->
+  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      text-align: center;
-      overflow-x: hidden;
+    :root{
+      --bg1:#07121a;
+      --bg2:#071b22;
+      --card: rgba(255,255,255,0.06);
+      --card2: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.10);
+      --text:#eaf2ff;
+      --muted: rgba(234,242,255,0.70);
+      --muted2: rgba(234,242,255,0.55);
+      --accent:#22d3ee;
+      --accent2:#00c9ff;
+      --good:#34d399;
+      --warn:#f59e0b;
+      --shadow: 0 18px 60px rgba(0,0,0,0.45);
     }
 
-    /* NAVBAR */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(15, 32, 39, 0.8);
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-      z-index: 1000;
-      transition: background 0.4s ease, box-shadow 0.4s ease;
-      box-sizing: border-box;
+    *{ box-sizing:border-box; }
+
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 700px at 10% 10%, rgba(34,211,238,0.18), transparent 55%),
+        radial-gradient(900px 700px at 90% 20%, rgba(0,201,255,0.16), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
     }
 
-    nav.scrolled {
-      background: rgba(0, 0, 0, 0.85);
-      box-shadow: 0 2px 10px rgba(0, 201, 255, 0.3);
+    /* Top glow line */
+    .topline{
+      position:fixed;
+      inset:0 0 auto 0;
+      height:2px;
+      background:linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity:0.45;
+      z-index:1200;
+      pointer-events:none;
     }
 
-    .logo {
-      font-size: 1.2em;
-      font-weight: 600;
-      color: #00c9ff;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      white-space: nowrap;
+    /* NAV */
+    nav{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1100;
+      padding:14px 18px;
+      background:rgba(6,18,26,0.55);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
     }
 
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 25px;
-      margin: 0;
-      padding: 0;
-      align-items: center;
+    .nav-wrap{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
     }
 
-    .nav-links a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s ease, text-shadow 0.3s ease;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+      letter-spacing:0.5px;
+      white-space:nowrap;
     }
 
-    .nav-links a:hover {
-      color: #00c9ff;
-      text-shadow: 0 0 8px #00c9ff;
+    .brand .dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:var(--accent);
+      box-shadow:0 0 18px rgba(34,211,238,0.8);
     }
 
-    /* MOBILE NAV */
-    @media (max-width: 600px) {
-      nav {
-        padding: 12px 14px;
-      }
-      .nav-links {
-        gap: 14px;
-      }
-      .logo {
-        font-size: 1em;
-      }
-      .nav-links a {
-        font-size: 0.95em;
-      }
+    .brand span{
+      color:var(--accent);
+      text-transform:uppercase;
+      font-size:14px;
     }
 
-    /* SEZIONI */
-    header {
-      padding: 120px 20px 70px;
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 1.2s ease, transform 1.2s ease;
-      box-sizing: border-box;
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      list-style:none;
+      padding:0;
+      margin:0;
     }
 
-    section, footer {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 1s ease, transform 1s ease;
-      box-sizing: border-box;
+    .nav-links a{
+      text-decoration:none;
+      color:var(--text);
+      font-weight:600;
+      font-size:14px;
+      padding:10px 12px;
+      border-radius:12px;
+      transition:transform .15s ease, background .15s ease, color .15s ease;
     }
 
-    .visible {
-      opacity: 1;
-      transform: translateY(0);
+    .nav-links a:hover{
+      background:rgba(255,255,255,0.06);
+      transform:translateY(-1px);
+      color:var(--accent);
     }
 
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
+    .nav-cta{
+      display:flex;
+      gap:10px;
+      align-items:center;
     }
 
-    h2 {
-      color: #00c9ff;
-      margin-top: 0;
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(34,211,238,0.25);
+      background:rgba(34,211,238,0.08);
+      color:var(--text);
+      font-weight:700;
+      font-size:13px;
+      text-decoration:none;
+      transition:transform .15s ease, background .15s ease;
+      white-space:nowrap;
     }
 
-    p {
-      max-width: 600px;
-      margin: 10px auto;
-      line-height: 1.6;
-      color: #ccc;
-      padding: 0 10px;
-      box-sizing: border-box;
+    .pill:hover{
+      transform:translateY(-1px);
+      background:rgba(34,211,238,0.14);
     }
 
-    .projects {
-      margin-top: 60px;
-      padding: 0 10px;
+    /* Layout */
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:110px 18px 60px;
     }
 
-    .projects a {
-      display: block;
-      margin: 10px auto;
-      width: fit-content;
-      color: #00c9ff;
-      text-decoration: none;
-      transition: 0.3s;
+    .hero{
+      margin-top:8px;
+      padding:26px 18px;
+      text-align:center;
     }
 
-    .projects a:hover {
-      text-decoration: underline;
-      color: #92fe9d;
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 8px 26px rgba(0,0,0,0.28);
+      color:var(--muted);
+      font-weight:600;
+      font-size:13px;
     }
 
-    footer {
-      margin-top: 60px;
-      font-size: 0.9em;
-      color: #999;
-      padding-bottom: 20px;
-      padding-left: 10px;
-      padding-right: 10px;
+    .badge i{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:var(--good);
+      box-shadow:0 0 14px rgba(52,211,153,0.9);
+      display:inline-block;
     }
 
-    @keyframes blink {
-      from, to { border-color: transparent; }
-      50% { border-color: #00c9ff; }
+    h1{
+      margin:18px 0 8px;
+      font-size:38px;
+      line-height:1.05;
+      letter-spacing:-0.8px;
     }
 
-    .typing {
-      border-right: 3px solid #00c9ff;
-      display: inline-block;
-      animation: blink 0.7s step-end infinite;
+    .name{
+      color:var(--accent);
+      text-shadow:0 0 28px rgba(34,211,238,0.25);
+    }
+
+    .subtitle{
+      margin:10px auto 0;
+      max-width:780px;
+      font-size:16px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .typingline{
+      margin-top:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      color:rgba(234,242,255,0.85);
+      font-weight:700;
+      min-height:26px;
+    }
+
+    .typing{
+      border-right:3px solid var(--accent);
+      padding-right:6px;
+      display:inline-block;
+      animation:blink .7s step-end infinite;
+    }
+
+    @keyframes blink{
+      from,to{ border-color:transparent; }
+      50%{ border-color:var(--accent); }
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:16px;
+      margin-top:26px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--border);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      text-align:left;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:radial-gradient(600px 220px at 20% 0%, rgba(34,211,238,0.16), transparent 55%);
+      pointer-events:none;
+    }
+
+    .card h3{
+      margin:0 0 6px;
+      font-size:16px;
+      letter-spacing:-0.2px;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted2);
+      line-height:1.6;
+      font-size:14px;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.08);
+      color:rgba(234,242,255,0.80);
+      font-weight:700;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(34,211,238,0.25);
+      background:rgba(34,211,238,0.10);
+      color:var(--text);
+      font-weight:800;
+      text-decoration:none;
+      font-size:13px;
+      transition:transform .15s ease, background .15s ease;
+      white-space:nowrap;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      background:rgba(34,211,238,0.16);
+    }
+
+    .btn.secondary{
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.06);
+    }
+
+    .btn.secondary:hover{
+      background:rgba(255,255,255,0.10);
+    }
+
+    /* Columns */
+    .col-8{ grid-column: span 8; }
+    .col-4{ grid-column: span 4; }
+    .col-12{ grid-column: span 12; }
+
+    /* Sections */
+    .section-title{
+      margin:34px 0 10px;
+      font-size:18px;
+      color:rgba(234,242,255,0.92);
+      letter-spacing:-0.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .section-title b{
+      color:var(--accent);
+    }
+
+    /* Footer */
+    footer{
+      margin-top:26px;
+      padding:24px 16px;
+      border-top:1px solid rgba(255,255,255,0.08);
+      text-align:center;
+      color:rgba(234,242,255,0.60);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    footer a{
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:700;
+    }
+
+    .foot-actions{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+    }
+
+    /* Reveal */
+    .reveal{
+      opacity:0;
+      transform:translateY(24px);
+      transition:opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .visible{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* Mobile */
+    @media (max-width: 920px){
+      .col-8{ grid-column: span 12; }
+      .col-4{ grid-column: span 12; }
+      h1{ font-size:32px; }
+    }
+
+    @media (max-width: 600px){
+      .nav-links{ display:none; }
+      .pill{ padding:9px 10px; font-size:12px; }
+      h1{ font-size:28px; }
+      .subtitle{ font-size:15px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- 🌐 Navbar -->
-  <nav id="navbar">
-    <div class="logo">💠 Bouabid.dev</div>
-    <ul class="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#projects">Progetti</a></li>
+  <div class="topline"></div>
 
-      <!-- IMPORTANT: se vuoi che dentro l'app non apra un browser esterno, NON usare target="_blank" -->
-      <li><a href="chat.html">ChatAI Bob</a></li>
+  <nav>
+    <div class="nav-wrap">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>BOUABID.DEV</span>
+      </div>
 
-      <li><a href="#contact">Contatti</a></li>
-    </ul>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#progetti">Progetti</a></li>
+        <li><a href="chat.html">ChatAI Bob</a></li>
+        <li><a href="#contatti">Contatti</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a class="pill" href="chat.html">🤖 Apri Chat</a>
+      </div>
+    </div>
   </nav>
 
-  <!-- 🏠 Home -->
-  <header id="home" class="reveal">
-    <h1>👋 Ciao, sono <span style="color:#00c9ff;">Bouabid Moukhlis</span></h1>
-    <h2><span id="typing" class="typing"></span></h2>
-    <p>
-      Appassionato di intelligenza artificiale e automazione.
-      Creo esperienze digitali dove il codice incontra la creatività.
-    </p>
-  </header>
+  <main class="container">
+    <section id="home" class="hero reveal">
+      <div class="badge"><i></i> Online • Portfolio Premium</div>
 
-  <!-- 💻 Progetti -->
-  <section id="projects" class="projects reveal">
-  <h2>📁 I miei progetti</h2>
+      <h1>
+        👋 Ciao, sono <span class="name">Bouabid Moukhlis</span>
+      </h1>
 
-  <!-- ChatAI Bob Web -->
-  <a href="chat.html" style="color:#22d3ee;font-weight:bold;">
-    🤖 ChatAI Bob (Web) – Assistente AI (resta nell’app)
-  </a>
+      <div class="typingline">
+        <span id="typing" class="typing"></span>
+      </div>
 
-  <!-- ChatAI World -->
-  <a href="https://chatai-world.onrender.com">
-    🌍 ChatAI World – AI su persone e mondo
-  </a>
+      <p class="subtitle">
+        Sviluppatore di progetti AI e Web App. Creo esperienze digitali veloci, moderne e affidabili,
+        con attenzione a design e usabilità.
+      </p>
+    </section>
 
-  <!-- Aztec Puzzle Run -->
-  <a href="https://play.google.com/store/apps/details?id=fuga.dagliaztechi">
-    🎮 Aztec Puzzle Run – Gioco puzzle (Google Play)
-  </a>
+    <div class="grid">
+      <section id="progetti" class="col-8 card reveal">
+        <h3>📁 Progetti principali</h3>
+        <p>Una selezione “vetrina” (premium): pochi link chiari, senza mostrare codice inutile.</p>
 
-  <!-- Battle Hunt -->
-  <a href="https://play.google.com/store/apps/details?id=battle.hunt">
-    🔫 Battle Hunt – Shooter multiplayer (Google Play)
-  </a>
+        <div class="row">
+          <span class="tag">🌍 Web App</span>
+          <a class="btn" href="https://chatai-world.onrender.com" target="_blank" rel="noopener">Apri ChatAI World ↗</a>
+        </div>
 
-  <!-- ChatAI Bob Android -->
-  <a href="#">
-    📱 ChatAI Bob (Android) – In pubblicazione
-  </a>
+        <div class="row">
+          <span class="tag">🤖 ChatAI Bob</span>
+          <a class="btn" href="chat.html">Apri ChatAI Bob</a>
+        </div>
 
-  <!-- Backend -->
-  <a href="https://github.com/bobmoukhlis-hash/chatai-bob-backend">
-    ⚙️ ChatAI Bob Backend (Python)
-  </a>
+        <div class="row">
+          <span class="tag">💼 Portfolio</span>
+          <a class="btn secondary" href="https://github.com/bobmoukhlis-hash" target="_blank" rel="noopener">Profilo GitHub ↗</a>
+        </div>
+      </section>
 
-  <!-- GitHub -->
-  <a href="https://github.com/bobmoukhlis-hash">
-    💼 Portfolio GitHub
-  </a>
-</section>
+      <aside class="col-4 card reveal">
+        <h3>📱 App Android</h3>
+        <p>Link diretti alle app pubblicate (niente pagine tecniche).</p>
 
-  <!-- 📬 Contatti -->
-  <footer id="contact" class="reveal">
-    <p>📧 <a href="mailto:bobmoukhlis@gmail.com" style="color:#00c9ff;text-decoration:none;">bobmoukhlis@gmail.com</a></p>
-    <p>⭐ “Il futuro è di chi trasforma le idee in codice.”</p>
-    <p>© 2026 Bouabid Moukhlis - Tutti i diritti riservati.</p>
+        <div class="row">
+          <span class="tag">🧩 Aztec Puzzle Run</span>
+          <a class="btn" href="https://play.google.com/store/apps/details?id=fuga.dagliaztechi" target="_blank" rel="noopener">Google Play ↗</a>
+        </div>
 
-    <!-- 💖 Supporto PayPal -->
-    <a href="https://www.paypal.me/bobbob1979" target="_blank" rel="noopener"
-       style="background:linear-gradient(90deg,#0070ba,#00c9ff);color:#fff;
-              border:none;font-size:16px;padding:10px 20px;border-radius:8px;
-              display:inline-block;margin-top:10px;text-decoration:none;">
-      💖 Supporta ChatAI Bob su PayPal
-    </a>
-  </footer>
+        <div class="row">
+          <span class="tag">🎯 Battle Hunt</span>
+          <a class="btn" href="https://play.google.com/store/apps/details?id=battle.hunt" target="_blank" rel="noopener">Google Play ↗</a>
+        </div>
+
+        <div class="row">
+          <span class="tag">⏳ ChatAI Bob (Android)</span>
+          <a class="btn secondary" href="#" onclick="return false;">In arrivo</a>
+        </div>
+      </aside>
+
+      <section class="col-12 card reveal" id="contatti">
+        <h3>📬 Contatti</h3>
+        <p>Per collaborazioni, supporto o richieste professionali.</p>
+
+        <div class="row">
+          <span class="tag">📧 Email</span>
+          <a class="btn" href="mailto:bobmoukhlis@gmail.com">bobmoukhlis@gmail.com</a>
+        </div>
+
+        <div class="row">
+          <span class="tag">💖 Supporto</span>
+          <a class="btn" href="https://www.paypal.me/bobbob1979" target="_blank" rel="noopener">Supporta su PayPal ↗</a>
+        </div>
+
+        <div class="row">
+          <span class="tag">🔒 Privacy</span>
+          <a class="btn secondary" href="privacy.html">Apri Privacy Policy</a>
+        </div>
+      </section>
+    </div>
+
+    <footer class="reveal">
+      <div>⭐ “Il futuro è di chi trasforma le idee in codice.”</div>
+      <div>© 2026 Bouabid Moukhlis — Tutti i diritti riservati.</div>
+
+      <div class="foot-actions">
+        <a class="btn secondary" href="https://github.com/bobmoukhlis-hash" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="btn secondary" href="chat.html">ChatAI Bob</a>
+      </div>
+    </footer>
+  </main>
 
   <script>
-    // Effetto digitazione
-    const text = [
+    // Typing premium
+    const lines = [
       "💻 Sviluppatore di progetti AI e Web App",
       "🧠 Creatore di esperienze digitali",
       "🚀 Innovatore nel mondo del codice"
     ];
 
-    let count = 0;
-    let index = 0;
+    let l = 0;
+    let i = 0;
 
     function type() {
-      if (count === text.length) count = 0;
-
-      const currentText = text[count];
-      const letter = currentText.slice(0, ++index);
-
       const el = document.getElementById("typing");
-      if (el) el.textContent = letter;
+      if (!el) return;
 
-      if (letter.length === currentText.length) {
-        count++;
-        index = 0;
-        setTimeout(type, 1800);
-      } else {
-        setTimeout(type, 100);
+      const current = lines[l];
+      el.textContent = current.slice(0, i + 1);
+      i++;
+
+      if (i >= current.length) {
+        l = (l + 1) % lines.length;
+        i = 0;
+        setTimeout(type, 1600);
+        return;
       }
+
+      setTimeout(type, 55);
     }
     type();
 
-    // Navbar effetto scroll
-    const navbar = document.getElementById("navbar");
-    window.addEventListener("scroll", () => {
-      if (!navbar) return;
-      if (window.scrollY > 50) navbar.classList.add("scrolled");
-      else navbar.classList.remove("scrolled");
-    });
-
-    // Animazione reveal
-    const reveals = document.querySelectorAll(".reveal");
+    // Reveal on scroll
+    const revealEls = document.querySelectorAll(".reveal");
     function revealOnScroll() {
-      const windowHeight = window.innerHeight;
-      for (let i = 0; i < reveals.length; i++) {
-        const elementTop = reveals[i].getBoundingClientRect().top;
-        if (elementTop < windowHeight - 100) {
-          reveals[i].classList.add("visible");
-        }
-      }
+      const wh = window.innerHeight;
+      revealEls.forEach((el) => {
+        const top = el.getBoundingClientRect().top;
+        if (top < wh - 90) el.classList.add("visible");
+      });
     }
     window.addEventListener("scroll", revealOnScroll);
-
-    window.onload = () => {
-      const h = document.querySelector("header");
-      if (h) h.classList.add("visible");
+    window.addEventListener("load", () => {
       revealOnScroll();
-    };
+    });
   </script>
-
-  <!-- 🌍 Footer extra -->
-  <div style="text-align:center; margin-top:40px; padding:25px; font-size:14px;
-              background:#0b0f1a; color:#fff; border-top:1px solid #1f2937; box-sizing:border-box;">
-
-    <a href="privacy.html"
-       style="display:inline-block; background:#38bdf8; color:#001018;
-              padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:bold;">
-      🔒 Privacy Policy / سياسة الخصوصية
-    </a>
-
-    <br /><br />
-    <p style="margin:8px 0;">🇮🇹 Tutti i diritti riservati — Bouabid Moukhlis</p>
-    <p style="margin:8px 0;">🇬🇧 All rights reserved — Bouabid Moukhlis</p>
-    <p style="margin:8px 0;">🇲🇦 جميع الحقوق محفوظة — بوعبيد موخليس</p>
-    <p style="margin-top:10px; opacity:0.8;">© 2026 Bouabid Moukhlis</p>
-  </div>
 </body>
 </html>
