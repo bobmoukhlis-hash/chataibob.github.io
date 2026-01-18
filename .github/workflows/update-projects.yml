@@ -2,29 +2,34 @@ name: 🚀 Aggiorna lista progetti automaticamente
 
 on:
   schedule:
-    - cron: "0 9 * * *" # Ogni giorno alle 09:00 UTC (10:00 Italia/Marocco)
-  workflow_dispatch: # Puoi anche avviarlo manualmente
+    - cron: "0 9 * * *"   # ogni giorno alle 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Clona il repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-      - name: 🐍 Imposta Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
-      - name: 🔧 Crea o aggiorna il file projects.json
+      - name: Genera projects.json
         run: |
           pip install requests
-          python <<EOF
+          python <<'EOF'
           import requests, json
 
-          USER = "bobmoukhlis-hash"
+          USER = "bobmouklhis-hash"
           url = f"https://api.github.com/users/{USER}/repos?per_page=100"
           repos = requests.get(url).json()
 
@@ -40,10 +45,10 @@ jobs:
               json.dump(data, f, indent=2, ensure_ascii=False)
           EOF
 
-      - name: 💾 Commit e push se ci sono modifiche
+      - name: Commit e push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add projects.json
-          git commit -m "🔄 Aggiornamento automatico lista progetti" || echo "Nessuna modifica da salvare"
+          git commit -m "Aggiornamento automatico lista progetti" || echo "Nessuna modifica"
           git push
