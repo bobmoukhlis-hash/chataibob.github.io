@@ -1,35 +1,22 @@
-- name: 🧠 Genera projects.json
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    pip install requests
-    python <<'EOF'
-    import requests, json, os
-
-    USER = "bobmouklhis-hash"
-    TOKEN = os.getenv("GITHUB_TOKEN")
-
-    headers = {
-        "Authorization": f"Bearer {TOKEN}",
-        "Accept": "application/vnd.github+json"
-    }
-
-    url = f"https://api.github.com/users/{USER}/repos?per_page=100"
-    r = requests.get(url, headers=headers)
-
-    if r.status_code != 200:
-        raise Exception(f"GitHub API error: {r.status_code} {r.text}")
-
-    repos = r.json()
-    data = []
-
-    for repo in repos:
-        if not repo["private"] and repo["name"] != f"{USER}.github.io":
-            data.append({
-                "name": repo["name"],
-                "url": repo.get("homepage") or repo["html_url"]
-            })
-
-    with open("projects.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    EOF
+[
+  {
+    "name": "ChatAI World 🌍",
+    "url": "https://bobmouklhis-hash.github.io/ChatAI-Bob-Web/",
+    "type": "app"
+  },
+  {
+    "name": "ChatAI Bob Web 🤖",
+    "url": "https://bobmouklhis-hash.github.io/ChatAI-Bob-Web/",
+    "type": "app"
+  },
+  {
+    "name": "ChatAI Bob Backend ⚙️",
+    "url": "https://github.com/bobmouklhis-hash/chatai-bob-backend",
+    "type": "code"
+  },
+  {
+    "name": "Portfolio GitHub 🧑‍💻",
+    "url": "https://bobmouklhis-hash.github.io/",
+    "type": "site"
+  }
+]
