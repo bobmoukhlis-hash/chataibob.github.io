@@ -2,7 +2,7 @@ name: 🚀 Aggiorna lista progetti automaticamente
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # ogni giorno alle 09:00 UTC
+    - cron: "0 9 * * *" # ogni giorno alle 09:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -13,17 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: true
 
-      - name: Setup Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
-      - name: Genera projects.json
+      - name: 🧠 Genera projects.json
         run: |
           pip install requests
           python <<'EOF'
@@ -45,7 +45,7 @@ jobs:
               json.dump(data, f, indent=2, ensure_ascii=False)
           EOF
 
-      - name: Commit e push
+      - name: 💾 Commit e push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
